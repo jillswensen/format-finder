@@ -1,0 +1,3246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Format Finder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --cream:#FAF8F4;
+  --white:#FFFFFF;
+  --blush:#E8C5B8;
+  --blush-light:#F5EAE5;
+  --rose:#C4736A;
+  --rose-dark:#9E4F47;
+  --charcoal:#2C2420;
+  --mid:#7A6A65;
+  --light:#B8A8A3;
+  --border:#E0D5D0;
+  --radius:14px;
+  --shadow:0 2px 20px rgba(44,36,32,0.08);
+  --sidebar-w:280px;
+  --teal:#4A7C6F;
+  --teal-light:#EAF3F0;
+  --teal-border:#B8D8D2;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--charcoal);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* SCREEN SYSTEM */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* ══════════════════════════════════════
+   SCREEN 1 — BUSINESS SELECTOR
+══════════════════════════════════════ */
+#screen-selector{
+  flex-direction:column;
+  align-items:center;
+  padding:60px 20px 80px;
+}
+
+.selector-header{text-align:center;margin-bottom:48px;}
+.selector-wordmark{
+  font-family:'DM Serif Display',serif;
+  font-size:13px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--mid);
+  margin-bottom:12px;
+}
+.selector-header h1{
+  font-family:'DM Serif Display',serif;
+  font-size:38px;font-weight:400;
+  color:var(--charcoal);margin-bottom:6px;
+}
+.selector-header h1 em{font-style:italic;color:var(--rose);}
+.selector-header p{font-size:15px;color:var(--mid);font-weight:300;}
+.selector-divider{width:40px;height:1px;background:var(--blush);margin:18px auto 0;}
+
+.businesses-grid{
+  width:100%;max-width:660px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:14px;
+  margin-bottom:20px;
+}
+
+.biz-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 20px 16px;
+  cursor:pointer;
+  transition:border-color 0.18s,box-shadow 0.18s,transform 0.12s;
+  position:relative;
+}
+.biz-card:hover{
+  border-color:var(--blush);
+  box-shadow:0 4px 20px rgba(196,115,106,0.12);
+  transform:translateY(-2px);
+}
+.biz-card-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--blush-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:12px;
+}
+.biz-card-name{
+  font-size:15px;font-weight:500;
+  color:var(--charcoal);margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.biz-card-meta{font-size:12px;color:var(--light);}
+
+.biz-card-delete{
+  position:absolute;top:10px;right:10px;
+  background:none;border:none;cursor:pointer;
+  color:var(--light);font-size:14px;
+  padding:3px 5px;border-radius:4px;
+  opacity:0;transition:opacity 0.15s,color 0.15s;
+}
+.biz-card:hover .biz-card-delete{opacity:1;}
+.biz-card-delete:hover{color:var(--rose);}
+
+.add-biz-card{
+  background:var(--cream);
+  border:1.5px dashed var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  cursor:pointer;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:8px;min-height:112px;
+  transition:border-color 0.18s,background 0.18s;
+}
+.add-biz-card:hover{border-color:var(--blush);background:var(--blush-light);}
+.add-biz-card-icon{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--mid);
+  transition:background 0.18s;
+}
+.add-biz-card:hover .add-biz-card-icon{background:var(--blush);}
+.add-biz-card span{font-size:13px;color:var(--mid);}
+
+/* ══════════════════════════════════════
+   SHARED CHAT/ANALYZE LAYOUT
+══════════════════════════════════════ */
+#screen-chat,#screen-analyze,#screen-stories{
+  flex-direction:column;
+  align-items:center;
+  padding:0 16px 80px;
+}
+
+/* Overlay */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(44,36,32,0.25);z-index:40;
+}
+.overlay.open{display:block;}
+
+/* Sidebar */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--white);
+  border-right:1px solid var(--border);
+  z-index:50;display:flex;flex-direction:column;
+  transform:translateX(-100%);
+  transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:4px 0 24px rgba(44,36,32,0.10);
+}
+.sidebar.open{transform:translateX(0);}
+
+.sidebar-header{
+  padding:22px 20px 14px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-biz-name{
+  font-family:'DM Serif Display',serif;
+  font-size:16px;color:var(--charcoal);
+  margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sidebar-sub{font-size:11px;color:var(--light);}
+.sidebar-header-row{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:8px;
+}
+.sidebar-close{
+  background:none;border:none;cursor:pointer;
+  color:var(--light);font-size:20px;line-height:1;
+  padding:2px 4px;transition:color 0.15s;flex-shrink:0;
+}
+.sidebar-close:hover{color:var(--rose);}
+.sidebar-switch-btn{
+  margin:12px 16px 0;padding:9px 14px;
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;color:var(--mid);
+  cursor:pointer;text-align:center;transition:border-color 0.15s,color 0.15s;
+}
+.sidebar-switch-btn:hover{border-color:var(--blush);color:var(--rose-dark);}
+.sidebar-new{
+  margin:8px 16px 0;padding:9px 14px;
+  background:var(--blush-light);border:1px solid var(--blush);
+  border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;color:var(--rose-dark);
+  cursor:pointer;text-align:center;transition:background 0.15s;
+}
+.sidebar-new:hover{background:var(--blush);}
+
+.conversations-list{flex:1;overflow-y:auto;padding:0 10px 20px;}
+.conversations-list::-webkit-scrollbar{width:3px;}
+.conversations-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.conv-group-label{
+  font-size:10px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--light);padding:14px 10px 6px;
+}
+.conv-item{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 10px;border-radius:9px;
+  cursor:pointer;transition:background 0.15s;margin-bottom:2px;
+}
+.conv-item:hover{background:var(--cream);}
+.conv-item.active{background:var(--blush-light);}
+.conv-info{flex:1;min-width:0;}
+.conv-name{
+  font-size:13px;font-weight:400;color:var(--charcoal);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.conv-item.active .conv-name{color:var(--rose-dark);font-weight:500;}
+.conv-date{font-size:11px;color:var(--light);margin-top:2px;}
+.conv-delete{
+  background:none;border:none;cursor:pointer;
+  color:var(--light);font-size:15px;
+  padding:2px 4px;border-radius:4px;
+  opacity:0;transition:opacity 0.15s,color 0.15s;flex-shrink:0;
+}
+.conv-item:hover .conv-delete{opacity:1;}
+.conv-delete:hover{color:var(--rose);}
+.no-convs{
+  font-size:13px;color:var(--light);
+  text-align:center;padding:24px 16px;line-height:1.6;
+}
+
+/* Chat/Analyze header */
+header.page-header{
+  width:100%;max-width:680px;
+  padding:36px 0 24px;
+  text-align:center;position:relative;
+}
+.menu-btn{
+  position:absolute;left:0;top:40px;
+  background:none;border:1px solid var(--border);
+  border-radius:9px;padding:8px 10px;cursor:pointer;
+  color:var(--mid);display:flex;flex-direction:column;gap:4px;
+  transition:border-color 0.15s,color 0.15s;
+}
+.menu-btn:hover{border-color:var(--blush);color:var(--rose);}
+.menu-btn span{display:block;width:18px;height:1.5px;background:currentColor;border-radius:1px;}
+
+/* Tab switcher — centered below header */
+.tab-switcher{
+  display:flex;
+  gap:4px;
+  justify-content:center;
+  margin-top:14px;
+}
+.tab-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  padding:6px 16px;border-radius:20px;cursor:pointer;
+  border:1px solid var(--border);background:none;color:var(--mid);
+  transition:all 0.15s;white-space:nowrap;
+}
+.tab-btn:hover{border-color:var(--blush);color:var(--rose-dark);}
+.tab-btn.active{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500;}
+
+.page-wordmark{
+  font-family:'DM Serif Display',serif;
+  font-size:13px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--mid);margin-bottom:8px;
+}
+.page-header h1{
+  font-family:'DM Serif Display',serif;
+  font-size:34px;font-weight:400;
+  color:var(--charcoal);margin-bottom:6px;
+}
+.page-header h1 em{font-style:italic;color:var(--rose);}
+.page-subtitle{font-size:13px;color:var(--mid);font-weight:300;}
+.page-divider{width:40px;height:1px;background:var(--blush);margin:16px auto 0;}
+
+/* Main area */
+.page-main{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px;}
+
+/* Niche card */
+.niche-card{
+  background:var(--blush-light);border:1px solid var(--blush);
+  border-radius:var(--radius);padding:14px 16px;
+}
+.niche-card-top{
+  display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:8px;
+}
+.niche-label{
+  font-size:11px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);
+}
+.niche-edit-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  color:var(--mid);background:none;border:1px solid var(--border);
+  border-radius:6px;padding:3px 10px;cursor:pointer;
+  transition:border-color 0.15s,color 0.15s;
+}
+.niche-edit-btn:hover{border-color:var(--blush);color:var(--rose-dark);}
+.niche-text{font-size:13px;color:var(--charcoal);line-height:1.6;font-weight:300;display:none;}
+.niche-text.expanded{display:block;}
+.niche-preview{font-size:13px;color:var(--mid);line-height:1.5;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.niche-preview:hover{color:var(--charcoal);}
+.niche-empty{font-size:13px;color:var(--light);font-weight:300;font-style:italic;line-height:1.6;}
+.niche-edit-area{display:none;flex-direction:column;gap:10px;}
+.niche-edit-area.visible{display:flex;}
+.niche-textarea{
+  width:100%;border:1px solid var(--blush);border-radius:9px;
+  padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:300;color:var(--charcoal);
+  background:var(--white);resize:vertical;outline:none;
+  line-height:1.6;min-height:80px;transition:border-color 0.2s;
+}
+.niche-textarea:focus{border-color:var(--rose);}
+.niche-edit-btns{display:flex;gap:8px;justify-content:flex-end;}
+.niche-cancel-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);
+  background:none;border:1px solid var(--border);border-radius:6px;
+  padding:5px 14px;cursor:pointer;transition:border-color 0.15s;
+}
+.niche-cancel-btn:hover{border-color:var(--blush);}
+.niche-save-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  color:#fff;background:var(--rose);border:none;border-radius:6px;
+  padding:5px 16px;cursor:pointer;transition:background 0.15s;
+}
+.niche-save-btn:hover{background:var(--rose-dark);}
+
+/* Quick prompts */
+.quick-prompts{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 4px;}
+.quick-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--rose-dark);background:var(--blush-light);
+  border:1px solid var(--blush);border-radius:20px;
+  padding:6px 14px;cursor:pointer;
+  transition:background 0.15s,border-color 0.15s;white-space:nowrap;
+}
+.quick-btn:hover{background:var(--blush);border-color:var(--rose);}
+
+/* Chat window */
+.chat-window{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.toolbar{
+  display:flex;justify-content:space-between;
+  align-items:center;padding:12px 16px 0;
+}
+.toolbar-left{display:flex;align-items:center;gap:10px;}
+.current-conv-name{
+  font-size:12px;font-weight:500;color:var(--rose-dark);
+  background:var(--blush-light);border:1px solid var(--blush);
+  border-radius:6px;padding:3px 10px;
+  max-width:200px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;display:none;
+}
+.current-conv-name.visible{display:block;}
+.tool-label{
+  font-size:11px;font-weight:500;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--light);
+}
+.toolbar-right{display:flex;gap:10px;}
+.action-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);
+  background:none;border:none;cursor:pointer;padding:2px 0;transition:color 0.15s;
+}
+.action-btn:hover{color:var(--rose);}
+.save-btn{color:var(--rose-dark);font-weight:500;}
+
+.messages{
+  padding:24px 24px 16px;display:flex;flex-direction:column;gap:16px;
+  min-height:300px;max-height:500px;overflow-y:auto;scroll-behavior:smooth;
+}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.msg{max-width:88%;}
+.msg.user{align-self:flex-end;}
+.msg.assistant{align-self:flex-start;}
+.bubble{
+  padding:12px 16px;border-radius:14px;
+  font-size:14px;line-height:1.65;font-weight:300;
+}
+.msg.user .bubble{background:var(--rose);color:#fff;border-bottom-right-radius:4px;}
+.msg.assistant .bubble{
+  background:var(--cream);color:var(--charcoal);
+  border:1px solid var(--border);border-bottom-left-radius:4px;
+}
+.msg.assistant .bubble strong{font-weight:500;color:var(--rose-dark);}
+.msg.assistant .bubble ul{margin:8px 0 4px 16px;}
+.msg.assistant .bubble li{margin-bottom:4px;}
+.msg-label{
+  font-size:11px;font-weight:500;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--light);margin-bottom:5px;padding:0 2px;
+}
+.msg.user .msg-label{text-align:right;}
+
+.typing-wrap{padding:0 24px 4px;}
+.typing-indicator{
+  display:none;padding:10px 16px;
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:14px;border-bottom-left-radius:4px;
+  gap:5px;align-items:center;width:fit-content;
+}
+.typing-indicator.visible{display:flex;}
+.dot{
+  width:6px;height:6px;border-radius:50%;background:var(--light);
+  animation:bounce 1.2s infinite ease-in-out;
+}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-5px);}}
+
+.input-row{
+  border-top:1px solid var(--border);padding:14px 16px;
+  display:flex;gap:10px;align-items:flex-end;background:var(--white);
+}
+textarea#userInput{
+  flex:1;border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:300;color:var(--charcoal);
+  background:var(--cream);resize:none;outline:none;
+  line-height:1.55;min-height:42px;max-height:120px;
+  transition:border-color 0.2s;
+}
+textarea#storiesInput{
+  flex:1;border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:300;color:var(--charcoal);
+  background:var(--cream);resize:none;outline:none;
+  line-height:1.55;min-height:80px;max-height:200px;
+  transition:border-color 0.2s;
+}
+textarea#storiesInput::placeholder{color:var(--light);}
+textarea#storiesInput:focus{border-color:var(--blush);}
+button.send{
+  width:42px;height:42px;border-radius:10px;
+  background:var(--rose);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.18s,transform 0.12s;flex-shrink:0;
+}
+button.send:hover{background:var(--rose-dark);}
+button.send:active{transform:scale(0.95);}
+button.send:disabled{background:var(--border);cursor:not-allowed;}
+button.send svg{width:18px;height:18px;fill:#fff;}
+
+/* ══════════════════════════════════════
+   ANALYZE SCREEN
+══════════════════════════════════════ */
+.analyze-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.analyze-section{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+}
+.analyze-section:last-child{border-bottom:none;}
+
+.analyze-section-label{
+  font-size:11px;font-weight:500;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--mid);margin-bottom:12px;
+}
+
+.analyze-row{display:flex;gap:12px;align-items:flex-start;}
+.analyze-field{flex:1;}
+.analyze-field label{
+  font-size:12px;color:var(--mid);font-weight:400;
+  display:block;margin-bottom:6px;
+}
+
+textarea.analyze-ta{
+  width:100%;border:1px solid var(--border);border-radius:9px;
+  padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:300;color:var(--charcoal);
+  background:var(--cream);resize:vertical;outline:none;
+  line-height:1.6;transition:border-color 0.2s;
+}
+textarea.analyze-ta:focus{border-color:var(--blush);}
+textarea.analyze-ta::placeholder{color:var(--light);}
+
+.analyze-metrics-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:8px;
+}
+.metric-input-group{
+  display:flex;flex-direction:column;gap:4px;
+}
+.metric-input-group label{
+  font-size:11px;color:var(--mid);font-weight:400;
+}
+input.metric-in{
+  width:100%;border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;font-family:'DM Sans',sans-serif;
+  font-size:13px;color:var(--charcoal);background:var(--cream);
+  outline:none;transition:border-color 0.2s;
+}
+input.metric-in:focus{border-color:var(--blush);}
+input.metric-in::placeholder{color:var(--light);}
+
+.analyze-run-btn{
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  color:#fff;background:var(--teal);border:none;border-radius:10px;
+  padding:12px 28px;cursor:pointer;transition:background 0.15s,transform 0.1s;
+  display:flex;align-items:center;gap:8px;
+}
+.analyze-run-btn:hover{background:#3a6359;}
+.analyze-run-btn:active{transform:scale(0.98);}
+.analyze-run-btn:disabled{background:var(--border);cursor:not-allowed;}
+
+.analyze-run-row{
+  padding:16px 24px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--border);
+  background:var(--cream);
+}
+.analyze-run-hint{font-size:12px;color:var(--light);}
+
+/* Results area */
+.analyze-results{
+  display:none;
+  flex-direction:column;
+  gap:0;
+  background:var(--white);border:1px solid var(--teal-border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.analyze-results.visible{display:flex;}
+
+.results-header{
+  background:var(--teal-light);border-bottom:1px solid var(--teal-border);
+  padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.results-header-label{
+  font-size:11px;font-weight:500;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--teal);
+}
+.results-reel-name{
+  font-size:13px;color:var(--charcoal);font-weight:400;
+}
+
+.results-stats{
+  display:flex;gap:0;border-bottom:1px solid var(--teal-border);
+}
+.stat-pill{
+  flex:1;padding:14px 16px;text-align:center;
+  border-right:1px solid var(--teal-border);
+}
+.stat-pill:last-child{border-right:none;}
+.stat-value{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;font-weight:400;color:var(--charcoal);
+  margin-bottom:2px;
+}
+.stat-value.good{color:var(--teal);}
+.stat-value.warn{color:#B8890A;}
+.stat-value.bad{color:var(--rose-dark);}
+.stat-label{font-size:11px;color:var(--mid);}
+
+.results-body{padding:20px 24px;display:flex;flex-direction:column;gap:16px;}
+
+.results-bubble{
+  background:var(--teal-light);border:1px solid var(--teal-border);
+  border-radius:12px;border-bottom-left-radius:4px;
+  padding:14px 18px;
+  font-size:14px;line-height:1.65;font-weight:300;color:var(--charcoal);
+}
+.results-bubble strong{font-weight:500;color:var(--teal);}
+.results-bubble ul{margin:8px 0 4px 16px;}
+.results-bubble li{margin-bottom:6px;}
+
+.results-loading{
+  padding:32px 24px;text-align:center;
+  display:none;flex-direction:column;align-items:center;gap:12px;
+}
+.results-loading.visible{display:flex;}
+.results-loading p{font-size:14px;color:var(--mid);font-weight:300;}
+
+.analyze-typing{
+  display:flex;gap:5px;align-items:center;
+}
+.analyze-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--teal);
+  animation:bounce 1.2s infinite ease-in-out;
+}
+.analyze-dot:nth-child(2){animation-delay:0.2s;}
+.analyze-dot:nth-child(3){animation-delay:0.4s;}
+
+.results-clear-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;color:var(--light);
+  background:none;border:none;cursor:pointer;transition:color 0.15s;
+}
+.results-clear-btn:hover{color:var(--rose);}
+
+/* ══════════════════════════════════════
+   IDEAS SCREEN
+══════════════════════════════════════ */
+#screen-ideas{
+  flex-direction:column;
+  align-items:center;
+  padding:0 16px 80px;
+}
+
+.ideas-main{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px;}
+
+.ideas-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 0;gap:10px;flex-wrap:wrap;
+}
+.ideas-filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-pill{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--mid);background:var(--white);
+  border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;cursor:pointer;
+  transition:background 0.15s,border-color 0.15s,color 0.15s;white-space:nowrap;
+}
+.filter-pill:hover{border-color:var(--blush);color:var(--rose-dark);}
+.filter-pill.active{background:var(--rose);border-color:var(--rose);color:#fff;}
+
+.add-idea-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  color:#fff;background:var(--rose);border:none;border-radius:10px;
+  padding:8px 16px;cursor:pointer;transition:background 0.15s;white-space:nowrap;
+}
+.add-idea-btn:hover{background:var(--rose-dark);}
+
+.ideas-empty{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:48px 24px;
+  text-align:center;color:var(--light);
+}
+.ideas-empty p{font-size:14px;font-weight:300;line-height:1.6;}
+.ideas-empty strong{color:var(--mid);font-weight:500;}
+
+.idea-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+  cursor:pointer;transition:border-color 0.18s,box-shadow 0.15s;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.idea-card:hover{border-color:var(--blush);box-shadow:0 2px 12px rgba(196,115,106,0.08);}
+
+.idea-card-left{flex:1;min-width:0;}
+.idea-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+
+.status-badge{
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:10px;white-space:nowrap;
+}
+.status-idea{background:#F0F0F0;color:#6B6B6B;}
+.status-scripting{background:#FFF3CD;color:#856404;}
+.status-filming{background:#D1ECF1;color:#0C5460;}
+.status-posted{background:#D4EDDA;color:#155724;}
+.status-analyzed{background:var(--teal-light);color:var(--teal);}
+
+.format-tag{
+  font-size:11px;color:var(--light);font-weight:300;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.idea-hook{
+  font-size:14px;font-weight:400;color:var(--charcoal);
+  line-height:1.5;margin-bottom:6px;
+}
+.idea-meta{font-size:11px;color:var(--light);}
+
+.idea-card-actions{
+  display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;
+}
+.idea-menu-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--light);font-size:18px;padding:2px 6px;
+  border-radius:6px;transition:color 0.15s,background 0.15s;
+  line-height:1;
+}
+.idea-menu-btn:hover{color:var(--rose);background:var(--blush-light);}
+
+/* ── Idea detail screen ── */
+#screen-idea-detail{
+  flex-direction:column;
+  align-items:center;
+  padding:0 16px 80px;
+}
+.detail-main{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px;}
+
+.detail-back-btn{
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--mid);
+  background:none;border:none;cursor:pointer;padding:0;
+  display:flex;align-items:center;gap:6px;
+  transition:color 0.15s;margin-bottom:4px;
+}
+.detail-back-btn:hover{color:var(--rose);}
+
+.detail-hook-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+}
+.detail-hook-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;margin-bottom:10px;
+}
+.detail-hook-text{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;font-weight:400;color:var(--charcoal);
+  line-height:1.4;flex:1;
+}
+.detail-status-select{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  border:1px solid var(--border);border-radius:8px;
+  padding:5px 10px;background:var(--cream);
+  color:var(--charcoal);outline:none;cursor:pointer;
+  flex-shrink:0;transition:border-color 0.15s;
+}
+.detail-status-select:focus{border-color:var(--blush);}
+.detail-format-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.detail-format-label{font-size:12px;color:var(--light);}
+.detail-format-select{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  border:1px solid var(--border);border-radius:6px;
+  padding:3px 8px;background:var(--cream);
+  color:var(--mid);outline:none;cursor:pointer;
+  transition:border-color 0.15s;
+}
+.detail-format-select:focus{border-color:var(--blush);}
+.detail-meta{font-size:11px;color:var(--light);margin-top:6px;}
+
+/* Detail tabs */
+.detail-tabs{
+  display:flex;gap:0;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.detail-tab-btn{
+  flex:1;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;
+  color:var(--mid);background:none;border:none;border-right:1px solid var(--border);
+  padding:12px 8px;cursor:pointer;transition:background 0.15s,color 0.15s;
+  text-align:center;
+}
+.detail-tab-btn:last-child{border-right:none;}
+.detail-tab-btn:hover{background:var(--cream);color:var(--charcoal);}
+.detail-tab-btn.active{background:var(--blush-light);color:var(--rose-dark);font-weight:500;}
+
+.detail-tab-content{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+/* Notes tab */
+.notes-area{
+  width:100%;border:none;outline:none;resize:none;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;
+  color:var(--charcoal);background:transparent;
+  padding:20px 24px;line-height:1.7;min-height:200px;
+}
+.notes-area::placeholder{color:var(--light);}
+.notes-save-row{
+  border-top:1px solid var(--border);padding:12px 20px;
+  display:flex;justify-content:flex-end;background:var(--cream);
+}
+.notes-save-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  color:#fff;background:var(--rose);border:none;border-radius:8px;
+  padding:7px 18px;cursor:pointer;transition:background 0.15s;
+}
+.notes-save-btn:hover{background:var(--rose-dark);}
+
+/* Script/Caption chat tab */
+.tab-chat-area{
+  display:flex;flex-direction:column;
+  min-height:400px;
+}
+.tab-messages{
+  padding:20px 24px 12px;display:flex;flex-direction:column;gap:14px;
+  flex:1;min-height:280px;max-height:420px;overflow-y:auto;scroll-behavior:smooth;
+}
+.tab-messages::-webkit-scrollbar{width:4px;}
+.tab-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.tab-typing-wrap{padding:0 24px 4px;}
+.tab-input-row{
+  border-top:1px solid var(--border);padding:12px 16px;
+  display:flex;gap:10px;align-items:flex-end;
+}
+textarea.tab-input{
+  flex:1;border:1px solid var(--border);border-radius:10px;
+  padding:9px 14px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:300;color:var(--charcoal);
+  background:var(--cream);resize:none;outline:none;
+  line-height:1.55;min-height:38px;max-height:100px;
+  transition:border-color 0.2s;
+}
+textarea.tab-input::placeholder{color:var(--light);}
+textarea.tab-input:focus{border-color:var(--blush);}
+button.tab-send{
+  width:38px;height:38px;border-radius:9px;
+  background:var(--rose);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s;flex-shrink:0;
+}
+button.tab-send:hover{background:var(--rose-dark);}
+button.tab-send:disabled{background:var(--border);cursor:not-allowed;}
+button.tab-send svg{width:16px;height:16px;fill:#fff;}
+
+/* Idea status menu dropdown */
+.idea-status-menu{
+  position:fixed;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:0 8px 32px rgba(44,36,32,0.14);
+  z-index:80;padding:6px;min-width:160px;
+  display:none;
+}
+.idea-status-menu.open{display:block;}
+.status-menu-item{
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:8px 12px;border-radius:8px;cursor:pointer;
+  transition:background 0.12s;color:var(--charcoal);
+  display:flex;align-items:center;gap:8px;
+}
+.status-menu-item:hover{background:var(--cream);}
+.status-menu-item.danger{color:#c0392b;}
+.status-menu-sep{height:1px;background:var(--border);margin:4px 0;}
+
+/* ══════════════════════════════════════
+   MODALS
+══════════════════════════════════════ */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(44,36,32,0.32);z-index:60;
+  align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:var(--white);border-radius:var(--radius);
+  padding:28px 28px 24px;width:360px;
+  box-shadow:0 8px 40px rgba(44,36,32,0.18);
+}
+.modal h3{
+  font-family:'DM Serif Display',serif;
+  font-size:20px;font-weight:400;margin-bottom:6px;
+}
+.modal p{font-size:13px;color:var(--mid);margin-bottom:16px;font-weight:300;}
+.modal label{font-size:12px;color:var(--mid);display:block;margin-bottom:5px;font-weight:400;}
+.modal input,.modal textarea.modal-ta{
+  width:100%;border:1px solid var(--border);border-radius:9px;
+  padding:10px 14px;font-family:'DM Sans',sans-serif;
+  font-size:13px;color:var(--charcoal);background:var(--cream);
+  outline:none;margin-bottom:14px;transition:border-color 0.2s;
+}
+.modal textarea.modal-ta{resize:vertical;min-height:90px;line-height:1.6;font-weight:300;}
+.modal input:focus,.modal textarea.modal-ta:focus{border-color:var(--blush);}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+.modal-cancel{
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--mid);
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:8px 16px;cursor:pointer;transition:border-color 0.15s;
+}
+.modal-cancel:hover{border-color:var(--blush);}
+.modal-confirm{
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:#fff;background:var(--rose);border:none;border-radius:8px;
+  padding:8px 20px;cursor:pointer;transition:background 0.15s;
+}
+.modal-confirm:hover{background:var(--rose-dark);}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--charcoal);color:#fff;font-size:13px;
+  padding:10px 20px;border-radius:20px;z-index:100;
+  transition:transform 0.3s ease,opacity 0.3s ease;
+  opacity:0;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ── Print / PDF export ── */
+@media print {
+  body>*{visibility:hidden;}
+  #pdf-print-area,#pdf-print-area *{visibility:visible;}
+  #pdf-print-area{
+    position:absolute;left:0;top:0;
+    width:100%;padding:40px 48px;
+    font-family:'DM Sans',sans-serif;
+    color:#2C2420;
+  }
+  .pdf-biz{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#7A6A65;margin-bottom:6px;}
+  .pdf-hook{font-size:22px;font-weight:600;color:#2C2420;line-height:1.3;margin-bottom:8px;}
+  .pdf-meta{font-size:12px;color:#B8A8A3;margin-bottom:20px;padding-bottom:18px;border-bottom:2px solid #E0D5D0;}
+  .pdf-notes-wrap{background:#F5EAE5;border-left:3px solid #C4736A;padding:12px 16px;margin-bottom:24px;}
+  .pdf-section-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#C4736A;margin-bottom:6px;}
+  .pdf-notes-body{font-size:13px;color:#2C2420;line-height:1.6;white-space:pre-wrap;}
+  .pdf-script-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#7A6A65;margin-bottom:14px;}
+  .pdf-script-body{font-size:13px;color:#2C2420;line-height:1.85;white-space:pre-wrap;}
+  .pdf-script-body strong{font-weight:600;color:#9E4F47;}
+  .pdf-script-body ul{margin:6px 0 6px 18px;}
+  .pdf-script-body li{margin-bottom:4px;}
+  .pdf-footer{margin-top:32px;padding-top:14px;border-top:1px solid #E0D5D0;font-size:11px;color:#B8A8A3;}
+}
+
+/* ── Password gate ── */
+#password-gate{
+  position:fixed;inset:0;
+  background:var(--cream);
+  z-index:200;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px;
+}
+.gate-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:40px 36px 32px;
+  width:100%;max-width:360px;
+  text-align:center;
+}
+.gate-wordmark{
+  font-family:'DM Serif Display',serif;
+  font-size:12px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--mid);
+  margin-bottom:10px;
+}
+.gate-title{
+  font-family:'DM Serif Display',serif;
+  font-size:28px;font-weight:400;
+  color:var(--charcoal);margin-bottom:6px;
+}
+.gate-title em{font-style:italic;color:var(--rose);}
+.gate-subtitle{
+  font-size:13px;color:var(--light);
+  font-weight:300;margin-bottom:28px;
+}
+.gate-input{
+  width:100%;border:1px solid var(--border);
+  border-radius:10px;padding:12px 16px;
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;color:var(--charcoal);
+  background:var(--cream);outline:none;
+  text-align:center;letter-spacing:0.08em;
+  transition:border-color 0.2s;
+  margin-bottom:14px;
+}
+.gate-input:focus{border-color:var(--blush);}
+.gate-input::placeholder{color:var(--light);letter-spacing:0;}
+.gate-btn{
+  width:100%;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:500;color:#fff;
+  background:var(--rose);border:none;
+  border-radius:10px;padding:13px;
+  cursor:pointer;transition:background 0.15s;
+}
+.gate-btn:hover{background:var(--rose-dark);}
+.gate-error{
+  font-size:12px;color:var(--rose-dark);
+  margin-top:10px;min-height:18px;
+}
+.gate-link{
+  font-size:12px;color:var(--mid);
+  margin-top:14px;display:block;
+}
+.gate-link a{color:var(--rose);text-decoration:none;}
+.gate-link a:hover{text-decoration:underline;}
+.gate-input-mono{
+  font-family:monospace;font-size:12px;
+  letter-spacing:0.02em;
+}
+</style>
+</head>
+<body>
+
+<!-- Password gate -->
+<div id="password-gate">
+  <div class="gate-card">
+    <div class="gate-wordmark">Bra Fittings by Court</div>
+    <h1 class="gate-title">Format <em>Finder</em></h1>
+    <div class="gate-subtitle">Enter your password to continue</div>
+    <input type="password" class="gate-input" id="gateInput"
+      placeholder="Password"
+      onkeydown="if(event.key==='Enter')checkPassword()"
+      autocomplete="current-password">
+    <button class="gate-btn" onclick="checkPassword()">Enter</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<!-- API key setup screen -->
+<div id="api-key-gate" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:190;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;">
+  <div class="gate-card">
+    <div class="gate-wordmark">Bra Fittings by Court</div>
+    <h1 class="gate-title">Format <em>Finder</em></h1>
+    <div class="gate-subtitle" style="margin-bottom:20px;">One-time setup — enter your Anthropic API key</div>
+    <input type="text" class="gate-input gate-input-mono" id="apiKeyInput"
+      placeholder="sk-ant-api03-..."
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="gate-btn" onclick="saveApiKey()">Save & Continue</button>
+    <div class="gate-error" id="apiKeyError"></div>
+    <span class="gate-link">Your key is saved only in this browser.<br>Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
+  </div>
+</div>
+
+<!-- Hidden PDF print area — populated by downloadScriptPDF() -->
+<div id="pdf-print-area" style="display:none;"></div>
+
+<!-- ── SCREEN 4: Ideas List ── -->
+<div class="screen" id="screen-ideas">
+  <div class="overlay" id="overlay3" onclick="closeSidebar3()"></div>
+  <div class="sidebar" id="sidebar3">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName3"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar3()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
+    <div class="conversations-list" id="convList3"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar3()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-wordmark" id="ideasWordmark"></div>
+    <h1>My <em>Ideas</em></h1>
+    <div class="page-subtitle">Content pipeline — from hook to posted</div>
+    <div class="page-divider"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn active" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn" onclick="goToStories()">Stories</button>
+    </div>
+  </header>
+
+  <div class="ideas-main">
+    <div class="ideas-toolbar">
+      <div class="ideas-filter-row" id="ideasFilterRow">
+        <button class="filter-pill active" onclick="filterIdeas('all',this)">All</button>
+        <button class="filter-pill" onclick="filterIdeas('idea',this)">Idea</button>
+        <button class="filter-pill" onclick="filterIdeas('scripting',this)">Scripting</button>
+        <button class="filter-pill" onclick="filterIdeas('filming',this)">Ready to Film</button>
+        <button class="filter-pill" onclick="filterIdeas('posted',this)">Posted</button>
+        <button class="filter-pill" onclick="filterIdeas('analyzed',this)">Analyzed</button>
+      </div>
+      <button class="add-idea-btn" onclick="openAddIdeaModal()">+ Add idea</button>
+    </div>
+    <div id="ideasList"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN 5: Idea Detail ── -->
+<div class="screen" id="screen-idea-detail">
+  <header class="page-header" style="text-align:left;padding-top:28px;padding-bottom:16px;">
+    <div class="page-wordmark" id="detailWordmark" style="text-align:left;"></div>
+  </header>
+
+  <div class="detail-main">
+    <button class="detail-back-btn" onclick="goToIdeas()">&#8592; Back to ideas</button>
+
+    <div class="detail-hook-card">
+      <div class="detail-hook-top">
+        <div class="detail-hook-text" id="detailHookText" contenteditable="true" 
+          onblur="saveDetailHookEdit()" style="outline:none;border-bottom:1px dashed var(--border);padding-bottom:4px;cursor:text;"
+          title="Click to edit"></div>
+        <select class="detail-status-select" id="detailStatusSelect" onchange="updateIdeaStatus(this.value)">
+          <option value="idea">💭 Idea</option>
+          <option value="scripting">✏️ Scripting</option>
+          <option value="filming">🎬 Ready to Film</option>
+          <option value="posted">✅ Posted</option>
+          <option value="analyzed">📊 Analyzed</option>
+        </select>
+      </div>
+      <div class="detail-format-row">
+        <span class="detail-format-label">Format:</span>
+        <select class="detail-format-select" id="detailFormatSelect" onchange="updateIdeaFormat(this.value)">
+          <option value="">— select format —</option>
+          <optgroup label="Challenges">
+            <option>Doing X</option><option>Classic Challenge</option><option>Increasing Difficulty</option>
+            <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
+            <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
+            <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences</option><option>Throwing A Dart To Decide X</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>Common Belief Buster</option>
+            <option>How to 5 List</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
+            <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
+            <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
+            <option>So That's How They Do It</option><option>Product Showcase</option>
+          </optgroup>
+          <optgroup label="Storytelling">
+            <option>Come With Me Vlog</option><option>Knowledge Gap Story</option><option>How I Built This</option>
+            <option>Story Of the Best/Worst</option><option>Great Question</option><option>I Just Experienced X</option>
+            <option>FOMO Story Format</option>
+          </optgroup>
+          <optgroup label="Skits &amp; Bits">
+            <option>Duet/Stitch</option><option>Personifying Relatable Things</option><option>Comparison Skit</option>
+            <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
+            <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
+            <option>Things in Public</option><option>Classic Pranks</option>
+          </optgroup>
+          <optgroup label="Wait for It">
+            <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
+            <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
+            <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
+          </optgroup>
+          <optgroup label="Custom"><option>Custom</option></optgroup>
+        </select>
+      </div>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="detail-tabs">
+      <button class="detail-tab-btn active" id="tabBtnNotes" onclick="switchDetailTab('notes')">Notes</button>
+      <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
+      <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
+    </div>
+
+    <!-- Notes tab -->
+    <div class="detail-tab-content" id="tabNotes">
+      <textarea class="notes-area" id="notesTextarea"
+        placeholder="Add notes, references, filming reminders, or anything else for this idea..."></textarea>
+      <div class="notes-save-row">
+        <button class="notes-save-btn" onclick="saveNotes()">Save notes</button>
+      </div>
+    </div>
+
+    <!-- Script tab -->
+    <div class="detail-tab-content" id="tabScript" style="display:none;">
+      <div class="tab-chat-area">
+        <div class="tab-messages" id="scriptMessages"></div>
+        <div class="tab-typing-wrap">
+          <div class="typing-indicator" id="scriptTyping" style="margin:0;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+        <div class="tab-input-row">
+          <textarea class="tab-input" id="scriptInput" placeholder="Ask for a full script, specific section, or revision..." rows="1"
+            onkeydown="handleTabKey(event,'script')" oninput="autoResize(this)"></textarea>
+          <button class="tab-send" id="scriptSendBtn" onclick="sendTabMessage('script')">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div style="border-top:1px solid var(--border);padding:10px 16px;display:flex;justify-content:flex-end;background:var(--cream);">
+          <button onclick="downloadScriptPDF()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download script as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caption tab -->
+    <div class="detail-tab-content" id="tabCaption" style="display:none;">
+      <div class="tab-chat-area">
+        <div class="tab-messages" id="captionMessages"></div>
+        <div class="tab-typing-wrap">
+          <div class="typing-indicator" id="captionTyping" style="margin:0;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+        <div class="tab-input-row">
+          <textarea class="tab-input" id="captionInput" placeholder="Ask for captions, variations, or hashtag options..." rows="1"
+            onkeydown="handleTabKey(event,'caption')" oninput="autoResize(this)"></textarea>
+          <button class="tab-send" id="captionSendBtn" onclick="sendTabMessage('caption')">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Status/action dropdown menu -->
+<div class="idea-status-menu" id="ideaStatusMenu">
+  <div class="status-menu-item" onclick="setIdeaStatusFromMenu('idea')">💭 Idea</div>
+  <div class="status-menu-item" onclick="setIdeaStatusFromMenu('scripting')">✏️ Scripting</div>
+  <div class="status-menu-item" onclick="setIdeaStatusFromMenu('filming')">🎬 Ready to Film</div>
+  <div class="status-menu-item" onclick="setIdeaStatusFromMenu('posted')">✅ Posted</div>
+  <div class="status-menu-item" onclick="setIdeaStatusFromMenu('analyzed')">📊 Analyzed</div>
+  <div class="status-menu-sep"></div>
+  <div class="status-menu-item danger" onclick="deleteIdeaFromMenu()">🗑 Delete</div>
+</div>
+
+<!-- Modal: Save idea from chat -->
+<div class="modal-bg" id="modalSaveIdea">
+  <div class="modal">
+    <h3>Save as idea</h3>
+    <p>Edit the hook text below, then choose a format and status.</p>
+    <label>Hook / idea</label>
+    <textarea class="modal-ta" id="saveIdeaHook" rows="3" placeholder="The hook or concept for this reel..."></textarea>
+    <label>Format</label>
+    <select class="detail-format-select" id="saveIdeaFormat" style="width:100%;margin-bottom:14px;padding:9px 12px;font-size:13px;">
+      <option value="">— select format —</option>
+      <optgroup label="Challenges">
+        <option>Doing X</option><option>Classic Challenge</option><option>Increasing Difficulty</option>
+        <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
+        <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
+        <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences</option><option>Throwing A Dart To Decide X</option>
+      </optgroup>
+      <optgroup label="Education">
+        <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>Common Belief Buster</option>
+        <option>How to 5 List</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
+        <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
+        <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
+        <option>So That's How They Do It</option><option>Product Showcase</option>
+      </optgroup>
+      <optgroup label="Storytelling">
+        <option>Come With Me Vlog</option><option>Knowledge Gap Story</option><option>How I Built This</option>
+        <option>Story Of the Best/Worst</option><option>Great Question</option><option>I Just Experienced X</option>
+        <option>FOMO Story Format</option>
+      </optgroup>
+      <optgroup label="Skits &amp; Bits">
+        <option>Duet/Stitch</option><option>Personifying Relatable Things</option><option>Comparison Skit</option>
+        <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
+        <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
+        <option>Things in Public</option><option>Classic Pranks</option>
+      </optgroup>
+      <optgroup label="Wait for It">
+        <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
+        <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
+        <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
+      </optgroup>
+      <optgroup label="Custom"><option>Custom</option></optgroup>
+    </select>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalSaveIdea')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmSaveIdea()">Save idea</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add idea manually -->
+<div class="modal-bg" id="modalAddIdea">
+  <div class="modal">
+    <h3>Add an idea</h3>
+    <p>Add a hook or concept to your pipeline.</p>
+    <label>Hook / idea</label>
+    <textarea class="modal-ta" id="addIdeaHook" rows="3" placeholder="e.g. Common Belief Buster about bra sizing myths..."></textarea>
+    <label>Format</label>
+    <select class="detail-format-select" id="addIdeaFormat" style="width:100%;margin-bottom:14px;padding:9px 12px;font-size:13px;">
+      <option value="">— select format —</option>
+      <optgroup label="Challenges">
+        <option>Doing X</option><option>Classic Challenge</option><option>Increasing Difficulty</option>
+        <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
+        <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
+        <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences</option><option>Throwing A Dart To Decide X</option>
+      </optgroup>
+      <optgroup label="Education">
+        <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>Common Belief Buster</option>
+        <option>How to 5 List</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
+        <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
+        <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
+        <option>So That's How They Do It</option><option>Product Showcase</option>
+      </optgroup>
+      <optgroup label="Storytelling">
+        <option>Come With Me Vlog</option><option>Knowledge Gap Story</option><option>How I Built This</option>
+        <option>Story Of the Best/Worst</option><option>Great Question</option><option>I Just Experienced X</option>
+        <option>FOMO Story Format</option>
+      </optgroup>
+      <optgroup label="Skits &amp; Bits">
+        <option>Duet/Stitch</option><option>Personifying Relatable Things</option><option>Comparison Skit</option>
+        <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
+        <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
+        <option>Things in Public</option><option>Classic Pranks</option>
+      </optgroup>
+      <optgroup label="Wait for It">
+        <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
+        <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
+        <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
+      </optgroup>
+      <optgroup label="Custom"><option>Custom</option></optgroup>
+    </select>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalAddIdea')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmAddIdea()">Add idea</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN 6: Stories ── -->
+<div class="screen" id="screen-stories">
+
+  <div class="overlay" id="overlay4" onclick="closeSidebar4()"></div>
+
+  <div class="sidebar" id="sidebar4">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName4"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar4()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newStoriesConversation()">+ New conversation</button>
+    <div class="conversations-list" id="storiesConvList"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar4()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-wordmark" id="storiesWordmark"></div>
+    <h1>Story <em>Planner</em></h1>
+    <div class="page-subtitle">Plan sequences that nurture your existing audience</div>
+    <div class="page-divider"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn active" onclick="goToStories()">Stories</button>
+    </div>
+  </header>
+
+  <div class="page-main">
+
+    <div class="quick-prompts">
+      <button class="quick-btn" onclick="fillStoriesPrompt('I just got new arrivals in and want to drive traffic to the website')">New arrivals</button>
+      <button class="quick-btn" onclick="fillStoriesPrompt('I want to run a poll or quiz to engage our followers')">Poll or quiz</button>
+      <button class="quick-btn" onclick="fillStoriesPrompt('I want to do a Q&A — ask our followers what bra questions they have')">Q&amp;A box</button>
+      <button class="quick-btn" onclick="fillStoriesPrompt('I want to show a behind the scenes moment from the shop today')">Behind the scenes</button>
+      <button class="quick-btn" onclick="fillStoriesPrompt('I just posted a Reel and want a Stories sequence to amplify it')">Amplify a Reel</button>
+      <button class="quick-btn" onclick="fillStoriesPrompt('I want to drive bookings for fittings this week')">Drive bookings</button>
+    </div>
+
+    <div class="chat-window">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span class="tool-label">Stories chat</span>
+          <span class="current-conv-name" id="currentStoriesConvName"></span>
+        </div>
+        <div class="toolbar-right">
+          <button class="action-btn save-btn" onclick="openStoriesSaveModal()">Save chat</button>
+          <button class="action-btn" onclick="newStoriesConversation()">New chat</button>
+        </div>
+      </div>
+      <div class="messages" id="storiesMessages"></div>
+      <div class="typing-wrap">
+        <div class="typing-indicator" id="storiesTyping">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="input-row">
+        <textarea id="storiesInput" placeholder="Tell me what's going on in the shop or what you want to accomplish..." rows="4"
+          onkeydown="handleStoriesKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send" id="storiesSendBtn" onclick="sendStoriesMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Save stories conversation -->
+<div class="modal-bg" id="modalSaveStoriesConv">
+  <div class="modal">
+    <h3>Save conversation</h3>
+    <p>Give this Stories chat a name so you can find it later.</p>
+    <input type="text" id="storiesConvNameInput" placeholder="e.g. New arrivals sequence, Q&A week..." maxlength="60" />
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalSaveStoriesConv')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmStoriesSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN 1: Business Selector ── -->
+<div class="screen active" id="screen-selector">
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;padding:60px 20px 80px;">
+    <div class="selector-header">
+      <div class="selector-wordmark">Format Finder</div>
+      <h1>Choose a <em>Business</em></h1>
+      <p>Select a business to open its workspace</p>
+      <div class="selector-divider"></div>
+      <div style="font-size:11px;color:var(--light);margin-top:10px;">v<span id="versionDisplay"></span></div>
+    </div>
+    <div class="businesses-grid" id="bizGrid"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN 2: Chat ── -->
+<div class="screen" id="screen-chat">
+
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
+    <div class="conversations-list" id="convList"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-wordmark" id="chatWordmark"></div>
+    <h1>Format <em>Finder</em></h1>
+    <div class="page-subtitle">Your content brainstorm partner</div>
+    <div class="page-divider"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn" onclick="goToStories()">Stories</button>
+    </div>
+  </header>
+
+  <div class="page-main">
+
+    <div class="niche-card">
+      <div class="niche-card-top">
+        <span class="niche-label">Your niche</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="niche-toggle-btn" id="nicheToggleBtn" onclick="toggleNiche()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;transition:color 0.15s;">▼ Show</button>
+          <button class="niche-edit-btn" id="nicheEditBtn" onclick="startEditNiche()">Edit</button>
+        </div>
+      </div>
+      <div id="nichePreview" class="niche-preview" onclick="toggleNiche()"></div>
+      <div id="nicheDisplay" class="niche-text"></div>
+      <div class="niche-edit-area" id="nicheEditArea">
+        <textarea class="niche-textarea" id="nicheTextarea" rows="4"
+          placeholder="Describe your business, audience, products, content style, platform, and anything else the assistant should know..."></textarea>
+        <div class="niche-edit-btns">
+          <button class="niche-cancel-btn" onclick="cancelEditNiche()">Cancel</button>
+          <button class="niche-save-btn" onclick="saveNiche()">Save changes</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-prompts">
+      <button class="quick-btn" onclick="fillPrompt('I have a content idea:')">New idea</button>
+      <button class="quick-btn" onclick="fillPrompt('I want to hop on a trending moment or audio')">Trending moment</button>
+      <button class="quick-btn" onclick="fillPrompt('Help me with a product launch or announcement')">Product launch</button>
+      <button class="quick-btn" onclick="fillPrompt('I need 3 caption options for this post. Here\'s the video description:\n\nPlease write Option A, Option B, and Option C — each 50–75 words, hook-first, conversational Instagram-native voice, no bullet points, one CTA offering both an in-person fitting in Kaysville UT and the free online size calculator, both links in bio, exactly 5 hashtags always including #brafittingsbycourt. Do NOT use any local or geographic hashtags (#kaysville, #utah, #slc, #utahcheck, #kaysville utah, etc.) unless the video content is specifically about the Utah location.')">Caption only</button>
+      <button class="quick-btn" onclick="fillPrompt('Compile everything so I can copy it')">Compile for PDF</button>
+    </div>
+
+    <div class="chat-window">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <span class="tool-label">Chat</span>
+          <span class="current-conv-name" id="currentConvName"></span>
+        </div>
+        <div class="toolbar-right">
+          <button class="action-btn" onclick="openSaveIdeaModal()" style="color:var(--teal);">Save as idea</button>
+          <button class="action-btn save-btn" onclick="openSaveModal()">Save chat</button>
+          <button class="action-btn" onclick="newConversation()">New chat</button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="typing-wrap">
+        <div class="typing-indicator" id="typing">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="input-row">
+        <textarea id="userInput" placeholder="Describe your idea..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SCREEN 3: Analyze ── -->
+<div class="screen" id="screen-analyze">
+
+  <div class="overlay" id="overlay2" onclick="closeSidebar()"></div>
+
+  <div class="sidebar" id="sidebar2">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName2"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar2()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
+    <div class="conversations-list" id="convList2"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar2()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-wordmark" id="analyzeWordmark"></div>
+    <h1>Reel <em>Analyzer</em></h1>
+    <div class="page-subtitle">Drop-off diagnosis grounded in your account data</div>
+    <div class="page-divider"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn active" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn" onclick="goToStories()">Stories</button>
+    </div>
+  </header>
+
+  <div class="page-main">
+
+    <div class="analyze-card">
+
+      <div class="analyze-section">
+        <div class="analyze-section-label">Reel info</div>
+        <div class="analyze-row" style="flex-direction:column;gap:10px;">
+          <div class="analyze-field">
+            <label>Reel title or description</label>
+            <textarea class="analyze-ta" id="aReelDesc" rows="2"
+              placeholder="e.g. Before fitting reel — client had been wearing wrong size for 10 years"></textarea>
+          </div>
+          <div class="analyze-field">
+            <label>Transcript <span style="color:var(--light);font-weight:300;">— type, paste, or upload a screenshot</span></label>
+            <textarea class="analyze-ta" id="aTranscript" rows="6"
+              placeholder="0:00 So typically how this appointment goes...&#10;0:05 I'll have you take off your shirt...&#10;0:10 ..."></textarea>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <label for="transcriptImageUpload" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Upload transcript screenshot
+              </label>
+              <input type="file" id="transcriptImageUpload" accept="image/*" style="display:none;" onchange="handleTranscriptImage(event)">
+              <span id="transcriptImageStatus" style="font-size:12px;color:var(--light);"></span>
+            </div>
+            <div id="transcriptImagePreview" style="display:none;margin-top:8px;position:relative;">
+              <img id="transcriptImageThumb" style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);" alt="Transcript screenshot">
+              <button onclick="clearTranscriptImage()" style="position:absolute;top:6px;right:6px;background:rgba(44,36,32,0.6);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;">&#x2715;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analyze-section">
+        <div class="analyze-section-label">Performance metrics</div>
+
+        <!-- Analytics screenshot upload -->
+        <div style="margin-bottom:14px;">
+          <label style="font-size:12px;color:var(--mid);font-weight:400;display:block;margin-bottom:8px;">
+            Upload your Instagram analytics screenshots <span style="color:var(--light);font-weight:300;">— upload multiple at once, Claude reads them all</span>
+          </label>
+          <label for="analyticsImageUpload" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.15s;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Upload analytics screenshots
+          </label>
+          <input type="file" id="analyticsImageUpload" accept="image/*" multiple style="display:none;" onchange="handleAnalyticsImages(event)">
+          <div id="analyticsImagePreviews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+          <div style="margin-top:8px;">
+            <button onclick="toggleManualMetrics()" id="manualMetricsToggle" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">+ Enter metrics manually instead</button>
+          </div>
+        </div>
+
+        <!-- Manual metrics — hidden by default when screenshots uploaded -->
+        <div id="manualMetricsPanel" style="display:none;">
+        <div class="analyze-metrics-grid">
+          <div class="metric-input-group">
+            <label>Video length</label>
+            <input class="metric-in" id="aLength" type="text" placeholder="e.g. 0:52">
+          </div>
+          <div class="metric-input-group">
+            <label>Avg watch time</label>
+            <input class="metric-in" id="aAvgWatch" type="text" placeholder="e.g. 19s">
+          </div>
+          <div class="metric-input-group">
+            <label>Skip rate</label>
+            <input class="metric-in" id="aSkipRate" type="text" placeholder="e.g. 31.5%">
+          </div>
+          <div class="metric-input-group">
+            <label>Typical skip rate</label>
+            <input class="metric-in" id="aTypicalSkip" type="text" placeholder="e.g. 65.2%">
+          </div>
+          <div class="metric-input-group">
+            <label>Accounts reached</label>
+            <input class="metric-in" id="aReached" type="text" placeholder="e.g. 12,572">
+          </div>
+          <div class="metric-input-group">
+            <label>Saves</label>
+            <input class="metric-in" id="aSaves" type="text" placeholder="e.g. 28">
+          </div>
+          <div class="metric-input-group">
+            <label>Shares</label>
+            <input class="metric-in" id="aShares" type="text" placeholder="e.g. 6">
+          </div>
+          <div class="metric-input-group">
+            <label>Follows</label>
+            <input class="metric-in" id="aFollows" type="text" placeholder="e.g. 2">
+          </div>
+          <div class="metric-input-group">
+            <label>Comments</label>
+            <input class="metric-in" id="aComments" type="text" placeholder="e.g. 0">
+          </div>
+          <div class="metric-input-group">
+            <label>FB % of views</label>
+            <input class="metric-in" id="aFBpct" type="text" placeholder="e.g. 49% or none">
+          </div>
+          <div class="metric-input-group">
+            <label>Reels tab %</label>
+            <input class="metric-in" id="aReelsTab" type="text" placeholder="e.g. 24%">
+          </div>
+          <div class="metric-input-group">
+            <label>Cover type</label>
+            <input class="metric-in" id="aCoverType" type="text" placeholder="Authentic / Graphic">
+          </div>
+        </div>
+        </div>
+
+      </div>
+
+      <div class="analyze-section">
+        <div class="analyze-section-label">Caption & hashtags <span style="font-size:10px;color:var(--light);font-weight:300;letter-spacing:0;text-transform:none;">— optional, recommended for outliers</span></div>
+        <textarea class="analyze-ta" id="aCaption" rows="3"
+          placeholder="Paste the caption and hashtags exactly as posted..."></textarea>
+      </div>
+
+      <div class="analyze-run-row">
+        <span class="analyze-run-hint">Upload screenshots or enter metrics manually</span>
+        <button class="analyze-run-btn" id="analyzeBtn" onclick="runAnalysis()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Analyze reel
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Results -->
+    <div class="analyze-results" id="analyzeResults">
+
+      <div class="results-header">
+        <span class="results-header-label">Analysis</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="results-reel-name" id="resultsReelName"></span>
+          <button class="results-clear-btn" onclick="clearAnalysis()">Clear</button>
+        </div>
+      </div>
+
+      <div class="results-stats" id="resultsStats"></div>
+
+      <div class="results-loading" id="resultsLoading">
+        <div class="analyze-typing">
+          <div class="analyze-dot"></div>
+          <div class="analyze-dot"></div>
+          <div class="analyze-dot"></div>
+        </div>
+        <p>Analyzing transcript against your account data...</p>
+      </div>
+
+      <div class="results-body" id="resultsBody"></div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Add business -->
+<div class="modal-bg" id="modalAddBiz">
+  <div class="modal">
+    <h3>Add a business</h3>
+    <p>You can update the niche description any time from the chat screen.</p>
+    <label>Business name</label>
+    <input type="text" id="addBizName" placeholder="e.g. Bra Fittings by Court" maxlength="60" />
+    <label>Niche description</label>
+    <textarea class="modal-ta" id="addBizNiche" rows="4"
+      placeholder="Describe what you sell, who your audience is, and the kind of content you create..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalAddBiz')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmAddBiz()">Create workspace</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Save conversation -->
+<div class="modal-bg" id="modalSaveConv">
+  <div class="modal">
+    <h3>Save conversation</h3>
+    <p>Give this chat a name so you can find it later.</p>
+    <input type="text" id="convNameInput" placeholder="e.g. Spring launch, Product drop..." maxlength="60" />
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalSaveConv')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Delete business confirm -->
+<div class="modal-bg" id="modalDeleteBiz">
+  <div class="modal">
+    <h3>Delete this business?</h3>
+    <p id="deleteBizMsg">This will permanently remove the business and all its saved conversations.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalDeleteBiz')">Cancel</button>
+      <button class="modal-confirm" style="background:#c0392b;" onclick="confirmDeleteBiz()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   STORAGE SCHEMA
+   ff3_biz: { id: { name, niche, createdAt } }
+   ff3_c_{bizId}: { id: { name, history, updatedAt } }
+════════════════════════════════════════════ */
+
+const CFF_VERSION = '1.0.0';
+const BIZ_KEY = 'ff3_biz';
+const API_KEY_STORAGE = 'ff_api_key';
+function getApiKey(){ return localStorage.getItem(API_KEY_STORAGE)||''; }
+
+let activeBizId = null;
+let currentConvId = null;
+let history = [];
+let pendingDeleteBizId = null;
+
+const EMOJIS = ['&#128181;','&#128200;','&#128203;','&#9997;&#65039;','&#127775;','&#128247;','&#127808;','&#128144;'];
+
+const CHAT_SYSTEM_PREFIX = `You are Format Finder, a smart content strategy assistant. Your job is to help the user turn a raw idea into a complete, actionable content plan.
+
+HOW YOU WORK:
+1. When the user shares an idea, first recommend the best content FORMAT — short-form video/reel, carousel, static image post, story, long-form video, blog post, email, or any format that fits the platform and goal. Explain briefly why.
+2. Offer 3–4 specific HOOK options tailored to the idea and format. Hooks must grab attention within the first 5 seconds or first line.
+3. Once the user picks a direction, build a full execution plan: script or outline, visual/shot plan or layout, transitions or flow, on-screen text or copy, music or audio if relevant, caption, and hashtags.
+4. Adapt advice to whatever editing or creation tools the user mentions.
+5. When asked to compile, provide everything clean in one block, ready to copy.
+
+CAPTION & HASHTAG RULES (non-negotiable):
+- Captions: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one CTA offering both in-person fitting in Kaysville UT and the free online size calculator, both links in bio
+- Do NOT use the on-screen hook as the caption's second hook — write a distinct second hook
+- Hashtags: always exactly 5, always include #brafittingsbycourt, fill remaining 4 with trending or brand-relevant tags
+- NEVER use local or geographic hashtags by default (#kaysville, #utah, #slc, #utahcheck, #utahbusiness, #kaylevilleutah, or any location-based tag) — only include a local tag if the video content is explicitly and specifically about the Utah location
+
+**FOMO STORY FORMAT:**
+Mechanism: people hate being left out of cultural moments. When someone reacts to something like it changed their life, viewers immediately want to see what they saw. Works whether viewer has seen it or not — if they have they nod along, if they haven't they need to find out. Either way they watch to the end. Drives engagement because viewers must weigh in with their opinion.
+Structure: (1) Hook — reference the moment without explaining it. "I can't stop thinking about [thing]." Never describe what it is upfront — ambiguity IS the hook. (2) Value — describe the moment with intense emotion and specific details. Include how many times you watched/replayed it — signals authentic obsession. Build hype so hard that viewers who haven't seen it feel like they're missing a major moment. (3) Payoff — dramatic final statement that elevates the moment. End on the line that makes people either completely agree or immediately go search for the original.
+Rules: never fully explain the moment in the hook. Specific details and a number ("I've replayed it 20 times") signal authentic obsession not performance. Emotion and enthusiasm are the entire production value — no fancy visuals needed. Casual FaceTime energy — personality-forward. Most personality-dependent format in the taxonomy — whoever is most naturally expressive on camera should own this one.
+For this account: works as a reaction to a fitting room moment that happened in the shop, not just viral external content. A client reaction, a size revelation, a transformation that stayed with the team. Also works for reacting to viral bra or body image moments in pop culture. Ready-to-use hooks: "I can't stop thinking about a fitting we did last week — I've replayed it in my head at least 20 times," "I cannot stop thinking about what this woman said when she put on her first properly fitting bra," "I keep thinking about the woman who came in wearing a 38C and left in something completely different." Courtney is the natural fit for this format given her years of fitting room stories and on-camera presence.
+
+**SO THAT'S HOW THEY DO IT:**
+Mechanism: shows a clever trick or useful skill visually without explaining it first. Brain sees something unfamiliar and can't look away until it understands. When the payoff clicks the viewer feels satisfaction from learning something they can actually use — drives saves and shares immediately. High save and share potential — algorithm loves this format.
+Structure: (1) Hook — TWO simultaneous hooks: a visually intriguing first shot that raises an immediate "what is going on here?" question, plus text overlay "So that's how they do it." The visual must create curiosity before any explanation. (2) Value — show the task step by step. Each step makes more sense as you watch. No fluff, no long explanations. Voiceover optional if visuals are strong enough. (3) Payoff — the final result that makes everything click. End the moment it all becomes clear — don't linger.
+Rules: opening visual is everything — must create immediate curiosity before a word is spoken. Sweet spot is uncommon solution to a very relatable problem. Fast pacing throughout — let steps and final visual tell the story. End the moment the result clicks. Voiceover optional — strong visuals can carry it alone.
+For this account: the fitting room has daily techniques and bra tricks women have never seen that make perfect visual hooks. Ready-to-use visual hooks: fitter holding a bra that looks several sizes too big (payoff: it fits perfectly when properly fitted), Booby Tape being applied to a sheer plunging neckline with no explanation (payoff: everything stays in place), two bras side by side with different labels but identical cup volume (payoff: sister sizing), a bra being clasped on the loosest hook (payoff: that's how you know it fits correctly), Boombas inserts dropped into a wedding gown with no cups (payoff: instant shape without a bra), fitter measuring someone in an unexpected way (payoff: this is how we actually find your real size).
+
+**I TESTED EVERY X:**
+Mechanism: trading your time and effort for massive value. People are desperate for shortcuts — this format positions you as the person who did all the hard work so they don't have to. Creates authority through demonstrated effort and positions creator as the go-to resource in the space.
+Structure: (1) Hook — "I tested every [X] and here's what I found out." Immediately creates knowledge gap and establishes authority. Promise is condensed results. (2) Value — 3–6 specific bite-sized takeaways. Each must include: the thing + specific use case + descriptive language about what makes it unique. Never "X is good" — always "use X if you want [specific outcome with detail]." (3) Payoff — clear next step or action. Can include CTA for email capture, follow, or link in bio.
+Rules: test 3–6 options — exhaustive enough to feel authoritative, not so many it overwhelms. Specificity is everything — every recommendation needs the three-part formula (thing + use case + descriptive detail). Raw and authentic over polished — testing process should feel real. Document surprises and failures — they become the most compelling talking points. Works for quick tests (one session) or long-term tests (weeks). Naturally accommodates brand mentions and CTAs.
+For this account: the niche has abundant testable things — bra solutions, bra styles for specific body types, bra brands, sizing methods, care approaches. The Just Girl Stuff collab is essentially this format — multiple solutions tested for multiple dress types with condensed results. Ready-to-use hooks: "I tested every strapless solution for a plunging neckline — here's what actually worked," "I tested every bra size calculator online — here's which ones actually get it right" (positions your size calculator as the correct answer), "I tested every sports bra for high-impact activity in a DD+ cup — here's the only one worth buying," "I tested every bra washing method — here's which one makes them last longest."
+
+**COME WITH ME VLOG:**
+Mechanism: most people do this format wrong — they think their life needs to be interesting. It doesn't. The format works when the hook creates a reason to care through relatability, humor, or a built-in promise of something going wrong. The narration is what turns footage into content. Leaning into failure and relatability outperforms showcasing success or expertise.
+Structure: (1) Hook — "Come [do activity] with [person who has relatable flaw or funny situation]." The flaw or situation must create curiosity and humor. "Come with me on a hike" doesn't work. "Come with me on a hike where I'm already lost" works. (2) Value — narrated internal experience, not just footage. What's being thought, what's going wrong, what's surprising, the real-time decision-making. Without narration it's just boring footage. (3) Payoff — the result of the journey. Win, fail, or anywhere between — what matters is it delivers on the hook's promise.
+Rules: hook must give people a reason to come — a flaw, funny situation, or built-in tension. Narration is everything. The format is infinitely repeatable — same hook structure works every time because each journey is different. First few attempts will be boring — skill builds with repetition. Power is in making it a recurring series. Never just "come with me to [place]" — always add the tension or flaw that creates curiosity.
+For this account: the fitting room is a natural Come With Me environment but the hook must have the client's situation built in — that situation IS the tension. Ready-to-use hooks: "Come to a fitting with a woman who's been wearing the same size since high school," "Come with me while I fit someone who swears she's a 34B," "Come with me while I try to explain sister sizing to someone who doesn't believe it's real," "Come with me while we find a solution for a sheer plunging wedding gown," "Come with me while I fit someone who bought 12 bras online and none of them fit."
+
+**HYPOTHETICAL SCENARIO:**
+Mechanism: takes something familiar and asks "what if?" — reimagines it through a completely new lens. The implied promise is "I'm about to see a familiar thing from an unfamiliar angle." That curiosity loop stops the scroll. Shareable because when it nails something the viewer has experienced, their first instinct is to send it to someone who would get it.
+Structure: (1) Hook — "If [familiar thing] was [unexpected reframe]" or "What if [thing] could [do unexpected thing]." Text block, crystal clear in 3 seconds. Premise must be immediately understood. (2) Value — 20–30 seconds of specific recognizable moments that deliver on the premise. Don't describe the idea — act it out. Dialogue, personality, specific details. Each moment takes something people recognize and exaggerates the unspoken truth. (3) Payoff — memorable final beat that acknowledges the premise. Land the last line hard.
+Rules: the premise is the hook — if the "what if" isn't immediately interesting nothing else works. Specificity over vagueness — act it out, give it dialogue and details. The weirder the better as long as rooted in truth. Can piggyback off brand names or cultural concepts. Can be one person playing multiple characters or just talking to camera. Rewards creativity over production value entirely. Comments will reveal which moments hit hardest — use them for the next premise.
+For this account: "if [familiar thing] was honest" structure works especially well because bra shopping has many unspoken truths women recognize immediately. Ready-to-use premises: "If bra size tags were honest," "If your bra could talk," "If bra shopping online was a person," "If VS bra fittings were honest," "If your ill-fitting bra filed a complaint," "If the 4-inch rule had to explain itself," "If your bra band wrote you a performance review" ("you've been on the tightest hook for three years — I've been doing all the work myself").
+
+**THE POV SKIT:**
+Mechanism: takes a stereotype everyone has quietly experienced and exaggerates it to absurdity. Shows the inner thoughts nobody actually says out loud — dialed to 11. The viewer recognizes the quieter version of what they're watching and that recognition is the laugh. The character being unaware of their own ridiculousness is a key comedic element.
+Structure: (1) Hook — "POV: [Relatable scenario in one line]." Entire premise is set before the first second of action. Always uses the "POV:" prefix — this is the standard framing the format relies on. (2) Skit — deliver exactly what was promised but exaggerated far beyond reality. Character must be completely unaware of how dramatic they're being. The more visual and physical the better. (3) Payoff — keep ramping up until the most absurd moment, then end immediately. Don't linger after the peak.
+Rules: scenario must be something the entire audience has experienced — relatability is non-negotiable. Exaggeration must be dialed to 11, a mild version isn't funny. Character unawareness of their own ridiculousness adds to the humor. Text hook format is always "POV: [scenario]." End the moment the payoff lands.
+For this account: works from both fitter POV and customer POV. Ready-to-use concepts: "POV: You tell a bra fitter you're a 34B," "POV: You've been wearing the wrong bra size for 10 years and a fitter figures it out in 30 seconds," "POV: You try to put on a strapless bra without help," "POV: Someone tells you underwire is uncomfortable," "POV: You order a bra online and it arrives," "POV: A fitter asks you to take your shirt off for the first time" (fitter completely calm and matter-of-fact, client internally panicking — the contrast between those two realities is exactly what this format is built for).
+
+**COMPARISON SKIT:**
+Mechanism: the gap between public self and private self. Everyone is pretending to have it together on social media — the second someone admits they don't, everybody exhales and hits share. Relatability drives shares, exaggeration drives laughs. The combination is what makes it spreadable.
+Structure: (1) Hook — text overlay, 5 words or fewer, tells viewer exactly what they're about to watch. "[Thing A] vs. [Thing B]." The word "versus" does the work. Instant setup, no mystery. (2) Scene 1 — the high-effort, performing, ideal-self version. Play it completely straight. (3) Hard cut. (4) Scene 2 — the honest, low-effort, real version. MUST be absurd — slightly less good doesn't work. The complete abandonment of all standards is what makes it funny.
+Rules: exaggeration does the heavy lifting — contrast must be absurd not just noticeable. Two locations, one outfit, no script, no production value needed. Same person plays both roles — the self-awareness is the joke. Hook text must be 5 words or fewer and immediately specific. Shareable because viewer instantly thinks of someone they know — "this is literally me" or "this is my friend." No script needed — the contrast IS the content.
+For this account: the gap between what women think they know about bras and what fitters actually see every day is the core tension. The performing version is the customer's assumption, the honest version is the fitter's reality. Ready-to-use comparisons: "What women think a properly fitting bra feels like vs. what it actually feels like," "What we say when a customer tells us their size vs. what we're thinking," "Bra shopping online vs. bra shopping with us," "What women think a 34B looks like vs. what a 34B actually looks like," "Me recommending bras to customers vs. the bras I actually wear."
+
+**CLASSIC WAIT FOR IT:**
+Mechanism: the opposite of mystery. When people know exactly what's coming they are MORE committed to watching — they want to see the moment happen. Removing uncertainty IS the hook. The brain is wired to watch anticipated outcomes unfold. The algorithm cares that people watched to the end, not what happened.
+Structure: (1) Hook — within the first 3 seconds the viewer knows exactly what's about to happen. State it explicitly or show it visually. No mystery, no teasing — just the promise. "He's gonna fall in." "There's no way this doesn't spill." (2) Build — show the setup unfolding. "Wait for it" text on screen. Keep as short as possible — every extra second must earn its place or it gives people a reason to scroll. (3) Payoff — deliver exactly what was promised. No tricks, no bait and switch. The viewer came for one thing, give it to them. If you don't deliver, viewers feel cheated and it damages trust.
+Rules: always deliver on the promise. 7–30 seconds ideal — can go longer only if the payoff is exceptional. "Wait for it" text is standard on-screen execution. The outcome doesn't need to be dramatic — watch time to the end is the win. Look for moments already happening naturally — don't manufacture them.
+For this account: the fitting room is full of natural Wait for It moments that aren't being captured. Client reactions when they see themselves in a properly fitting bra for the first time, a strapless bra staying up through a movement test, a dramatic size difference reveal, a before/after reaction shot. The payoff is built into the fitting process — the format just requires filming it. Hook template: "She's been wearing a [wrong size] for [X years] — watch her reaction when she puts on the right one." This is one of the lowest-effort formats to create because the moments already exist.
+
+**X YOU SHOULD KNOW:**
+Mechanism: taps into natural FOMO about missing useful information. "You should know" creates implied authority without being preachy — viewer immediately thinks "if I don't know this, I might be behind." Positions creator as trusted insider. Save and share are the primary success metrics — content must be something the viewer might actually use later.
+Structure: (1) Hook — "[Topic] you should know" + optional part number. Topic word should add weight ("powerful," "essential," "overlooked"). Part number signals long-running series, adds credibility, triggers FOMO about missed entries — can be fabricated, signals longevity not literal count. (2) Value — show it in action, don't just describe it. Quick visual demonstration. Enough to make people think "oh that's useful" but not so much they get bored. (3) Payoff — get there fast. Communicate that what was learned is simple and actionable — this is what drives saves.
+Rules: ONE clear piece of value per video — single, specific, actionable. 20–30 seconds target. Show don't tell — always demonstrate visually. Works best as a recurring series — followers know what to expect. Keep it so short and respectful of time that saving it feels like the obvious move.
+For this account: "Bras of the Week" is essentially this format and confirms the instinct is right — the hook framing just needs tightening. Reframing as "Bra fits you should know" or "Bra styles you should know" with part numbers would sharpen the FOMO mechanic. Ready-to-use topics: sizing concepts most women don't know, specific bra features explained quickly, fit tips that prevent common problems, product features shown in action on a real body. The 2/12 Bras of the Week reel had strong saves (10) which directly validates this format for the account.
+
+**I CAN'T BELIEVE I'M TELLING YOU THIS:**
+Mechanism: the reluctant reveal. When someone signals they're about to share something they probably shouldn't, attention locks in immediately. It feels personal, slightly risky, and extremely honest — like insider information most people don't have access to. Vulnerability in the hook is not weakness — it IS the mechanism.
+Structure: (1) Hook — signal reluctance or vulnerability. Examples: "I'm willing to look dumb to show you this," "I can't believe I'm admitting this," "I'm not supposed to tell you this," "I could probably get in trouble for saying this." The hint of risk makes the payoff feel rare and valuable. (2) Setup — briefly explain where the tip came from or how you learned it. Establishes credibility, builds anticipation, makes the reveal feel grounded not random. (3) Payoff — the actual tip, hack, or reveal. The more counterintuitive or unusual the better.
+Rules: the thing being revealed must feel unusual, counterintuitive, or slightly embarrassing to admit — but genuinely useful. Short and punchy — the reluctant reveal doesn't need a long buildup. The more bizarre the tip the better. Blends honesty, curiosity, and practical value in one piece.
+For this account: the bra fitting niche has natural "insider knowledge" energy — fitters know things most women don't that feel slightly awkward or surprising to say out loud. Ready-to-use topics: "most women in a 34B are actually a 30D or 32C," "we can tell within 30 seconds if you're in the wrong size," "the bra you think is comfortable is causing your back pain," "the 4-inch rule is completely wrong and stores have been teaching it for decades," "the most supportive bra for large busts isn't the one you'd expect."
+
+**KNOWLEDGE GAP STORY:**
+Mechanism: information gap theory — create a gap between what the viewer knows and what they want to know. It creates a mental itch that must be scratched. Same psychology as a mystery novel. Hook creates the gap, middle sustains it, payoff resolves it.
+Structure: (1) Hook — creates TWO questions simultaneously that the brain must answer. Never one question — always two. Format: "[Surprising thing happened] and it [consequence]." Both the thing AND the consequence must be withheld. (2) Build — context, tension, and emotional investment. Give people reasons to care about the reveal. Specific authentic details make it feel real. Do NOT answer the core question yet. (3) Climax — problem-solving in real time alongside the viewer, pulling them into the confusion. (4) Payoff — the reveal must be both surprising AND logical in retrospect ("oh, that actually makes complete sense"). If the payoff feels anticlimactic, the entire video fails.
+Rules: withhold ONE specific piece of information — the entire video is structured around that gap. Relatability carries the middle section. Every B-roll and detail must build investment in the reveal, not just fill time. No fancy production needed — format does the heavy lifting. Payoff must earn the buildup. Comments become the engagement mechanic — relatable payoffs make viewers share their own version.
+For this account: best source material is fitting room stories — clients who wore the wrong size for years, unexpected solutions, moments where the obvious answer wasn't right. Courtney is the ideal storyteller for this format given her years of fitting experience. Hook template: "[Unexpected fitting room thing happened] and it [surprising consequence]." Payoff must be both specific enough to be interesting and universal enough to be relatable.
+
+**HOW TO 5 LIST (List Format):**
+Mechanism: lists create instant clarity — viewer knows exactly what they're getting and how long it takes. The number sets expectation, the topic implies value, series structure creates binge behavior and multiple shots at virality.
+Structure: (1) Hook — state the number and topic clearly. If a series, state which part. Immediately tease the most compelling item or jump straight into item 1. (2) Each item — mini hook + core insight + why it matters. Problem → solution → bonus detail. Never just label an item, give it its own mini hook. (3) End — question or CTA that drives engagement (save, share, comment, or follow).
+Single video vs. series: Single video = 60–90 seconds, move quickly through all items. Series = 30–60 seconds per video, one item each, part number always in hook. First time testing a list topic: start with one complete video, break into parts only if it performs. Series gives multiple shots at virality and binge effect. Single video gives complete satisfaction with no risk of viewers missing parts.
+Hook construction: state number + topic + implication ("need" implies essentials not nice-to-haves). Tease the most surprising item ("number 5 will change how you shop for bras forever"). For series: part number creates curiosity in new viewers and investment in returning ones.
+Rules: 3–7 items maximum. Each item needs its own mini hook. Pacing must be tight — no lingering. Always end with an engagement driver. For this account: list topics that work are mistakes, product comparisons, fit tips, and things to know before buying. Bra-specific examples: "5 signs your bra doesn't fit," "5 bras every woman should own," "5 things that happen when you wear the wrong size."
+
+**DRY PARODY:**
+Mechanism: plays off the familiar "3 tips" format — feels like genuine helpful advice for the first few seconds, then shifts into parody without ever breaking character. The deadpan delivery IS the joke. Never wink at the camera.
+Structure: (1) Hook — sounds exactly like a normal helpful tips video, completely straight. (2) Tips that escalate — first tip almost sounds real, second pushes further, third fully commits to how bad it is. Each tip must be worse than the last. (3) Never break character — no smiling, no reaction, no acknowledgment that this is a joke. May take multiple takes to nail. (4) End with a confident CTA delivered as if the advice was genuinely helpful ("Follow for more tips").
+Rules: Under 60 seconds — account data says under 50 seconds for this account specifically. One shot to camera, simple setup. Tie to a specific cultural moment rather than a generic theme — account data shows culturally specific parodies outperform generic ones significantly. Drives comments (people continue the joke) but rarely saves or follows — comments are the success metric for this format, not saves.
+For this account: hooks should sound like real bra/fitting advice. Examples of the format working: "3 ways to make your bra last longer" (then give increasingly bad advice). Tips must start plausible and get worse. The payoff is always the third tip being completely unhinged while Courtney/Jill delivers it completely straight.
+
+FORMAT FRAMEWORKS — apply these when the relevant format is selected or suggested:
+
+**COMMON BELIEF BUSTER:**
+Mechanism: misconceptions create instant "curiosity friction" — viewer thinks they know something, you contradict it, they can't look away. Works in every niche because outdated advice and myths never die.
+Structure: (1) Hook — state the common belief confidently, then immediately contradict it. Never ask a question — make a statement that creates friction. (2) Why it's wrong — real reasoning and evidence, not just "that's a myth." (3) The correct approach — show it, don't just say it. (4) Proof — examples, results, or demonstration.
+Rules: 30–90 seconds maximum. Get in, bust the myth, get out. Visuals carry the proof. Make it a series — every outdated belief in the niche is another video. Short enough to be shareable and saveable.
+For this account: hooks that work are statements like "You've been wearing the wrong bra size your entire life" or "Adding 4 inches to your band measurement is the worst advice you can get" — not questions. The account's best non-fitting Education reel used this format (12,985 reached, 30 saves). Untapped belief busters for this account include: underwire myth, 4-inch rule, tightest hook myth, strapless bras being inherently uncomfortable, cup fitting without band fitting, hand washing frequency, and sister sizing misconceptions.
+
+CANVA COVER IMAGE SPECS:
+Cover images are created in Canva at 1080x1920px (9:16). All text must stay within the center square of the template — covers are cropped to 1:1 for the grid. Rules: (1) Always use authentic in-action footage as the background — never a designed graphic or logo-heavy overlay. (2) Create contrast with a semi-transparent rectangle element over the background (70–80% transparency, brand color or black/white) so text doesn't get lost on a busy image. (3) Font choices: Montserrat ExtraBold or Black, Anton, or League Spartan — bold and simple only, no script or decorative fonts. (4) Wording must be extremely short and punchy — as few words as possible. (5) Use size hierarchy: the most important word largest. (6) Text placement: lower third of the frame, centered, within the safe center square. (7) Text styling: white, black drop shadow.
+
+CAPCUT EDITING NOTES (include in every script output):
+When generating a script, always end with a structured CapCut Editing Notes section. Assume all clips are already filmed on iPhone and the editor knows CapCut well — be concise. 
+
+TRANSITIONS — use only these, by name:
+- **Jump Cut** — the default between most clips; direct cut with no effect. Use for dialogue trims, montage sequences, and angle switches. This is the workhorse.
+- **White Flash** — found at Transitions > Overlay > White Flash. Keep duration 0.1–0.2s. Use for before/after reveals and transformation moments.
+- **Pull In / Pull Out** — found at Transitions > Movement. Use for high-energy scene changes or product close-up cuts.
+- **Keyframe Zoom (Punch In)** — not a library transition; a manual technique. Add keyframe at start of clip, move playhead forward, pinch to zoom. Use to add movement to static talking-head shots or emphasize a product detail.
+- **In-Camera transitions** — filmed during capture, not added in CapCut. Options: Clap/Snap to camera, Cover lens with hand, Spin out of frame. Use for outfit/look changes and reveals.
+
+GENERAL EDITING RULES:
+- Default to Jump Cuts for 90% of edits
+- Add one stylized transition maximum per reel — at the single most impactful moment only
+- White Flash is the go-to for before/after reveals on this account
+- Keep A-roll lines written conversationally — the way someone would actually say them, not how they'd write them
+- Always end with: run Auto-Captions, apply standard styling (System font, white, size 12, Black Shadow 60% opacity/30% blur, centered above bottom UI)
+
+RULES:
+- No guilt-inducing or manipulative messaging
+- Match tone to the idea — funny, emotional, educational as appropriate
+- Do NOT suggest specific people by name for on-camera roles
+- Keep hooks punchy and platform-native
+
+CURRENT BUSINESS NICHE:
+`;
+
+const ANALYZE_SYSTEM = `You are a social media performance analyst for Bra Fittings by Court, a women's bra fitting boutique. You have deep knowledge of this account's content performance data.
+
+KEY ACCOUNT DATA (from 30+ reel analysis, Feb-Mar 2026):
+- Gold standard reel: 3/9 Before fitting — 36,346 accounts reached, 71 saves, 38 shares, 42 follows, 26.4% skip rate, Instagram only (no Facebook)
+- Common Belief Buster "When is your bra too old" — best non-fitting Education reel: 12,985 reached, 30 saves, 36.8% skip rate vs 44.6% typical
+- Before/After fitting reels average 9,448 accounts reached; all beat typical skip rate by 10-34 points
+- Education reels average 4,219 reached; Product Showcase consistently underperforms
+- Dry Parody reels average 4,038 reached; best when joke is visible in frame 1, under 50 seconds
+- Facebook cross-posting: Instagram-only reels averaged 21,544 reached vs 3,618 for heavily Facebook-dependent reels
+- Designed graphic covers ALWAYS underperform authentic in-action covers by 13-20 skip rate points
+- Save rates that matter: 0.20-0.28% of reached audience for quality content
+- Follow conversion benchmark: anything above 0.5% per reel is strong; current average is very low (0.02-0.14%)
+- Question-based hooks underperform statement hooks consistently
+- Parody content over 50 seconds loses audience before payoff
+
+YOUR ROLE:
+Analyze the provided reel transcript and metrics. Your output must include:
+
+1. **Overall Assessment** — 2-3 sentences on what the numbers tell you and the main opportunity
+2. **Hook Rate Assessment** — evaluate the first 5 seconds of the transcript. Is the hook strong or weak? Why?
+3. **Drop-off Points** — identify 2-4 specific moments in the transcript where viewers likely dropped off, citing the exact transcript line. For each: state WHAT was being said, WHY viewers likely left, and a specific FIX
+4. **Cover Image** — evaluate whether the cover type (authentic vs graphic) is appropriate and what to do differently
+5. **Facebook** — if Facebook % is high, call it out and recommend Instagram-only
+6. **Benchmark Comparison** — compare this reel's key metrics to the account's proven benchmarks
+7. **Top 3 Action Items** — concrete, specific changes to make for the next similar reel
+
+Be specific, data-driven, and direct. Reference the account's actual benchmark data. Don't be generic.`;
+
+/* ── Utilities ── */
+function ls(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return{};} }
+function lsSave(key,val){ try{localStorage.setItem(key,JSON.stringify(val));}catch(e){showToast('Storage full.');} }
+function genId(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(ts){
+  const d=new Date(ts),now=new Date(),diff=(now-d)/1000;
+  if(diff<60)return'Just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  const days=Math.floor(diff/86400);
+  if(days===1)return'Yesterday';
+  if(days<7)return days+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function convKey(bizId){ return 'ff3_c_'+bizId; }
+
+/* ── Tab switching ── */
+function goToChat(){
+  showScreen('screen-chat');
+  syncWordmarks();
+}
+function goToAnalyze(){
+  showScreen('screen-analyze');
+  syncWordmarks();
+}
+function syncWordmarks(){
+  const all=ls(BIZ_KEY);
+  const biz=activeBizId?all[activeBizId]:null;
+  const name=biz?biz.name:'';
+  ['chatWordmark','analyzeWordmark','ideasWordmark','detailWordmark','storiesWordmark'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=name;
+  });
+  ['sidebarBizName','sidebarBizName2','sidebarBizName3','sidebarBizName4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=name;
+  });
+}
+
+/* ── Sidebar ── */
+function openSidebar(){ renderSidebar('convList'); document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+function openSidebar2(){ renderSidebar('convList2'); document.getElementById('sidebar2').classList.add('open'); document.getElementById('overlay2').classList.add('open'); }
+function closeSidebar2(){ document.getElementById('sidebar2').classList.remove('open'); document.getElementById('overlay2').classList.remove('open'); }
+
+function renderSidebar(listId){
+  const list=document.getElementById(listId);
+  const all=ls(convKey(activeBizId));
+  const ids=Object.keys(all).sort((a,b)=>all[b].updatedAt-all[a].updatedAt);
+  if(ids.length===0){
+    list.innerHTML='<div class="no-convs">No saved conversations yet.<br>Tap <strong>Save chat</strong> to keep one.</div>';
+    return;
+  }
+  list.innerHTML='<div class="conv-group-label">Saved chats</div>';
+  ids.forEach(id=>{
+    const c=all[id];
+    const item=document.createElement('div');
+    item.className='conv-item'+(id===currentConvId?' active':'');
+    item.innerHTML=`
+      <div class="conv-info">
+        <div class="conv-name">${escHtml(c.name)}</div>
+        <div class="conv-date">${fmtDate(c.updatedAt)}</div>
+      </div>
+      <button class="conv-delete" title="Delete">&#x2715;</button>`;
+    item.querySelector('.conv-delete').addEventListener('click',e=>deleteConv(e,id));
+    item.addEventListener('click',()=>loadConversation(id));
+    list.appendChild(item);
+  });
+}
+
+/* ── Business selector ── */
+function renderSelector(){
+  const grid=document.getElementById('bizGrid');
+  const all=ls(BIZ_KEY);
+  const ids=Object.keys(all).sort((a,b)=>all[a].createdAt-all[b].createdAt);
+  grid.innerHTML='';
+  ids.forEach((id,i)=>{
+    const b=all[id];
+    const convs=ls(convKey(id));
+    const count=Object.keys(convs).length;
+    const emoji=EMOJIS[i%EMOJIS.length];
+    const card=document.createElement('div');
+    card.className='biz-card';
+    card.innerHTML=`
+      <button class="biz-card-delete" title="Delete business">&#x2715;</button>
+      <div class="biz-card-icon">${emoji}</div>
+      <div class="biz-card-name">${escHtml(b.name)}</div>
+      <div class="biz-card-meta">${count} saved chat${count!==1?'s':''}</div>`;
+    card.querySelector('.biz-card-delete').addEventListener('click',e=>{e.stopPropagation();promptDeleteBiz(id,b.name);});
+    card.addEventListener('click',()=>enterBiz(id));
+    grid.appendChild(card);
+  });
+  const addCard=document.createElement('div');
+  addCard.className='add-biz-card';
+  addCard.innerHTML=`<div class="add-biz-card-icon">+</div><span>Add a business</span>`;
+  addCard.addEventListener('click',()=>openAddBizModal());
+  grid.appendChild(addCard);
+}
+
+function openAddBizModal(){
+  document.getElementById('addBizName').value='';
+  document.getElementById('addBizNiche').value='';
+  openModal('modalAddBiz');
+  setTimeout(()=>document.getElementById('addBizName').focus(),80);
+}
+
+function confirmAddBiz(){
+  const name=document.getElementById('addBizName').value.trim();
+  const niche=document.getElementById('addBizNiche').value.trim();
+  if(!name){document.getElementById('addBizName').focus();return;}
+  const all=ls(BIZ_KEY);
+  const id=genId();
+  all[id]={name,niche,createdAt:Date.now()};
+  lsSave(BIZ_KEY,all);
+  closeModal('modalAddBiz');
+  renderSelector();
+  enterBiz(id);
+}
+
+function promptDeleteBiz(id,name){
+  pendingDeleteBizId=id;
+  document.getElementById('deleteBizMsg').textContent=`"${name}" and all its saved conversations will be permanently deleted. This cannot be undone.`;
+  openModal('modalDeleteBiz');
+}
+
+function confirmDeleteBiz(){
+  if(!pendingDeleteBizId)return;
+  const all=ls(BIZ_KEY);
+  delete all[pendingDeleteBizId];
+  lsSave(BIZ_KEY,all);
+  localStorage.removeItem(convKey(pendingDeleteBizId));
+  if(activeBizId===pendingDeleteBizId){activeBizId=null;}
+  pendingDeleteBizId=null;
+  closeModal('modalDeleteBiz');
+  renderSelector();
+  showToast('Business deleted.');
+}
+
+/* ── Enter business ── */
+function enterBiz(id){
+  activeBizId=id;
+  currentConvId=null;history=[];
+  syncWordmarks();
+  renderNicheDisplay();
+  renderMessages();
+  updateBadge('');
+  showScreen('screen-chat');
+}
+
+function switchBusiness(){
+  autoSaveCurrentConv();
+  activeBizId=null;currentConvId=null;history=[];
+  storiesHistory=[];currentStoriesConvId=null;
+  closeSidebar();closeSidebar2();closeSidebar4();
+  showScreen('screen-selector');
+  renderSelector();
+}
+
+/* ── Niche ── */
+function getCurrentNiche(){
+  if(!activeBizId)return'';
+  return ls(BIZ_KEY)[activeBizId]?.niche||'';
+}
+function renderNicheDisplay(){
+  const niche=getCurrentNiche();
+  const display=document.getElementById('nicheDisplay');
+  const preview=document.getElementById('nichePreview');
+  const toggleBtn=document.getElementById('nicheToggleBtn');
+  if(niche){
+    // Show first line or first 80 chars as preview
+    const firstLine=niche.split('\n')[0];
+    const previewText=firstLine.length>80?firstLine.slice(0,80)+'…':firstLine+'…';
+    preview.textContent=previewText;
+    preview.style.display='block';
+    display.textContent=niche;
+    display.className='niche-text'; // collapsed by default
+    if(toggleBtn){toggleBtn.textContent='▼ Show';}
+  } else {
+    preview.style.display='none';
+    display.textContent='No niche set yet — click Edit to add one.';
+    display.className='niche-empty expanded';
+    if(toggleBtn){toggleBtn.style.display='none';}
+  }
+}
+
+function toggleNiche(){
+  const display=document.getElementById('nicheDisplay');
+  const toggleBtn=document.getElementById('nicheToggleBtn');
+  const preview=document.getElementById('nichePreview');
+  const isExpanded=display.classList.contains('expanded');
+  if(isExpanded){
+    display.classList.remove('expanded');
+    preview.style.display='block';
+    if(toggleBtn)toggleBtn.textContent='▼ Show';
+  } else {
+    display.classList.add('expanded');
+    preview.style.display='none';
+    if(toggleBtn)toggleBtn.textContent='▲ Hide';
+  }
+}
+function startEditNiche(){
+  document.getElementById('nicheDisplay').style.display='none';
+  document.getElementById('nicheEditBtn').style.display='none';
+  const preview=document.getElementById('nichePreview');
+  if(preview)preview.style.display='none';
+  const toggleBtn=document.getElementById('nicheToggleBtn');
+  if(toggleBtn)toggleBtn.style.display='none';
+  document.getElementById('nicheEditArea').classList.add('visible');
+  const ta=document.getElementById('nicheTextarea');
+  ta.value=getCurrentNiche();ta.focus();
+}
+function cancelEditNiche(){
+  document.getElementById('nicheEditArea').classList.remove('visible');
+  document.getElementById('nicheDisplay').style.display='';
+  document.getElementById('nicheEditBtn').style.display='';
+  renderNicheDisplay();
+}
+function saveNiche(){
+  const val=document.getElementById('nicheTextarea').value.trim();
+  if(!val){document.getElementById('nicheTextarea').focus();return;}
+  const all=ls(BIZ_KEY);
+  if(all[activeBizId]){all[activeBizId].niche=val;lsSave(BIZ_KEY,all);}
+  renderNicheDisplay();cancelEditNiche();showToast('Niche updated!');
+}
+
+/* ── Conversations ── */
+function openSaveModal(){
+  if(history.length===0){showToast('Nothing to save yet — start chatting first!');return;}
+  const input=document.getElementById('convNameInput');
+  if(currentConvId){const all=ls(convKey(activeBizId));input.value=all[currentConvId]?.name||'';}
+  else{const first=history.find(m=>m.role==='user');input.value=first?first.content.slice(0,50):'';}
+  openModal('modalSaveConv');
+  setTimeout(()=>input.focus(),80);
+}
+
+function confirmSave(){
+  const name=document.getElementById('convNameInput').value.trim();
+  if(!name){document.getElementById('convNameInput').focus();return;}
+  const all=ls(convKey(activeBizId));
+  const id=currentConvId||genId();
+  all[id]={name,history:JSON.stringify(history),updatedAt:Date.now()};
+  lsSave(convKey(activeBizId),all);
+  currentConvId=id;
+  closeModal('modalSaveConv');updateBadge(name);
+  showToast('Conversation saved!');
+  renderSidebar('convList');
+  renderSidebar('convList2');
+}
+
+function autoSaveCurrentConv(){
+  if(!currentConvId||!activeBizId||history.length===0)return;
+  const all=ls(convKey(activeBizId));
+  if(!all[currentConvId])return;
+  all[currentConvId].history=JSON.stringify(history);
+  all[currentConvId].updatedAt=Date.now();
+  lsSave(convKey(activeBizId),all);
+}
+
+function autoSaveIfActive(){
+  if(!currentConvId)return;
+  autoSaveCurrentConv();
+}
+
+function updateBadge(name){
+  const badge=document.getElementById('currentConvName');
+  if(name){badge.textContent=name;badge.classList.add('visible');}
+  else{badge.textContent='';badge.classList.remove('visible');}
+}
+
+function loadConversation(id){
+  const all=ls(convKey(activeBizId));
+  const conv=all[id];if(!conv)return;
+  currentConvId=id;
+  try{history=JSON.parse(conv.history);}catch(e){history=[];}
+  renderMessages();updateBadge(conv.name);closeSidebar();closeSidebar2();
+  goToChat();
+}
+
+function deleteConv(e,id){
+  e.stopPropagation();
+  const all=ls(convKey(activeBizId));delete all[id];lsSave(convKey(activeBizId),all);
+  if(currentConvId===id){currentConvId=null;history=[];renderMessages();updateBadge('');}
+  renderSidebar('convList');renderSidebar('convList2');
+  showToast('Conversation deleted.');
+}
+
+function newConversation(){
+  currentConvId=null;history=[];
+  renderMessages();updateBadge('');closeSidebar();closeSidebar2();
+  goToChat();
+  setTimeout(()=>document.getElementById('userInput').focus(),100);
+}
+
+/* ── Messages ── */
+function renderMessages(){
+  const container=document.getElementById('messages');
+  container.innerHTML='';
+  if(history.length===0){
+    const niche=getCurrentNiche();
+    const welcome=niche
+      ?'Welcome! Tell me your content idea — a trending moment, a product to launch, a concept you want to create, anything. I\'ll recommend the best format and hook, then build it out step by step.\n\n**What are you thinking?**'
+      :'Welcome! Before we start, click **Edit** on the niche card above to describe this business. Once that\'s saved, bring me any content idea and I\'ll build it into a full plan.';
+    appendBubble('assistant',welcome);
+  } else {
+    history.forEach(m=>appendBubble(m.role,m.content));
+  }
+  scrollBottom();
+}
+
+function appendBubble(role,text){
+  const container=document.getElementById('messages');
+  const div=document.createElement('div');div.className='msg '+role;
+  const label=document.createElement('div');label.className='msg-label';
+  label.textContent=role==='user'?'You':'Format Finder';
+  const bubble=document.createElement('div');bubble.className='bubble';
+  bubble.innerHTML=formatText(text);
+  div.appendChild(label);div.appendChild(bubble);container.appendChild(div);
+}
+
+function formatText(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
+    .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+
+function scrollBottom(){const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function fillPrompt(text){const i=document.getElementById('userInput');i.value=text;i.focus();autoResize(i);}
+
+async function sendMessage(){
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();if(!text)return;
+  if(!getCurrentNiche()){showToast('Add your niche first — click Edit above.');return;}
+  input.value='';input.style.height='auto';
+  document.getElementById('sendBtn').disabled=true;
+  history.push({role:'user',content:text});
+  appendBubble('user',text);scrollBottom();
+  const typing=document.getElementById('typing');
+  typing.classList.add('visible');scrollBottom();
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
+        messages:history
+      })
+    });
+    const data=await resp.json();
+    typing.classList.remove('visible');
+    if(data.content&&data.content[0]){
+      const reply=data.content[0].text;
+      history.push({role:'assistant',content:reply});
+      appendBubble('assistant',reply);
+      autoSaveIfActive();
+    } else {
+      appendBubble('assistant','Something went wrong. Please try again.');
+    }
+  } catch(err){
+    typing.classList.remove('visible');
+    appendBubble('assistant','Connection error. Please check your internet and try again.');
+  }
+  scrollBottom();
+  document.getElementById('sendBtn').disabled=false;
+  document.getElementById('userInput').focus();
+}
+
+/* ════════════════════════════════════════════
+   ANALYZE TAB
+════════════════════════════════════════════ */
+
+function getSkipColor(skipRate, typicalSkip){
+  if(!skipRate||!typicalSkip)return'';
+  const sr=parseFloat(skipRate);
+  const ts=parseFloat(typicalSkip);
+  if(isNaN(sr)||isNaN(ts))return'';
+  const diff=ts-sr;
+  if(diff>15)return'good';
+  if(diff>0)return'';
+  return'bad';
+}
+
+async function runAnalysis(){
+  const desc=document.getElementById('aReelDesc').value.trim();
+  const transcript=document.getElementById('aTranscript').value.trim();
+
+  if(!desc&&!transcript&&!transcriptImageBase64&&analyticsImages.length===0){
+    showToast('Add a reel description, transcript, or analytics screenshots to analyze.');
+    return;
+  }
+
+  const metrics={
+    length:document.getElementById('aLength').value.trim(),
+    avgWatch:document.getElementById('aAvgWatch').value.trim(),
+    skipRate:document.getElementById('aSkipRate').value.trim(),
+    typicalSkip:document.getElementById('aTypicalSkip').value.trim(),
+    reached:document.getElementById('aReached').value.trim(),
+    saves:document.getElementById('aSaves').value.trim(),
+    shares:document.getElementById('aShares').value.trim(),
+    follows:document.getElementById('aFollows').value.trim(),
+    comments:document.getElementById('aComments').value.trim(),
+    fbPct:document.getElementById('aFBpct').value.trim(),
+    reelsTab:document.getElementById('aReelsTab').value.trim(),
+    coverType:document.getElementById('aCoverType').value.trim(),
+    caption:document.getElementById('aCaption').value.trim(),
+  };
+
+  // Show results panel with loading state
+  const results=document.getElementById('analyzeResults');
+  const loading=document.getElementById('resultsLoading');
+  const body=document.getElementById('resultsBody');
+  const stats=document.getElementById('resultsStats');
+  const reelName=document.getElementById('resultsReelName');
+
+  results.classList.add('visible');
+  loading.classList.add('visible');
+  body.innerHTML='';
+  stats.innerHTML='';
+  reelName.textContent=desc||'Reel analysis';
+
+  // Build stats pills
+  if(metrics.reached||metrics.skipRate||metrics.saves||metrics.follows){
+    const pillData=[
+      {label:'Accounts reached',value:metrics.reached||'—',cls:''},
+      {label:'Skip rate',value:metrics.skipRate||'—',cls:getSkipColor(metrics.skipRate,metrics.typicalSkip)},
+      {label:'Saves',value:metrics.saves||'—',cls:''},
+      {label:'Follows',value:metrics.follows||'—',cls:''},
+    ];
+    pillData.forEach(p=>{
+      const pill=document.createElement('div');
+      pill.className='stat-pill';
+      pill.innerHTML=`<div class="stat-value ${p.cls}">${escHtml(p.value)}</div><div class="stat-label">${p.label}</div>`;
+      stats.appendChild(pill);
+    });
+  }
+
+  document.getElementById('analyzeBtn').disabled=true;
+
+  // Build the prompt
+  const niche=getCurrentNiche();
+  const userPrompt=`Please analyze this reel.
+
+REEL DESCRIPTION: ${desc||'Not provided'}
+
+TRANSCRIPT:
+${transcript||'Not provided — analyze based on metrics only'}
+
+METRICS:
+- Video length: ${metrics.length||'not provided'}
+- Average watch time: ${metrics.avgWatch||'not provided'}
+- Skip rate: ${metrics.skipRate||'not provided'} (typical for this account: ${metrics.typicalSkip||'not provided'})
+- Accounts reached: ${metrics.reached||'not provided'}
+- Saves: ${metrics.saves||'not provided'}
+- Shares: ${metrics.shares||'not provided'}
+- Follows: ${metrics.follows||'not provided'}
+- Comments: ${metrics.comments||'not provided'}
+- Facebook % of total views: ${metrics.fbPct||'not provided'}
+- Reels tab %: ${metrics.reelsTab||'not provided'}
+- Cover image type: ${metrics.coverType||'not provided'}
+${metrics.caption?'\nCAPTION & HASHTAGS:\n'+metrics.caption:''}
+
+${niche?'ACCOUNT NICHE:\n'+niche:''}
+
+Provide a thorough analysis grounded in this account's specific benchmark data.${transcriptImageBase64?'\n\nA screenshot of the transcript has been provided as an image — please read the text from it and use it as the transcript for this analysis.':''}${analyticsImages.length>0?'\n\nInstagram analytics screenshots have been provided as images — please read all the metrics directly from them. Extract every number you can see: views, accounts reached, skip rate, average watch time, saves, shares, follows, comments, likes, Facebook percentage, Reels tab percentage, and any retention or drop-off data visible.':''}`;
+
+  // Build message content — include transcript image and/or analytics images
+  let messageContent;
+  const imageParts = [];
+
+  if(transcriptImageBase64){
+    imageParts.push({type:'image',source:{type:'base64',media_type:transcriptImageMediaType,data:transcriptImageBase64}});
+  }
+  analyticsImages.forEach(img=>{
+    imageParts.push({type:'image',source:{type:'base64',media_type:img.mediaType,data:img.base64}});
+  });
+
+  if(imageParts.length>0){
+    messageContent=[...imageParts,{type:'text',text:userPrompt}];
+  } else {
+    messageContent=userPrompt;
+  }
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:ANALYZE_SYSTEM,
+        messages:[{role:'user',content:messageContent}]
+      })
+    });
+    const data=await resp.json();
+    loading.classList.remove('visible');
+
+    if(data.content&&data.content[0]){
+      const reply=data.content[0].text;
+      const bubble=document.createElement('div');
+      bubble.className='results-bubble';
+      bubble.innerHTML=formatText(reply);
+      body.appendChild(bubble);
+    } else {
+      body.innerHTML='<div class="results-bubble">Something went wrong. Please try again.</div>';
+    }
+  } catch(err){
+    loading.classList.remove('visible');
+    body.innerHTML='<div class="results-bubble">Connection error. Please check your internet and try again.</div>';
+  }
+
+  document.getElementById('analyzeBtn').disabled=false;
+  results.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function clearAnalysis(){
+  document.getElementById('analyzeResults').classList.remove('visible');
+  document.getElementById('resultsBody').innerHTML='';
+  document.getElementById('resultsStats').innerHTML='';
+  document.getElementById('resultsLoading').classList.remove('visible');
+  analyticsImages=[];
+  document.getElementById('analyticsImagePreviews').innerHTML='';
+  document.getElementById('analyticsImageUpload').value='';
+  clearTranscriptImage();
+}
+
+/* ── Modal keyboard handlers ── */
+document.getElementById('convNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmSave();if(e.key==='Escape')closeModal('modalSaveConv');});
+document.getElementById('addBizName').addEventListener('keydown',e=>{if(e.key==='Escape')closeModal('modalAddBiz');});
+document.getElementById('nicheTextarea').addEventListener('keydown',e=>{if(e.key==='Escape')cancelEditNiche();});
+
+/* ════════════════════════════════════════════
+   IDEAS SYSTEM
+════════════════════════════════════════════ */
+
+function ideaKey(bizId){ return 'ff3_ideas_'+bizId; }
+
+let currentIdeaId = null;
+let activeIdeaFilter = 'all';
+let menuTargetIdeaId = null;
+let tabChatHistory = { script:{}, caption:{} }; // keyed by ideaId
+
+const STATUS_LABELS = {
+  idea:'💭 Idea',
+  scripting:'✏️ Scripting',
+  filming:'🎬 Ready to Film',
+  posted:'✅ Posted',
+  analyzed:'📊 Analyzed'
+};
+const STATUS_CLASSES = {
+  idea:'status-idea',
+  scripting:'status-scripting',
+  filming:'status-filming',
+  posted:'status-posted',
+  analyzed:'status-analyzed'
+};
+
+/* ── Navigation ── */
+function goToIdeas(){
+  syncWordmarks();
+  renderIdeasList();
+  showScreen('screen-ideas');
+  const el=document.getElementById('ideasWordmark');
+  if(el){const all=ls(BIZ_KEY);const biz=activeBizId?all[activeBizId]:null;el.textContent=biz?biz.name:'';}
+}
+
+function openSidebar3(){ renderSidebar('convList3'); document.getElementById('sidebar3').classList.add('open'); document.getElementById('overlay3').classList.add('open'); }
+function closeSidebar3(){ document.getElementById('sidebar3').classList.remove('open'); document.getElementById('overlay3').classList.remove('open'); }
+
+/* ── Ideas CRUD ── */
+function getAllIdeas(){ return ls(ideaKey(activeBizId)); }
+function saveAllIdeas(data){ lsSave(ideaKey(activeBizId),data); }
+
+function createIdea(hook, format, status='idea'){
+  const all=getAllIdeas();
+  const id=genId();
+  all[id]={
+    id, hook, format:format||'', status,
+    notes:'',
+    createdAt:Date.now(),
+    updatedAt:Date.now(),
+    scriptHistory:[],
+    captionHistory:[]
+  };
+  saveAllIdeas(all);
+  return id;
+}
+
+/* ── Save idea from chat ── */
+function openSaveIdeaModal(){
+  // Pre-fill with last assistant message
+  const msgs=document.getElementById('messages');
+  const bubbles=msgs.querySelectorAll('.msg.assistant .bubble');
+  let preText='';
+  if(bubbles.length>0){
+    const lastBubble=bubbles[bubbles.length-1];
+    preText=lastBubble.innerText.slice(0,300);
+  }
+  document.getElementById('saveIdeaHook').value=preText;
+  document.getElementById('saveIdeaFormat').value='';
+  openModal('modalSaveIdea');
+  setTimeout(()=>document.getElementById('saveIdeaHook').focus(),80);
+}
+
+function confirmSaveIdea(){
+  const hook=document.getElementById('saveIdeaHook').value.trim();
+  if(!hook){document.getElementById('saveIdeaHook').focus();return;}
+  const format=document.getElementById('saveIdeaFormat').value;
+  createIdea(hook,format,'idea');
+  closeModal('modalSaveIdea');
+  showToast('Idea saved! View it in the Ideas tab.');
+}
+
+/* ── Add idea manually ── */
+function openAddIdeaModal(){
+  document.getElementById('addIdeaHook').value='';
+  document.getElementById('addIdeaFormat').value='';
+  openModal('modalAddIdea');
+  setTimeout(()=>document.getElementById('addIdeaHook').focus(),80);
+}
+
+function confirmAddIdea(){
+  const hook=document.getElementById('addIdeaHook').value.trim();
+  if(!hook){document.getElementById('addIdeaHook').focus();return;}
+  const format=document.getElementById('addIdeaFormat').value;
+  createIdea(hook,format,'idea');
+  closeModal('modalAddIdea');
+  renderIdeasList();
+  showToast('Idea added!');
+}
+
+/* ── Render ideas list ── */
+function filterIdeas(status, btn){
+  activeIdeaFilter=status;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderIdeasList();
+}
+
+function renderIdeasList(){
+  const container=document.getElementById('ideasList');
+  const all=getAllIdeas();
+  let ids=Object.keys(all).sort((a,b)=>all[b].updatedAt-all[a].updatedAt);
+  if(activeIdeaFilter!=='all') ids=ids.filter(id=>all[id].status===activeIdeaFilter);
+
+  if(ids.length===0){
+    const filterMsg=activeIdeaFilter==='all'?'No ideas yet.':
+      `No ideas with status <strong>${STATUS_LABELS[activeIdeaFilter]||activeIdeaFilter}</strong>.`;
+    container.innerHTML=`<div class="ideas-empty"><p>${filterMsg}<br>Hit <strong>+ Add idea</strong> or use <strong>Save as idea</strong> in a brainstorm chat.</p></div>`;
+    return;
+  }
+
+  container.innerHTML='';
+  ids.forEach(id=>{
+    const idea=all[id];
+    const card=document.createElement('div');
+    card.className='idea-card';
+    card.innerHTML=`
+      <div class="idea-card-left">
+        <div class="idea-card-top">
+          <span class="status-badge ${STATUS_CLASSES[idea.status]||'status-idea'}">${STATUS_LABELS[idea.status]||idea.status}</span>
+          ${idea.format?`<span class="format-tag">${escHtml(idea.format)}</span>`:''}
+        </div>
+        <div class="idea-hook">${escHtml(idea.hook)}</div>
+        <div class="idea-meta">Added ${fmtDate(idea.createdAt)}</div>
+      </div>
+      <div class="idea-card-actions">
+        <button class="idea-menu-btn" title="Options">&#8943;</button>
+      </div>`;
+    card.querySelector('.idea-card-left').addEventListener('click',()=>openIdeaDetail(id));
+    card.querySelector('.idea-menu-btn').addEventListener('click',e=>{e.stopPropagation();openIdeaMenu(e,id);});
+    container.appendChild(card);
+  });
+}
+
+/* ── Status menu ── */
+function openIdeaMenu(e,id){
+  menuTargetIdeaId=id;
+  const menu=document.getElementById('ideaStatusMenu');
+  menu.classList.add('open');
+  const rect=e.target.getBoundingClientRect();
+  menu.style.top=(rect.bottom+6)+'px';
+  menu.style.left=Math.max(8,rect.right-160)+'px';
+  e.stopPropagation();
+}
+
+function closeIdeaMenu(){ document.getElementById('ideaStatusMenu').classList.remove('open'); menuTargetIdeaId=null; }
+
+function setIdeaStatusFromMenu(status){
+  if(!menuTargetIdeaId)return;
+  const all=getAllIdeas();
+  if(all[menuTargetIdeaId]){all[menuTargetIdeaId].status=status;all[menuTargetIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+  closeIdeaMenu();
+  renderIdeasList();
+  showToast('Status updated.');
+}
+
+function deleteIdeaFromMenu(){
+  if(!menuTargetIdeaId)return;
+  const all=getAllIdeas();
+  delete all[menuTargetIdeaId];
+  saveAllIdeas(all);
+  if(currentIdeaId===menuTargetIdeaId){currentIdeaId=null;}
+  closeIdeaMenu();
+  renderIdeasList();
+  showToast('Idea deleted.');
+}
+
+document.addEventListener('click',()=>closeIdeaMenu());
+
+/* ── Idea detail ── */
+function openIdeaDetail(id){
+  currentIdeaId=id;
+  const all=getAllIdeas();
+  const idea=all[id];
+  if(!idea)return;
+
+  // Reset tab histories from stored
+  tabChatHistory.script[id]=idea.scriptHistory||[];
+  tabChatHistory.caption[id]=idea.captionHistory||[];
+
+  // Populate header
+  document.getElementById('detailHookText').textContent=idea.hook;
+  document.getElementById('detailStatusSelect').value=idea.status||'idea';
+  document.getElementById('detailFormatSelect').value=idea.format||'';
+  document.getElementById('detailMeta').textContent='Added '+fmtDate(idea.createdAt);
+  const wm=document.getElementById('detailWordmark');
+  if(wm){const bizAll=ls(BIZ_KEY);const biz=activeBizId?bizAll[activeBizId]:null;wm.textContent=biz?biz.name:'';}
+
+  // Populate notes
+  document.getElementById('notesTextarea').value=idea.notes||'';
+
+  // Switch to notes tab
+  switchDetailTab('notes');
+
+  showScreen('screen-idea-detail');
+}
+
+function saveDetailHookEdit(){
+  if(!currentIdeaId)return;
+  const newHook=document.getElementById('detailHookText').textContent.trim();
+  if(!newHook)return;
+  const all=getAllIdeas();
+  if(all[currentIdeaId]){all[currentIdeaId].hook=newHook;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+}
+
+function updateIdeaStatus(status){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();
+  if(all[currentIdeaId]){all[currentIdeaId].status=status;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+  showToast('Status updated.');
+}
+
+function updateIdeaFormat(format){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();
+  if(all[currentIdeaId]){all[currentIdeaId].format=format;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+}
+
+function saveNotes(){
+  if(!currentIdeaId)return;
+  const notes=document.getElementById('notesTextarea').value;
+  const all=getAllIdeas();
+  if(all[currentIdeaId]){all[currentIdeaId].notes=notes;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+  showToast('Notes saved.');
+}
+
+/* ── Detail tabs ── */
+function switchDetailTab(tab){
+  // Auto-save notes before switching away from notes tab
+  if(tab==='script'||tab==='caption'){
+    const notesEl=document.getElementById('notesTextarea');
+    if(notesEl&&currentIdeaId){
+      const all=getAllIdeas();
+      if(all[currentIdeaId]){
+        all[currentIdeaId].notes=notesEl.value;
+        all[currentIdeaId].updatedAt=Date.now();
+        saveAllIdeas(all);
+        // Also update idea.notes in memory so initTabChat reads it
+        if(tabChatHistory&&!tabChatHistory.script[currentIdeaId]){
+          // notes updated — initTabChat will pick it up fresh
+        }
+      }
+    }
+  }
+  ['notes','script','caption'].forEach(t=>{
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display=t===tab?'':'none';
+    document.getElementById('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+  });
+  if((tab==='script'||tab==='caption')&&currentIdeaId){
+    initTabChat(tab);
+  }
+}
+
+function initTabChat(tab){
+  const all=getAllIdeas();
+  const idea=all[currentIdeaId];
+  if(!idea)return;
+
+  const history=tabChatHistory[tab][currentIdeaId]||[];
+  const messagesEl=document.getElementById(tab+'Messages');
+  messagesEl.innerHTML='';
+
+  if(history.length===0){
+    // Read current notes from the textarea (live) or stored value
+    const notesEl=document.getElementById('notesTextarea');
+    const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
+    const notesBlock=notes?`\n**Notes & context:**\n${notes}`:'';
+
+    let context;
+    if(tab==='script'){
+      context=`I want to write a full script for this reel.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease generate the following four sections:\n\n**1. Script**\nA-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational — written the way someone would actually say it, not how they'd write it.\n\n**2. On-Screen Text**\nList each text overlay with: the exact text, which clip or moment it appears on, and any font or animation notes that differ from the account defaults (System font, white, size 12, Black Shadow 60%/30%, centered above bottom UI).\n\n**3. Cover Image**\nSuggest the ideal cover frame: which moment in the reel to use, what the Canva text overlay should say (short and punchy, as few words as possible), font choice (Montserrat ExtraBold, Anton, or League Spartan), and whether a semi-transparent rectangle background element is needed for readability. Remind that all text must stay within the center square and be placed in the lower third.\n\n**4. CapCut Editing Notes**\nConcise — assume all clips are already filmed on iPhone and the editor knows CapCut well. Include: clip order on the timeline, transition between each clip (default to Jump Cut; use White Flash at Transitions > Overlay for before/after reveals; use Pull In/Pull Out at Transitions > Movement for high-energy scene changes; note any Keyframe Zoom punch-ins needed; note any in-camera transitions that should have been filmed — Clap/Snap, Lens Cover, or Spin), any speed adjustments, music mood/tempo suggestion, and a final line reminding to run Auto-Captions with standard styling. Default to Jump Cuts for 90% of edits — only one stylized transition per reel maximum.`;
+    } else {
+      // Caption tab — check if a script already exists for this idea
+      const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
+      const scriptExists=scriptHistory.length>0;
+
+      if(scriptExists){
+        // Pull the script content from the last assistant message in script history
+        const scriptMsgs=scriptHistory.filter(m=>m.role==='assistant');
+        const lastScript=scriptMsgs.length>0?scriptMsgs[scriptMsgs.length-1].content:'';
+        context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
+      } else {
+        // No script — generate from scratch
+        context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
+      }
+    }
+    appendTabBubble(tab,'user',context);
+    tabChatHistory[tab][currentIdeaId]=[{role:'user',content:context}];
+    sendTabAuto(tab);
+  } else {
+    history.forEach(m=>appendTabBubble(tab,m.role,m.content));
+    messagesEl.scrollTop=messagesEl.scrollHeight;
+  }
+}
+
+function appendTabBubble(tab,role,text){
+  const container=document.getElementById(tab+'Messages');
+  const div=document.createElement('div');div.className='msg '+role;
+  const label=document.createElement('div');label.className='msg-label';
+  label.textContent=role==='user'?'You':'Format Finder';
+  const bubble=document.createElement('div');bubble.className='bubble';
+  bubble.innerHTML=formatText(text);
+  div.appendChild(label);div.appendChild(bubble);container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+async function sendTabAuto(tab){
+  const typingEl=document.getElementById(tab+'Typing');
+  const sendBtn=document.getElementById(tab+'SendBtn');
+  if(typingEl)typingEl.classList.add('visible');
+  if(sendBtn)sendBtn.disabled=true;
+
+  const history=tabChatHistory[tab][currentIdeaId]||[];
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
+        messages:history
+      })
+    });
+    const data=await resp.json();
+    if(typingEl)typingEl.classList.remove('visible');
+    if(data.content&&data.content[0]){
+      const reply=data.content[0].text;
+      tabChatHistory[tab][currentIdeaId].push({role:'assistant',content:reply});
+      appendTabBubble(tab,'assistant',reply);
+      saveTabHistory(tab);
+    }
+  } catch(err){
+    if(typingEl)typingEl.classList.remove('visible');
+    appendTabBubble(tab,'assistant','Connection error. Please try again.');
+  }
+  if(sendBtn)sendBtn.disabled=false;
+}
+
+async function sendTabMessage(tab){
+  const inputEl=document.getElementById(tab+'Input');
+  const text=inputEl.value.trim();
+  if(!text)return;
+  inputEl.value='';inputEl.style.height='auto';
+
+  tabChatHistory[tab][currentIdeaId]=tabChatHistory[tab][currentIdeaId]||[];
+  tabChatHistory[tab][currentIdeaId].push({role:'user',content:text});
+  appendTabBubble(tab,'user',text);
+  await sendTabAuto(tab);
+}
+
+function handleTabKey(e,tab){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTabMessage(tab);}
+}
+
+function saveTabHistory(tab){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();
+  if(!all[currentIdeaId])return;
+  const key=tab+'History';
+  all[currentIdeaId][key]=tabChatHistory[tab][currentIdeaId]||[];
+  all[currentIdeaId].updatedAt=Date.now();
+  saveAllIdeas(all);
+}
+
+/* ── Update syncWordmarks to include ideas ── */
+const _origSyncWordmarks=syncWordmarks;
+
+/* ════════════════════════════════════════════
+   STORIES SYSTEM
+════════════════════════════════════════════ */
+
+const STORIES_CONV_KEY = (bizId) => 'ff3_stories_'+bizId;
+
+const STORIES_SYSTEM = `You are a Story Planner for Bra Fittings by Court — a women's bra fitting boutique in Kaysville, Utah. Your job is to plan Instagram Stories sequences that nurture existing followers, build community, and drive action.
+
+STORIES STRATEGY FOR THIS ACCOUNT:
+- Stories are for people who already follow the account — no need to hook strangers
+- Goal is always one of: authenticity/connection, engagement/interaction, urgency/action, or market research
+- Instagram Stories disappear in 24 hours — lean into urgency and spontaneity
+- Keep each individual frame simple — one idea per frame
+- Sequences should be 3–7 frames long
+- Always suggest the right Instagram-native interactive element for each frame: Poll, Quiz, Q&A Box, Slider, Countdown Timer, Link Sticker, or none
+- Every sequence should end with a clear CTA — either book a fitting (link in bio) or shop via the size calculator (link in bio)
+- Tone is casual, warm, and real — not polished or scripted
+
+OUTPUT FORMAT:
+When you plan a sequence, present it as a numbered list of frames. For each frame include:
+- Frame number and purpose (e.g. "Frame 1 — Hook / Set the scene")
+- What to show or film (visual description)
+- Text overlay or caption to add (if any)
+- Interactive sticker to use (if any) with the exact poll options, quiz question, or prompt text
+- Any relevant notes
+
+After the sequence, add a one-line summary of the strategic goal and estimated time to create.
+
+Keep it practical and actionable. These should be things the team can execute in the shop today with a phone.`;
+
+let storiesHistory = [];
+let currentStoriesConvId = null;
+
+function storiesConvKey(){ return STORIES_CONV_KEY(activeBizId); }
+
+/* ── Navigation ── */
+function goToStories(){
+  syncWordmarks();
+  renderStoriesSidebar();
+  renderStoriesMessages();
+  showScreen('screen-stories');
+}
+
+function openSidebar4(){ renderStoriesSidebar(); document.getElementById('sidebar4').classList.add('open'); document.getElementById('overlay4').classList.add('open'); }
+function closeSidebar4(){ document.getElementById('sidebar4').classList.remove('open'); document.getElementById('overlay4').classList.remove('open'); }
+
+/* ── Sidebar ── */
+function renderStoriesSidebar(){
+  const list=document.getElementById('storiesConvList');
+  const all=ls(storiesConvKey());
+  const ids=Object.keys(all).sort((a,b)=>all[b].updatedAt-all[a].updatedAt);
+  if(ids.length===0){
+    list.innerHTML='<div class="no-convs">No saved conversations yet.<br>Tap <strong>Save chat</strong> to keep one.</div>';
+    return;
+  }
+  list.innerHTML='<div class="conv-group-label">Saved chats</div>';
+  ids.forEach(id=>{
+    const c=all[id];
+    const item=document.createElement('div');
+    item.className='conv-item'+(id===currentStoriesConvId?' active':'');
+    item.innerHTML=`
+      <div class="conv-info">
+        <div class="conv-name">${escHtml(c.name)}</div>
+        <div class="conv-date">${fmtDate(c.updatedAt)}</div>
+      </div>
+      <button class="conv-delete" title="Delete">&#x2715;</button>`;
+    item.querySelector('.conv-delete').addEventListener('click',e=>deleteStoriesConv(e,id));
+    item.addEventListener('click',()=>loadStoriesConversation(id));
+    list.appendChild(item);
+  });
+}
+
+/* ── Conversations ── */
+function openStoriesSaveModal(){
+  if(storiesHistory.length===0){showToast('Nothing to save yet — start chatting first!');return;}
+  const input=document.getElementById('storiesConvNameInput');
+  if(currentStoriesConvId){const all=ls(storiesConvKey());input.value=all[currentStoriesConvId]?.name||'';}
+  else{const first=storiesHistory.find(m=>m.role==='user');input.value=first?first.content.slice(0,50):'';}
+  openModal('modalSaveStoriesConv');
+  setTimeout(()=>input.focus(),80);
+}
+
+function confirmStoriesSave(){
+  const name=document.getElementById('storiesConvNameInput').value.trim();
+  if(!name){document.getElementById('storiesConvNameInput').focus();return;}
+  const all=ls(storiesConvKey());
+  const id=currentStoriesConvId||genId();
+  all[id]={name,history:JSON.stringify(storiesHistory),updatedAt:Date.now()};
+  lsSave(storiesConvKey(),all);
+  currentStoriesConvId=id;
+  closeModal('modalSaveStoriesConv');
+  updateStoriesBadge(name);
+  showToast('Conversation saved!');
+  renderStoriesSidebar();
+}
+
+function autoSaveStoriesIfActive(){
+  if(!currentStoriesConvId)return;
+  const all=ls(storiesConvKey());
+  if(!all[currentStoriesConvId])return;
+  all[currentStoriesConvId].history=JSON.stringify(storiesHistory);
+  all[currentStoriesConvId].updatedAt=Date.now();
+  lsSave(storiesConvKey(),all);
+}
+
+function updateStoriesBadge(name){
+  const badge=document.getElementById('currentStoriesConvName');
+  if(name){badge.textContent=name;badge.classList.add('visible');}
+  else{badge.textContent='';badge.classList.remove('visible');}
+}
+
+function loadStoriesConversation(id){
+  const all=ls(storiesConvKey());
+  const conv=all[id];if(!conv)return;
+  currentStoriesConvId=id;
+  try{storiesHistory=JSON.parse(conv.history);}catch(e){storiesHistory=[];}
+  renderStoriesMessages();
+  updateStoriesBadge(conv.name);
+  closeSidebar4();
+}
+
+function deleteStoriesConv(e,id){
+  e.stopPropagation();
+  const all=ls(storiesConvKey());delete all[id];lsSave(storiesConvKey(),all);
+  if(currentStoriesConvId===id){currentStoriesConvId=null;storiesHistory=[];renderStoriesMessages();updateStoriesBadge('');}
+  renderStoriesSidebar();
+  showToast('Conversation deleted.');
+}
+
+function newStoriesConversation(){
+  currentStoriesConvId=null;storiesHistory=[];
+  renderStoriesMessages();updateStoriesBadge('');closeSidebar4();
+  setTimeout(()=>document.getElementById('storiesInput').focus(),100);
+}
+
+/* ── Messages ── */
+function renderStoriesMessages(){
+  const container=document.getElementById('storiesMessages');
+  container.innerHTML='';
+  if(storiesHistory.length===0){
+    appendStoriesBubble('assistant','What\'s going on in the shop, or what do you want to accomplish with Stories today?\n\nTell me anything — new product in, slow booking week, a Reel you just posted, a question you keep getting from customers. I\'ll design a sequence for you.\n\n**What are you working with?**');
+  } else {
+    storiesHistory.forEach(m=>appendStoriesBubble(m.role,m.content));
+  }
+  const m=document.getElementById('storiesMessages');
+  m.scrollTop=m.scrollHeight;
+}
+
+function appendStoriesBubble(role,text){
+  const container=document.getElementById('storiesMessages');
+  const div=document.createElement('div');div.className='msg '+role;
+  const label=document.createElement('div');label.className='msg-label';
+  label.textContent=role==='user'?'You':'Story Planner';
+  const bubble=document.createElement('div');bubble.className='bubble';
+  bubble.innerHTML=formatText(text);
+  div.appendChild(label);div.appendChild(bubble);container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+function fillStoriesPrompt(text){
+  const i=document.getElementById('storiesInput');
+  i.value=text;i.focus();autoResize(i);
+}
+
+function handleStoriesKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendStoriesMessage();}
+}
+
+async function sendStoriesMessage(){
+  const input=document.getElementById('storiesInput');
+  const text=input.value.trim();if(!text)return;
+  input.value='';input.style.height='auto';
+  document.getElementById('storiesSendBtn').disabled=true;
+
+  storiesHistory.push({role:'user',content:text});
+  appendStoriesBubble('user',text);
+
+  const typing=document.getElementById('storiesTyping');
+  typing.classList.add('visible');
+  document.getElementById('storiesMessages').scrollTop=document.getElementById('storiesMessages').scrollHeight;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:STORIES_SYSTEM+(getCurrentNiche()?'\n\nCURRENT NICHE:\n'+getCurrentNiche():''),
+        messages:storiesHistory
+      })
+    });
+    const data=await resp.json();
+    typing.classList.remove('visible');
+    if(data.content&&data.content[0]){
+      const reply=data.content[0].text;
+      storiesHistory.push({role:'assistant',content:reply});
+      appendStoriesBubble('assistant',reply);
+      autoSaveStoriesIfActive();
+    } else {
+      appendStoriesBubble('assistant','Something went wrong. Please try again.');
+    }
+  } catch(err){
+    typing.classList.remove('visible');
+    appendStoriesBubble('assistant','Connection error. Please check your internet and try again.');
+  }
+
+  document.getElementById('storiesSendBtn').disabled=false;
+  document.getElementById('storiesInput').focus();
+}
+
+document.getElementById('storiesConvNameInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter')confirmStoriesSave();
+  if(e.key==='Escape')closeModal('modalSaveStoriesConv');
+});
+
+/* ── Analytics image upload ── */
+let analyticsImages = []; // array of {base64, mediaType, name}
+
+function handleAnalyticsImages(event){
+  const files = Array.from(event.target.files);
+  if(!files.length) return;
+  const previews = document.getElementById('analyticsImagePreviews');
+
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const dataUrl = e.target.result;
+      const base64 = dataUrl.split(',')[1];
+      const mediaType = file.type || 'image/jpeg';
+      const id = 'aimg_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+
+      analyticsImages.push({base64, mediaType, name:file.name, id});
+
+      // Add thumbnail
+      const wrap = document.createElement('div');
+      wrap.id = id;
+      wrap.style.cssText = 'position:relative;display:inline-block;';
+      wrap.innerHTML = `
+        <img src="${dataUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" alt="${file.name}">
+        <button onclick="removeAnalyticsImage('${id}')" style="position:absolute;top:-6px;right:-6px;background:var(--rose);border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;">&#x2715;</button>`;
+      previews.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Reset input so same files can be re-uploaded if needed
+  event.target.value='';
+}
+
+function removeAnalyticsImage(id){
+  analyticsImages = analyticsImages.filter(img=>img.id!==id);
+  const el = document.getElementById(id);
+  if(el) el.remove();
+}
+
+function toggleManualMetrics(){
+  const panel = document.getElementById('manualMetricsPanel');
+  const btn = document.getElementById('manualMetricsToggle');
+  const isHidden = panel.style.display==='none';
+  panel.style.display = isHidden?'block':'none';
+  btn.textContent = isHidden?'− Hide manual metrics':'+ Enter metrics manually instead';
+}
+
+/* ── Transcript image upload ── */
+let transcriptImageBase64 = null;
+let transcriptImageMediaType = null;
+
+function handleTranscriptImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const status = document.getElementById('transcriptImageStatus');
+  const preview = document.getElementById('transcriptImagePreview');
+  const thumb = document.getElementById('transcriptImageThumb');
+
+  status.textContent = 'Reading image...';
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    transcriptImageBase64 = dataUrl.split(',')[1];
+    transcriptImageMediaType = file.type || 'image/jpeg';
+    thumb.src = dataUrl;
+    preview.style.display = 'block';
+    status.textContent = file.name;
+    // Clear the text transcript when image is uploaded
+    document.getElementById('aTranscript').value = '';
+  };
+  reader.onerror = function(){
+    status.textContent = 'Error reading image. Please try again.';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTranscriptImage(){
+  transcriptImageBase64 = null;
+  transcriptImageMediaType = null;
+  document.getElementById('transcriptImageUpload').value = '';
+  document.getElementById('transcriptImageStatus').textContent = '';
+  document.getElementById('transcriptImagePreview').style.display = 'none';
+  document.getElementById('transcriptImageThumb').src = '';
+}
+
+/* ── PDF export ── */
+function downloadScriptPDF(){
+  if(!currentIdeaId){showToast('No idea loaded.');return;}
+  const all=getAllIdeas();
+  const idea=all[currentIdeaId];
+  if(!idea){showToast('Idea not found.');return;}
+
+  const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
+  const assistantMsgs=scriptHistory.filter(m=>m.role==='assistant');
+  if(assistantMsgs.length===0){showToast('No script generated yet — run the Script tab first.');return;}
+
+  // Get the last (most recent) assistant script output
+  const scriptText=assistantMsgs[assistantMsgs.length-1].content;
+  const notes=idea.notes||'';
+  const bizAll=ls(BIZ_KEY);
+  const biz=activeBizId?bizAll[activeBizId]:null;
+  const bizName=biz?biz.name:'Bra Fittings by Court';
+  const dateStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  // Convert markdown-ish text to basic HTML for print
+  function toHtml(text){
+    return text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
+      .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+      .replace(/\n\n/g,'<br><br>')
+      .replace(/\n/g,'<br>');
+  }
+
+  const printArea=document.getElementById('pdf-print-area');
+  printArea.innerHTML=`
+    <div class="pdf-biz">${escHtml(bizName)}</div>
+    <div class="pdf-hook">${escHtml(idea.hook)}</div>
+    <div class="pdf-meta">
+      Format: ${escHtml(idea.format||'—')} &nbsp;·&nbsp; Status: ${STATUS_LABELS[idea.status]||idea.status} &nbsp;·&nbsp; ${dateStr}
+    </div>
+    ${notes?`
+    <div class="pdf-notes-wrap">
+      <div class="pdf-section-label">Notes</div>
+      <div class="pdf-notes-body">${escHtml(notes)}</div>
+    </div>`:''}
+    <div class="pdf-script-label">Script</div>
+    <div class="pdf-script-body">${toHtml(scriptText)}</div>
+    <div class="pdf-footer">Generated by Format Finder &nbsp;·&nbsp; ${bizName} &nbsp;·&nbsp; ${dateStr}</div>
+  `;
+
+  // Trigger print dialog
+  window.print();
+}
+
+/* ── Password gate ── */
+const GATE_KEY = 'ff_auth';
+const GATE_PASS = 'courtbffc2026';
+
+function checkPassword(){
+  const input = document.getElementById('gateInput').value;
+  const error = document.getElementById('gateError');
+  if(input === GATE_PASS){
+    sessionStorage.setItem(GATE_KEY,'1');
+    document.getElementById('password-gate').style.display='none';
+    // Check if API key is set
+    if(!getApiKey()){
+      document.getElementById('api-key-gate').style.display='flex';
+    }
+    error.textContent='';
+  } else {
+    error.textContent='Incorrect password. Please try again.';
+    document.getElementById('gateInput').value='';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+function saveApiKey(){
+  const val = document.getElementById('apiKeyInput').value.trim();
+  const error = document.getElementById('apiKeyError');
+  if(!val.startsWith('sk-ant-')){
+    error.textContent='That doesn\'t look right — your key should start with sk-ant-';
+    return;
+  }
+  localStorage.setItem(API_KEY_STORAGE, val);
+  document.getElementById('api-key-gate').style.display='none';
+  error.textContent='';
+}
+
+function initGate(){
+  if(sessionStorage.getItem(GATE_KEY)==='1'){
+    document.getElementById('password-gate').style.display='none';
+    if(!getApiKey()){
+      document.getElementById('api-key-gate').style.display='flex';
+    }
+  } else {
+    setTimeout(()=>document.getElementById('gateInput').focus(),100);
+  }
+}
+
+/* ── Init ── */
+initGate();
+renderSelector();
+document.querySelectorAll('#versionDisplay').forEach(el=>el.textContent=CFF_VERSION);
+</script>
+</body>
+</html>
