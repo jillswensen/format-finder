@@ -674,6 +674,8 @@ input.metric-in::placeholder{color:var(--light);}
 .idea-hook{
   font-size:14px;font-weight:400;color:var(--charcoal);
   line-height:1.5;margin-bottom:6px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
 }
 .idea-meta{font-size:11px;color:var(--light);}
 
@@ -1208,47 +1210,63 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 <div class="modal-bg" id="modalSaveIdea">
   <div class="modal">
     <h3>Save as idea</h3>
-    <p>Edit the hook text below, then choose a format and status.</p>
-    <label>Hook / idea</label>
-    <textarea class="modal-ta" id="saveIdeaHook" rows="3" placeholder="The hook or concept for this reel..."></textarea>
-    <label>Format</label>
-    <select class="detail-format-select" id="saveIdeaFormat" style="width:100%;margin-bottom:14px;padding:9px 12px;font-size:13px;">
-      <option value="">— select format —</option>
-      <optgroup label="Challenges">
-        <option>Classic Challenge</option><option>Doing X</option><option>Increasing Difficulty</option>
-        <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
-        <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
-        <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences Format</option><option>Throwing A Dart To Decide X</option>
-        <option>Trying Something I Saw Online</option><option>Trying the Lowest Rated X</option>
-      </optgroup>
-      <optgroup label="Education">
-        <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>How to 5 List</option>
-        <option>Common Belief Buster</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
-        <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
-        <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
-        <option>So That's How They Do It</option><option>If You Have X</option>
-      </optgroup>
-      <optgroup label="Storytelling">
-        <option>The Why Format</option><option>Come With Me Vlog</option><option>Knowledge Gap Story</option>
-        <option>How I Built This</option><option>Story Of the Best Worst</option><option>Great Question</option>
-        <option>I Just Experienced X</option><option>FOMO Story Format</option>
-      </optgroup>
-      <optgroup label="Skits &amp; Bits">
-        <option>Duet/Stitch</option><option>Comparison Skit</option><option>Personifying Relatable Things</option>
-        <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
-        <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
-        <option>Things in Public</option><option>Classic Pranks</option>
-      </optgroup>
-      <optgroup label="Wait for It">
-        <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
-        <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
-        <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
-      </optgroup>
-      <optgroup label="Custom"><option>Custom</option></optgroup>
-    </select>
+    <p id="saveIdeaModalDesc">AI is extracting a short hook from your chat...</p>
+
+    <!-- Loading state -->
+    <div id="saveIdeaLoading" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="display:flex;gap:4px;">
+        <div class="dot" style="background:var(--rose);"></div>
+        <div class="dot" style="background:var(--rose);animation-delay:0.2s;"></div>
+        <div class="dot" style="background:var(--rose);animation-delay:0.4s;"></div>
+      </div>
+      <span style="font-size:12px;color:var(--light);">Extracting hook...</span>
+    </div>
+
+    <!-- Hook field (shown after loading) -->
+    <div id="saveIdeaFields" style="display:none;">
+      <label>Hook <span style="color:var(--light);font-weight:300;font-size:11px;">— edit if needed</span></label>
+      <textarea class="modal-ta" id="saveIdeaHook" rows="2" placeholder="Short hook for this idea..."></textarea>
+      <div style="font-size:11px;color:var(--light);margin-top:-10px;margin-bottom:14px;">Full chat text will be saved to Notes automatically.</div>
+      <label>Format</label>
+      <select class="detail-format-select" id="saveIdeaFormat" style="width:100%;margin-bottom:14px;padding:9px 12px;font-size:13px;">
+        <option value="">— select format —</option>
+        <optgroup label="Challenges">
+          <option>Classic Challenge</option><option>Doing X</option><option>Increasing Difficulty</option>
+          <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
+          <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
+          <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences Format</option><option>Throwing A Dart To Decide X</option>
+          <option>Trying Something I Saw Online</option><option>Trying the Lowest Rated X</option>
+        </optgroup>
+        <optgroup label="Education">
+          <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>How to 5 List</option>
+          <option>Common Belief Buster</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
+          <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
+          <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
+          <option>So That's How They Do It</option><option>If You Have X</option>
+        </optgroup>
+        <optgroup label="Storytelling">
+          <option>The Why Format</option><option>Come With Me Vlog</option><option>Knowledge Gap Story</option>
+          <option>How I Built This</option><option>Story Of the Best Worst</option><option>Great Question</option>
+          <option>I Just Experienced X</option><option>FOMO Story Format</option>
+        </optgroup>
+        <optgroup label="Skits &amp; Bits">
+          <option>Duet/Stitch</option><option>Comparison Skit</option><option>Personifying Relatable Things</option>
+          <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
+          <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
+          <option>Things in Public</option><option>Classic Pranks</option>
+        </optgroup>
+        <optgroup label="Wait for It">
+          <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
+          <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
+          <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
+        </optgroup>
+        <optgroup label="Custom"><option>Custom</option></optgroup>
+      </select>
+    </div>
+
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal('modalSaveIdea')">Cancel</button>
-      <button class="modal-confirm" onclick="confirmSaveIdea()">Save idea</button>
+      <button class="modal-confirm" id="saveIdeaConfirmBtn" onclick="confirmSaveIdea()" disabled style="opacity:0.5;">Save idea</button>
     </div>
   </div>
 </div>
@@ -2704,24 +2722,78 @@ function createIdea(hook, format, status='idea'){
   return id;
 }
 
-function openSaveIdeaModal(){
-  const msgs=document.getElementById('messages');
-  const bubbles=msgs.querySelectorAll('.msg.assistant .bubble');
-  let preText='';
-  if(bubbles.length>0){const lastBubble=bubbles[bubbles.length-1];preText=lastBubble.innerText.slice(0,300);}
-  document.getElementById('saveIdeaHook').value=preText;
-  document.getElementById('saveIdeaFormat').value='';
+let _saveIdeaFullText = ''; // stores full chat text for notes
+
+async function openSaveIdeaModal(){
+  // Grab full text from all chat messages
+  const msgs = document.getElementById('messages');
+  const bubbles = msgs.querySelectorAll('.msg .bubble');
+  let fullText = '';
+  msgs.querySelectorAll('.msg').forEach(msg => {
+    const role = msg.classList.contains('user') ? 'You' : 'Format Finder';
+    const text = msg.querySelector('.bubble')?.innerText || '';
+    if(text) fullText += role + ':\n' + text + '\n\n';
+  });
+  _saveIdeaFullText = fullText.trim();
+
+  // Reset modal state
+  document.getElementById('saveIdeaLoading').style.display = 'flex';
+  document.getElementById('saveIdeaFields').style.display = 'none';
+  document.getElementById('saveIdeaModalDesc').textContent = 'AI is extracting a short hook from your chat...';
+  document.getElementById('saveIdeaHook').value = '';
+  document.getElementById('saveIdeaFormat').value = '';
+  document.getElementById('saveIdeaConfirmBtn').disabled = true;
+  document.getElementById('saveIdeaConfirmBtn').style.opacity = '0.5';
   openModal('modalSaveIdea');
-  setTimeout(()=>document.getElementById('saveIdeaHook').focus(),80);
+
+  // Call AI to extract a short hook
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 80,
+        system: 'You extract a single short hook from a content brainstorm conversation. Output ONLY the hook — one punchy sentence or phrase, maximum 10 words, no quotes, no explanation, no punctuation at the end. The hook should capture the core reel concept or angle discussed.',
+        messages: [{role:'user', content: 'Extract a short hook from this brainstorm chat:\n\n' + _saveIdeaFullText.slice(0, 3000)}]
+      })
+    });
+    const data = await resp.json();
+    const extracted = data.content?.[0]?.text?.trim() || '';
+    document.getElementById('saveIdeaHook').value = extracted;
+  } catch(e) {
+    // Fallback: use first 80 chars of last assistant message
+    const bubbles = msgs.querySelectorAll('.msg.assistant .bubble');
+    const fallback = bubbles.length > 0 ? bubbles[bubbles.length-1].innerText.slice(0, 80) : '';
+    document.getElementById('saveIdeaHook').value = fallback;
+  }
+
+  // Show fields
+  document.getElementById('saveIdeaLoading').style.display = 'none';
+  document.getElementById('saveIdeaFields').style.display = 'block';
+  document.getElementById('saveIdeaModalDesc').textContent = 'Edit the hook if needed, then pick a format.';
+  document.getElementById('saveIdeaConfirmBtn').disabled = false;
+  document.getElementById('saveIdeaConfirmBtn').style.opacity = '1';
+  setTimeout(() => document.getElementById('saveIdeaHook').focus(), 80);
 }
 
 function confirmSaveIdea(){
-  const hook=document.getElementById('saveIdeaHook').value.trim();
-  if(!hook){document.getElementById('saveIdeaHook').focus();return;}
-  const format=document.getElementById('saveIdeaFormat').value;
-  createIdea(hook,format,'idea');
+  const hook = document.getElementById('saveIdeaHook').value.trim();
+  if(!hook){ document.getElementById('saveIdeaHook').focus(); return; }
+  const format = document.getElementById('saveIdeaFormat').value;
+  // Create idea with full chat text pre-loaded into notes
+  const all = getAllIdeas();
+  const id = genId();
+  all[id] = {
+    id, hook, format: format||'', status: 'idea',
+    notes: _saveIdeaFullText,
+    createdAt: Date.now(), updatedAt: Date.now(),
+    scriptHistory: [], captionHistory: []
+  };
+  saveAllIdeas(all);
+  _saveIdeaFullText = '';
   closeModal('modalSaveIdea');
-  showToast('Idea saved! View it in the Ideas tab.');
+  showToast('Idea saved! Full chat text is in Notes.');
 }
 
 function openAddIdeaModal(){
