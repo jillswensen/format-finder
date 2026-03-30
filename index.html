@@ -1422,6 +1422,20 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <div style="font-size:11px;color:var(--light);margin-top:10px;">v<span id="versionDisplay"></span></div>
     </div>
     <div class="businesses-grid" id="bizGrid"></div>
+
+    <!-- Backup / Restore -->
+    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="exportBackup()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--white);border:1px solid var(--border);border-radius:10px;padding:9px 18px;cursor:pointer;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Back up data
+      </button>
+      <label style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--white);border:1px solid var(--border);border-radius:10px;padding:9px 18px;cursor:pointer;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Restore from backup
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importBackup(event)">
+      </label>
+    </div>
+    <div id="importStatus" style="font-size:12px;color:var(--mid);margin-top:8px;min-height:18px;text-align:center;"></div>
   </div>
 </div>
 
@@ -3471,6 +3485,68 @@ function initGate(){
   } else {
     setTimeout(()=>document.getElementById('gateInput').focus(),100);
   }
+}
+
+/* ════════════════════════════════════════════
+   BACKUP & RESTORE
+════════════════════════════════════════════ */
+
+function exportBackup(){
+  // Collect every CFF key from localStorage
+  const backup = { version: CFF_VERSION, exportedAt: new Date().toISOString(), data: {} };
+  for(let i = 0; i < localStorage.length; i++){
+    const key = localStorage.key(i);
+    if(key && (key.startsWith('ff3_') || key === 'ff_api_key')){
+      backup.data[key] = localStorage.getItem(key);
+    }
+  }
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `cff-backup-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded!');
+}
+
+function importBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const status = document.getElementById('importStatus');
+  status.textContent = 'Reading backup file...';
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const backup = JSON.parse(e.target.result);
+      if(!backup.data || typeof backup.data !== 'object'){
+        status.textContent = '⚠️ Invalid backup file.';
+        return;
+      }
+      let count = 0;
+      for(const [key, val] of Object.entries(backup.data)){
+        // Only restore CFF keys — never overwrite the API key unless it's missing
+        if(key === 'ff_api_key'){
+          if(!localStorage.getItem('ff_api_key')) localStorage.setItem(key, val);
+        } else if(key.startsWith('ff3_')){
+          localStorage.setItem(key, val);
+          count++;
+        }
+      }
+      status.textContent = `✓ Restored ${count} data keys from ${backup.exportedAt?.slice(0,10) || 'backup'}.`;
+      renderSelector();
+      showToast('Backup restored!');
+    } catch(err){
+      status.textContent = '⚠️ Could not read backup file — make sure it\'s a CFF backup JSON.';
+    }
+  };
+  reader.readAsText(file);
+  // Reset input so same file can be re-imported if needed
+  event.target.value = '';
 }
 
 /* ── Init ── */
