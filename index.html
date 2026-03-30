@@ -139,6 +139,8 @@ body{
   flex-direction:column;
   align-items:center;
   padding:0 16px 80px;
+  overflow-y:auto;
+  min-height:100vh;
 }
 
 /* Overlay */
@@ -610,6 +612,8 @@ input.metric-in::placeholder{color:var(--light);}
   flex-direction:column;
   align-items:center;
   padding:0 16px 80px;
+  overflow-y:auto;
+  min-height:100vh;
 }
 
 .ideas-main{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px;}
@@ -695,6 +699,8 @@ input.metric-in::placeholder{color:var(--light);}
   flex-direction:column;
   align-items:center;
   padding:0 16px 80px;
+  overflow-y:auto;
+  min-height:100vh;
 }
 .detail-main{width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px;}
 
@@ -2861,8 +2867,16 @@ function openIdeaMenu(e,id){
   const menu=document.getElementById('ideaStatusMenu');
   menu.classList.add('open');
   const rect=e.target.getBoundingClientRect();
-  menu.style.top=(rect.bottom+6)+'px';
-  menu.style.left=Math.max(8,rect.right-160)+'px';
+  const menuHeight=menu.offsetHeight||220; // approx height if not yet rendered
+  const spaceBelow=window.innerHeight-rect.bottom;
+  const left=Math.max(8,rect.right-160);
+  if(spaceBelow<menuHeight+16){
+    // Flip upward
+    menu.style.top=(rect.top-menuHeight-6)+'px';
+  } else {
+    menu.style.top=(rect.bottom+6)+'px';
+  }
+  menu.style.left=left+'px';
   e.stopPropagation();
 }
 
