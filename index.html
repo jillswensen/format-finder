@@ -850,13 +850,15 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 .modal-bg{
   display:none;position:fixed;inset:0;
   background:rgba(44,36,32,0.32);z-index:60;
-  align-items:center;justify-content:center;
 }
-.modal-bg.open{display:flex;}
+.modal-bg.open{display:block;}
 .modal{
   background:var(--white);border-radius:var(--radius);
-  padding:28px 28px 24px;width:360px;
+  padding:28px 28px 24px;width:360px;max-width:calc(100vw - 32px);
   box-shadow:0 8px 40px rgba(44,36,32,0.18);
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:61;max-height:90vh;overflow-y:auto;
 }
 .modal h3{
   font-family:'DM Serif Display',serif;
@@ -1748,7 +1750,26 @@ CAPTION & HASHTAG RULES (non-negotiable):
 - NEVER use local or geographic hashtags by default (#kaysville, #utah, #slc, #utahcheck, #utahbusiness, or any location-based tag) — only include a local tag if the video content is explicitly and specifically about the Utah location
 
 CANVA COVER IMAGE SPECS:
-Cover images are created in Canva at 1080x1920px (9:16). All text must stay within the center square of the template — covers are cropped to 1:1 for the grid. Rules: (1) Always use authentic in-action footage as the background — never a designed graphic or logo-heavy overlay. (2) Create contrast with a semi-transparent rectangle element over the background (70–80% transparency, brand color or black/white) so text doesn't get lost on a busy image. (3) Font choices: Montserrat ExtraBold or Black, Anton, or League Spartan — bold and simple only, no script or decorative fonts. (4) Wording must be extremely short and punchy — as few words as possible. (5) Use size hierarchy: the most important word largest. (6) Text placement: lower third of the frame, centered, within the safe center square. (7) Text styling: white, black drop shadow.
+Cover images are created in Canva at 1080x1920px (9:16). All text must stay within the center square — covers are cropped to 1:1 for the grid. Always use authentic in-action footage as the background (never a graphic or logo-heavy overlay). Add a semi-transparent rectangle element over the background (70–80% transparency, black or brand color) for text contrast. Text styling: white, black drop shadow. Text placement: lower third of the frame, centered, within the safe center square.
+
+COVER IMAGE OUTPUT FORMAT — always generate all of the following:
+
+1. BEST SHOT: Which specific moment or shot from the script to use as the background, and why it creates the strongest visual hook.
+
+2. TEXT HOOK OPTIONS: Generate 2–3 cover text options. For each:
+   - The exact text
+   - One- or two-line layout recommendation with reasoning (two lines = punchline effect, controls reader beat; one line = immediate statement)
+   - Why this hook creates curiosity or stops the scroll for this specific video
+
+3. FONT & STYLE RECOMMENDATION: Match the font choice to the tone of the video:
+   - Parody / dry humor → elegant serif (Playfair Display or similar) — unearned seriousness amplifies the joke
+   - Emotional / transformation → bold but warm sans-serif (Montserrat ExtraBold)
+   - Educational / authoritative → condensed impact font (Anton, Bebas Neue, or League Spartan)
+   - High-energy / challenge → heavy display font (Anton or Montserrat Black)
+   For each recommendation: font name, color (almost always white), Canva effect to apply (Lift for subtle shadow, Background for a semi-transparent bar), and letter spacing note if relevant.
+
+4. FINAL RECOMMENDATION: Pick one text hook and one font/style as the clear winner, with a one-sentence reason.
+
 
 CAPCUT EDITING NOTES (include in every script output):
 When generating a script, always end with a structured CapCut Editing Notes section. Assume all clips are already filmed on iPhone and the editor knows CapCut well — be concise.
@@ -2423,12 +2444,17 @@ async function sendMessage(){
       history.push({role:'assistant',content:reply});
       appendBubble('assistant',reply);
       autoSaveIfActive();
+    } else if(data.error){
+      history.pop(); // remove the user message that failed
+      appendBubble('assistant','API error ('+data.error.type+'): '+data.error.message);
     } else {
-      appendBubble('assistant','Something went wrong. Please try again.');
+      history.pop();
+      appendBubble('assistant','Something went wrong. Response: '+JSON.stringify(data).slice(0,200));
     }
   } catch(err){
     typing.classList.remove('visible');
-    appendBubble('assistant','Connection error. Please check your internet and try again.');
+    history.pop();
+    appendBubble('assistant','Connection error: '+err.message);
   }
   scrollBottom();
   document.getElementById('sendBtn').disabled=false;
