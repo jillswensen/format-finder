@@ -1140,6 +1140,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="detail-tab-btn active" id="tabBtnNotes" onclick="switchDetailTab('notes')">Notes</button>
       <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
       <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
+      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Filming</button>
     </div>
 
     <!-- Notes tab -->
@@ -1192,6 +1193,28 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Filming Checklist tab -->
+    <div class="detail-tab-content" id="tabFilming" style="display:none;">
+      <div id="filmingLoading" style="display:none;padding:32px 24px;text-align:center;">
+        <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px;">
+          <div class="dot" style="background:var(--teal);"></div>
+          <div class="dot" style="background:var(--teal);animation-delay:0.2s;"></div>
+          <div class="dot" style="background:var(--teal);animation-delay:0.4s;"></div>
+        </div>
+        <p style="font-size:13px;color:var(--mid);font-weight:300;">Generating filming checklist from your script...</p>
+      </div>
+      <div id="filmingEmpty" style="padding:32px 24px;text-align:center;color:var(--light);">
+        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the filming checklist will be created automatically once your script is ready.</p>
+      </div>
+      <div id="filmingChecklist" style="display:none;">
+        <div style="padding:16px 24px 0;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);">Filming Checklist</span>
+          <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;cursor:pointer;transition:border-color 0.15s;">↺ Regenerate</button>
+        </div>
+        <div id="filmingChecklistBody" style="padding:16px 24px 24px;"></div>
       </div>
     </div>
 
@@ -1495,7 +1518,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="quick-btn" onclick="fillPrompt('I have a content idea:')">New idea</button>
       <button class="quick-btn" onclick="fillPrompt('I want to hop on a trending moment or audio')">Trending moment</button>
       <button class="quick-btn" onclick="fillPrompt('Help me with a product launch or announcement')">Product launch</button>
-      <button class="quick-btn" onclick="fillPrompt('I need 3 caption options for this post. Here\'s the video description:\n\nPlease write Option A, Option B, and Option C — each 50–75 words, hook-first, conversational Instagram-native voice, no bullet points, one CTA offering both an in-person fitting in Kaysville UT and the free online size calculator, both links in bio, exactly 5 hashtags always including #brafittingsbycourt. Do NOT use any local or geographic hashtags (#kaysville, #utah, #slc, #utahcheck, #kaysville utah, etc.) unless the video content is specifically about the Utah location.')">Caption only</button>
+      <button class="quick-btn" onclick="fillPrompt('I need 3 caption options for this post. Here\'s the video description:\n\nPlease write Option A, Option B, and Option C — each no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points, one CTA offering both an in-person fitting in Kaysville UT and the free online size calculator, both links in bio, exactly 5 hashtags always including #brafittingsbycourt. Do NOT use any local or geographic hashtags (#kaysville, #utah, #slc, #utahcheck, #kaysville utah, etc.) unless the video content is specifically about the Utah location.')">Caption only</button>
       <button class="quick-btn" onclick="fillPrompt('Compile everything so I can copy it')">Compile for PDF</button>
     </div>
 
@@ -1739,7 +1762,7 @@ HOW YOU WORK:
 5. When asked to compile, provide everything clean in one block, ready to copy.
 
 CAPTION & HASHTAG RULES (non-negotiable):
-- Captions: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one CTA offering both in-person fitting in Kaysville UT and the free online size calculator, both links in bio
+- Captions: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one CTA offering both in-person fitting in Kaysville UT and the free online size calculator, both links in bio
 - Do NOT use the on-screen hook as the caption's second hook — write a distinct second hook
 - Hashtags: always exactly 5, always include #brafittingsbycourt, fill remaining 4 with trending or brand-relevant tags
 - NEVER use local or geographic hashtags by default (#kaysville, #utah, #slc, #utahcheck, #utahbusiness, or any location-based tag) — only include a local tag if the video content is explicitly and specifically about the Utah location
@@ -1791,15 +1814,32 @@ RULES:
 
 SCRIPT QUALITY RULES — apply these to every script output before finalizing:
 
-1. HOOK MUST ESTABLISH CONTEXT IN THE FIRST 3 SECONDS — a cold audience has no prior knowledge of what they're watching. The hook must immediately establish either the problem being solved OR the desired outcome. Never open with visuals alone and expect the viewer to infer the point. If the first 3 seconds don't answer "why should I keep watching?", rewrite them.
+1. HOOK MUST CREATE A KNOWLEDGE GAP, NOT SUMMARIZE THE CONCLUSION — the hook must make the viewer ask a question that only watching answers. "How the right lingerie turns anxiety into confidence" tells the whole story upfront — no reason to watch. "Your boudoir photographer doesn't care if your lingerie is sexy" creates immediate friction and demands an answer. If the hook reveals the conclusion, rewrite it. Statement hooks outperform question hooks on this account.
 
-2. LABEL EVERYTHING EXPLICITLY ON SCREEN — never assume the viewer can distinguish between options visually. If showing multiple products, styles, or tips, each must have an explicit on-screen label ("Option 1: The Seamless Thong," "Tip 2: The Sister Size Trick"). Viewers cannot identify a longline girlshort from a boyshort just by looking — text does the work.
+2. HOOK MUST ESTABLISH CONTEXT IN THE FIRST 3 SECONDS — cold audiences have no prior knowledge. The hook must immediately establish the problem being challenged OR the desired outcome. Never open with visuals alone and expect inference. If the first 3 seconds don't answer "why should I keep watching?", rewrite them.
 
-3. EVERY SCRIPT MUST END WITH A SPECIFIC CTA — "link in bio" alone is not a CTA. The CTA must tell the viewer exactly what to do and why: "Book your fitting in Kaysville — link in bio," "Use our free size calculator to find your size in 60 seconds — link in bio," "Shop all 4 styles on our website — link in bio." The final shot must deliver this verbally or on screen before the video ends.
+3. TARGET 30 SECONDS — Reels and TikTok scripts should default to 30 seconds or under. Every second must earn its place. Multi-act 60-second arcs lose viewers before the payoff. If the content genuinely earns longer runtime, build to it — but start with the assumption that shorter wins.
 
-4. CONTENT STRUCTURE BEFORE PRODUCTION DETAIL — always confirm the script follows Problem → Solution → Proof (or Hook → Value → Payoff) before building out shot lists, transitions, and CapCut notes. A technically detailed script with a weak content structure will underperform. Structure first, production second.
+4. EVALUATE FORMAT FIT BEFORE BUILDING — before scripting, ask: does this format produce native-feeling content, or a structured ad? Come With Me Vlog produces a logical story arc but can feel scripted. Common Belief Buster and How X Expects Me to Y produce faster, more native content for the same message. If a format will make the output feel like an advertisement rather than a Reel, suggest a better format. Present 2–3 format options with hook examples before committing to one.
 
-5. EDUCATIONAL FORMATS: each item must be distinct and labeled — when the format involves multiple options, tips, or comparisons, every single item needs its own labeled moment. Do not compress multiple options into a single shot or assume the visual tells the full story.
+5. SCRIPTING IS ITERATIVE — present a draft script, then ask if anything should be adjusted before moving to shot plan and CapCut notes. Never bundle everything into one unrevisable output. Lock the script first, then build production details.
+
+6. SEPARATE SCRIPT FROM SHOT PLAN — deliver the script as its own section. After the script is confirmed, deliver the shot plan as a separate section covering: what to wear in each scene (conceal before the reveal — don't show the solution or problem before their designated moment), camera angle, action, and pro tips per scene. Production details come after content is locked.
+
+7. LABEL EVERYTHING EXPLICITLY ON SCREEN — never assume the viewer can distinguish between options visually. Multiple products, styles, or tips each need an explicit on-screen label ("Option 1: The Seamless Thong," "Option 2: The Longline Girlshort"). Text does the work visuals cannot.
+
+8. EVERY SCRIPT ENDS WITH A SPECIFIC CTA — "link in bio" alone is not a CTA. Must tell the viewer exactly what to do: "Book your fitting in Kaysville — link in bio" or "Use our free size calculator in 60 seconds — link in bio." Final shot delivers this verbally or on screen.
+
+9. CONTENT STRUCTURE BEFORE PRODUCTION DETAIL — confirm the script follows Problem → Solution → Proof before building shot lists, transitions, and CapCut notes. A technically detailed script with weak content structure underperforms every time.
+
+10. EDUCATIONAL FORMATS: every item must be labeled — when the format involves multiple options, tips, or comparisons, every single item gets its own labeled moment. Never compress multiple options into one shot.
+
+CAPTION QUALITY RULES — apply these to every caption output:
+
+- The caption opening line is a SECOND HOOK — it must be distinct from the on-screen hook and create curiosity without revealing the video's conclusion. "Your photographer can fix lighting, but they can't fix this." creates mystery. Never reuse the on-screen hook as the caption opening.
+- Summarize the philosophy, not the plot — the caption should reinforce the core message without describing what happens in the video. A viewer who reads the caption before watching should be intrigued, not informed.
+- Always offer both CTA paths: book an in-person fitting in Kaysville AND use the free size calculator online. Both links in bio.
+- Hashtags must be intent-based and niche-specific — target users actively searching for solutions (#boudoirprep, #bridallingerie, #brafitting) not broad reach tags (#bride, #fyp). Always include #brafittingsbycourt.
 
 ══════════════════════════════════════════════
 AVAILABLE FORMATS — suggest the best fit for each idea
@@ -2947,7 +2987,7 @@ function saveNotes(){
 }
 
 function switchDetailTab(tab){
-  if(tab==='script'||tab==='caption'){
+  if(tab==='script'||tab==='caption'||tab==='filming'){
     const notesEl=document.getElementById('notesTextarea');
     if(notesEl&&currentIdeaId){
       const all=getAllIdeas();
@@ -2958,14 +2998,221 @@ function switchDetailTab(tab){
       }
     }
   }
-  ['notes','script','caption'].forEach(t=>{
+  ['notes','script','caption','filming'].forEach(t=>{
     document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display=t===tab?'':'none';
     document.getElementById('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
   });
   if((tab==='script'||tab==='caption')&&currentIdeaId){
     initTabChat(tab);
   }
+  if(tab==='filming'&&currentIdeaId){
+    initFilmingTab();
+  }
 }
+
+async function initFilmingTab(){
+  const all = getAllIdeas();
+  const idea = all[currentIdeaId];
+  if(!idea) return;
+
+  const loading = document.getElementById('filmingLoading');
+  const empty = document.getElementById('filmingEmpty');
+  const checklist = document.getElementById('filmingChecklist');
+  const body = document.getElementById('filmingChecklistBody');
+
+  // If checklist already saved, render it
+  if(idea.filmingChecklist){
+    empty.style.display = 'none';
+    loading.style.display = 'none';
+    checklist.style.display = 'block';
+    renderChecklist(idea.filmingChecklist, idea.filmingChecked||{});
+    return;
+  }
+
+  // Check if script exists
+  const scriptHistory = tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
+  const assistantMsgs = scriptHistory.filter(m=>m.role==='assistant');
+  if(assistantMsgs.length===0){
+    empty.style.display = 'block';
+    loading.style.display = 'none';
+    checklist.style.display = 'none';
+    return;
+  }
+
+  // Generate checklist from script
+  const scriptText = assistantMsgs[assistantMsgs.length-1].content;
+  empty.style.display = 'none';
+  checklist.style.display = 'none';
+  loading.style.display = 'block';
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:`You generate filming checklists from Reel scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
+
+Output format:
+{"sections":[{"title":"Cast","items":["Item 1","Item 2"]},{"title":"Wardrobe","items":["Item 1"]},{"title":"Props","items":["Item 1","Item 2"]},{"title":"Location & Set Dressing","items":["Item 1"]},{"title":"Equipment","items":["Item 1","Item 2"]}]}
+
+Rules:
+- Cast: list each on-camera role needed with a brief description of their action
+- Wardrobe: specific clothing for each person/scene — include what NOT to wear if relevant
+- Props: every physical item needed, separated into "before" and "after" or "problem" and "solution" groups if applicable
+- Location & Set Dressing: where to film each scene, background details, lighting notes
+- Equipment: phone (clean lens), tripod (note if non-negotiable), lighting, audio, shot list printout
+- Be specific to THIS script — not generic. Include actual product names, outfit details, and prop descriptions from the script.`,
+        messages:[{role:'user',content:`Generate a filming checklist for this script:\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
+      })
+    });
+    const data = await resp.json();
+    loading.style.display = 'none';
+
+    if(data.content&&data.content[0]){
+      let raw = data.content[0].text.trim();
+      raw = raw.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(raw);
+
+      // Save to idea
+      const all2 = getAllIdeas();
+      if(all2[currentIdeaId]){
+        all2[currentIdeaId].filmingChecklist = parsed;
+        all2[currentIdeaId].filmingChecked = {};
+        all2[currentIdeaId].updatedAt = Date.now();
+        saveAllIdeas(all2);
+      }
+
+      checklist.style.display = 'block';
+      renderChecklist(parsed, {});
+    } else {
+      empty.style.display = 'block';
+      empty.querySelector('p').textContent = 'Could not generate checklist. Please try again.';
+    }
+  } catch(err){
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('p').textContent = 'Error generating checklist. Please try again.';
+  }
+}
+
+function renderChecklist(data, checked){
+  const body = document.getElementById('filmingChecklistBody');
+  body.innerHTML = '';
+
+  data.sections.forEach(section=>{
+    const sectionEl = document.createElement('div');
+    sectionEl.style.cssText = 'margin-bottom:20px;';
+
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--teal-border);';
+    title.textContent = section.title;
+    sectionEl.appendChild(title);
+
+    section.items.forEach((item, idx)=>{
+      const key = section.title+'__'+idx;
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:7px 0;cursor:pointer;border-bottom:1px solid var(--border);';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!checked[key];
+      cb.style.cssText = 'margin-top:2px;flex-shrink:0;accent-color:var(--teal);width:16px;height:16px;cursor:pointer;';
+      cb.addEventListener('change', ()=>saveCheckboxState(key, cb.checked));
+
+      const text = document.createElement('span');
+      text.style.cssText = 'font-size:13px;font-weight:300;color:var(--charcoal);line-height:1.5;';
+      if(cb.checked) text.style.textDecoration = 'line-through';
+      if(cb.checked) text.style.color = 'var(--light)';
+      text.textContent = item;
+
+      cb.addEventListener('change', ()=>{
+        text.style.textDecoration = cb.checked ? 'line-through' : '';
+        text.style.color = cb.checked ? 'var(--light)' : 'var(--charcoal)';
+      });
+
+      row.appendChild(cb);
+      row.appendChild(text);
+      sectionEl.appendChild(row);
+    });
+
+    body.appendChild(sectionEl);
+  });
+}
+
+function saveCheckboxState(key, value){
+  if(!currentIdeaId) return;
+  const all = getAllIdeas();
+  if(!all[currentIdeaId]) return;
+  if(!all[currentIdeaId].filmingChecked) all[currentIdeaId].filmingChecked = {};
+  all[currentIdeaId].filmingChecked[key] = value;
+  all[currentIdeaId].updatedAt = Date.now();
+  saveAllIdeas(all);
+}
+
+async function regenerateChecklist(){
+  if(!currentIdeaId) return;
+  const all = getAllIdeas();
+  if(!all[currentIdeaId]) return;
+  // Clear saved checklist and re-run
+  all[currentIdeaId].filmingChecklist = null;
+  all[currentIdeaId].filmingChecked = {};
+  saveAllIdeas(all);
+  await initFilmingTab();
+}
+
+async function generateChecklistInBackground(){
+  // Silent background generation — saves to idea without switching tabs
+  if(!currentIdeaId) return;
+  const all = getAllIdeas();
+  const idea = all[currentIdeaId];
+  if(!idea||idea.filmingChecklist) return;
+
+  const scriptHistory = tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
+  const assistantMsgs = scriptHistory.filter(m=>m.role==='assistant');
+  if(assistantMsgs.length===0) return;
+
+  const scriptText = assistantMsgs[assistantMsgs.length-1].content;
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system:`You generate filming checklists from Reel scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
+
+Output format:
+{"sections":[{"title":"Cast","items":["Item 1","Item 2"]},{"title":"Wardrobe","items":["Item 1"]},{"title":"Props","items":["Item 1","Item 2"]},{"title":"Location & Set Dressing","items":["Item 1"]},{"title":"Equipment","items":["Item 1","Item 2"]}]}
+
+Rules:
+- Cast: list each on-camera role needed with a brief description of their action
+- Wardrobe: specific clothing for each person/scene — include what NOT to wear if relevant
+- Props: every physical item needed, separated into "before" and "after" or "problem" and "solution" groups if applicable
+- Location & Set Dressing: where to film each scene, background details, lighting notes
+- Equipment: phone (clean lens), tripod (note if non-negotiable), lighting, audio, shot list printout
+- Be specific to THIS script — not generic. Include actual product names, outfit details, and prop descriptions from the script.`,
+        messages:[{role:'user',content:`Generate a filming checklist for this script:\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
+      })
+    });
+    const data = await resp.json();
+    if(data.content&&data.content[0]){
+      let raw = data.content[0].text.trim().replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(raw);
+      const all2 = getAllIdeas();
+      if(all2[currentIdeaId]){
+        all2[currentIdeaId].filmingChecklist = parsed;
+        all2[currentIdeaId].filmingChecked = {};
+        all2[currentIdeaId].updatedAt = Date.now();
+        saveAllIdeas(all2);
+      }
+    }
+  } catch(e){ /* silent fail — user can generate manually by clicking Filming tab */ }
+}
+
+
 
 function getTabSystemPrompt(){
   // Look up the format for the current idea and inject its full framework
@@ -3010,9 +3257,9 @@ function initTabChat(tab){
       if(scriptExists){
         const scriptMsgs=scriptHistory.filter(m=>m.role==='assistant');
         const lastScript=scriptMsgs.length>0?scriptMsgs[scriptMsgs.length-1].content:'';
-        context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
+        context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
       } else {
-        context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: 50–75 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
+        context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
       }
     }
     appendTabBubble(tab,'user',context);
@@ -3060,6 +3307,14 @@ async function sendTabAuto(tab){
       tabChatHistory[tab][currentIdeaId].push({role:'assistant',content:reply});
       appendTabBubble(tab,'assistant',reply);
       saveTabHistory(tab);
+      // Auto-generate filming checklist after first script response
+      if(tab==='script'){
+        const all=getAllIdeas();
+        if(all[currentIdeaId]&&!all[currentIdeaId].filmingChecklist){
+          // Generate in background — don't wait, don't block
+          setTimeout(()=>generateChecklistInBackground(),500);
+        }
+      }
     } else if(data.error){
       appendTabBubble(tab,'assistant','API error: '+data.error.message+'. Please try again.');
     } else {
