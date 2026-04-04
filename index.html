@@ -899,6 +899,71 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
+/* ── Duration pills ── */
+.script-dur-pill{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--mid);background:var(--cream);
+  border:1px solid var(--border);border-radius:20px;
+  padding:5px 12px;cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+}
+.script-dur-pill:hover{border-color:var(--blush);color:var(--rose-dark);}
+.script-dur-pill.active{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500;}
+
+/* ── Shot Plan cards ── */
+.shot-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:16px 18px;margin-bottom:10px;
+}
+.shot-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.shot-card-left{display:flex;align-items:center;gap:8px;}
+.shot-type-badge{
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:8px;white-space:nowrap;
+}
+.shot-badge-hero{background:#EEF2FF;color:#4F5FA6;}
+.shot-badge-broll{background:#F3E8FF;color:#7C3AED;}
+.shot-badge-reveal{background:#FFF7E6;color:#B45309;}
+.shot-badge-reaction{background:#ECFDF5;color:#065F46;}
+.shot-badge-default{background:#F3F4F6;color:#6B7280;}
+.shot-number{font-size:13px;font-weight:500;color:var(--charcoal);}
+.shot-duration{font-size:12px;color:var(--mid);background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:2px 8px;white-space:nowrap;}
+.shot-desc{font-size:13px;color:var(--charcoal);line-height:1.6;margin-bottom:10px;font-weight:300;}
+.shot-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.shot-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mid);font-weight:300;}
+.shot-meta-text{font-size:12px;color:var(--charcoal);font-weight:400;}
+.shot-notes{font-size:12px;color:var(--mid);line-height:1.5;border-top:1px solid var(--border);padding-top:8px;margin-top:4px;}
+.shot-notes strong{color:var(--mid);font-weight:500;}
+
+/* B-Roll Ideas section */
+.shotplan-broll{
+  border:1.5px solid #E9D5FF;border-radius:12px;
+  padding:16px 18px;margin-bottom:10px;background:#FDFAFF;
+}
+.shotplan-broll-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#6D28D9;margin-bottom:12px;}
+.shotplan-broll-item{font-size:13px;color:#6D28D9;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.shotplan-broll-dot{width:5px;height:5px;border-radius:50%;background:#7C3AED;flex-shrink:0;margin-top:6px;}
+
+/* Equipment section */
+.shotplan-equipment{
+  border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;margin-bottom:10px;background:var(--white);
+}
+.shotplan-equipment-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:12px;}
+.shotplan-equip-row{margin-bottom:8px;}
+.shotplan-equip-label{font-size:11px;font-weight:500;color:var(--light);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;}
+.shotplan-equip-val{font-size:13px;color:var(--charcoal);font-weight:300;line-height:1.5;}
+
+/* Filming Tips section */
+.shotplan-tips{
+  border:1.5px solid var(--teal-border);border-radius:12px;
+  padding:16px 18px;margin-bottom:10px;background:var(--teal-light);
+}
+.shotplan-tips-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--teal);margin-bottom:12px;}
+.shotplan-tip-item{font-size:13px;color:var(--charcoal);font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.shotplan-tip-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
+
 /* ── Print / PDF export ── */
 @media print {
   body>*{visibility:hidden;display:none;}
@@ -1140,7 +1205,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="detail-tab-btn active" id="tabBtnNotes" onclick="switchDetailTab('notes')">Notes</button>
       <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
       <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
-      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Filming</button>
+      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Shot Plan</button>
     </div>
 
     <!-- Notes tab -->
@@ -1154,7 +1219,38 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 
     <!-- Script tab -->
     <div class="detail-tab-content" id="tabScript" style="display:none;">
-      <div class="tab-chat-area">
+      <!-- Pre-generation state -->
+      <div id="scriptPreGenerate" style="display:none;padding:36px 24px;text-align:center;">
+        <p style="font-size:15px;font-weight:400;color:var(--charcoal);margin-bottom:20px;">Generate a full script based on your hook</p>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span style="font-size:13px;font-weight:500;color:var(--mid);">Target duration:</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+            <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
+          </div>
+        </div>
+        <div id="scriptGeneratingState" style="display:none;margin-bottom:16px;">
+          <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <p style="font-size:13px;color:var(--mid);font-weight:300;">Generating...</p>
+          <p style="font-size:12px;color:var(--light);font-weight:500;margin-top:6px;">Turning your hook into a scroll-stopping script... ✨</p>
+          <p style="font-size:11px;color:var(--light);font-weight:300;margin-top:2px;">Please don't navigate away.</p>
+        </div>
+        <button id="scriptGenerateBtn" onclick="triggerScriptGenerate()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:12px 28px;cursor:pointer;transition:background 0.15s;display:inline-flex;align-items:center;gap:8px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Full Script
+        </button>
+      </div>
+      <!-- Chat area (shown after generation) -->
+      <div class="tab-chat-area" id="scriptChatArea" style="display:none;">
         <div class="tab-messages" id="scriptMessages"></div>
         <div class="tab-typing-wrap">
           <div class="typing-indicator" id="scriptTyping" style="margin:0;">
@@ -1162,16 +1258,35 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
           </div>
         </div>
         <div class="tab-input-row">
-          <textarea class="tab-input" id="scriptInput" placeholder="Ask for a full script, specific section, or revision..." rows="1"
+          <textarea class="tab-input" id="scriptInput" placeholder="Ask for a revision, different angle, or specific section..." rows="1"
             onkeydown="handleTabKey(event,'script')" oninput="autoResize(this)"></textarea>
           <button class="tab-send" id="scriptSendBtn" onclick="sendTabMessage('script')">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
-        <div style="border-top:1px solid var(--border);padding:10px 16px;display:flex;justify-content:flex-end;background:var(--cream);">
-          <button onclick="downloadScriptPDF()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;">
+        <div style="border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--cream);flex-wrap:wrap;gap:8px;">
+          <!-- Duration pills + Regenerate -->
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style="font-size:11px;color:var(--mid);">Duration:</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
+            </div>
+            <button onclick="regenerateScript()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Regenerate Script
+            </button>
+          </div>
+          <button onclick="downloadScriptPDF()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background 0.15s;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download script as PDF
+            Download PDF
           </button>
         </div>
       </div>
@@ -1196,25 +1311,47 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       </div>
     </div>
 
-    <!-- Filming Checklist tab -->
+    <!-- Shot Plan tab -->
     <div class="detail-tab-content" id="tabFilming" style="display:none;">
-      <div id="filmingLoading" style="display:none;padding:32px 24px;text-align:center;">
-        <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px;">
+      <div id="filmingLoading" style="display:none;padding:40px 24px;text-align:center;">
+        <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:12px;">
           <div class="dot" style="background:var(--teal);"></div>
           <div class="dot" style="background:var(--teal);animation-delay:0.2s;"></div>
           <div class="dot" style="background:var(--teal);animation-delay:0.4s;"></div>
         </div>
-        <p style="font-size:13px;color:var(--mid);font-weight:300;">Generating filming checklist from your script...</p>
+        <p style="font-size:13px;color:var(--mid);font-weight:300;">Building a shot-by-shot blueprint for your reel...</p>
+        <p style="font-size:12px;color:var(--light);font-weight:300;margin-top:4px;">Please don't navigate away.</p>
       </div>
-      <div id="filmingEmpty" style="padding:32px 24px;text-align:center;color:var(--light);">
-        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the filming checklist will be created automatically once your script is ready.</p>
+      <div id="filmingEmpty" style="padding:40px 24px;text-align:center;color:var(--light);">
+        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the shot plan will be created automatically once your script is ready.</p>
       </div>
       <div id="filmingChecklist" style="display:none;">
-        <div style="padding:16px 24px 0;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);">Filming Checklist</span>
-          <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;cursor:pointer;transition:border-color 0.15s;">↺ Regenerate</button>
+        <!-- Header row -->
+        <div style="padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
+            <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Shot Plan</span>
+            <span id="shotPlanCount" style="font-size:12px;color:var(--light);"></span>
+          </div>
+          <button onclick="copyShotPlan()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Shot Plan
+          </button>
         </div>
-        <div id="filmingChecklistBody" style="padding:16px 24px 24px;"></div>
+        <p style="font-size:12px;color:var(--light);text-align:center;padding:10px 0 4px;display:flex;align-items:center;justify-content:center;gap:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Click on any text to edit
+        </p>
+        <div id="filmingChecklistBody" style="padding:0 16px 8px;"></div>
+        <!-- Footer -->
+        <div style="border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);">
+          <button id="shotPlanThumbUp" onclick="rateShotPlan('up')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Good shot plan">👍</button>
+          <button id="shotPlanThumbDown" onclick="rateShotPlan('down')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Not great">👎</button>
+          <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color 0.15s;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Regenerate Shot Plan
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2733,6 +2870,7 @@ let currentIdeaId = null;
 let activeIdeaFilter = 'all';
 let menuTargetIdeaId = null;
 let tabChatHistory = { script:{}, caption:{} };
+let selectedScriptDuration = '15s';
 
 const STATUS_LABELS = {
   idea:'💭 Idea',
@@ -3029,12 +3167,12 @@ async function initFilmingTab(){
   const checklist = document.getElementById('filmingChecklist');
   const body = document.getElementById('filmingChecklistBody');
 
-  // If checklist already saved, render it
-  if(idea.filmingChecklist){
+  // If shot plan already saved, render it
+  if(idea.shotPlan){
     empty.style.display = 'none';
     loading.style.display = 'none';
     checklist.style.display = 'block';
-    renderChecklist(idea.filmingChecklist, idea.filmingChecked||{});
+    renderShotPlan(idea.shotPlan);
     return;
   }
 
@@ -3048,7 +3186,7 @@ async function initFilmingTab(){
     return;
   }
 
-  // Generate checklist from script
+  // Generate shot plan from script
   const scriptText = assistantMsgs[assistantMsgs.length-1].content;
   empty.style.display = 'none';
   checklist.style.display = 'none';
@@ -3060,123 +3198,210 @@ async function initFilmingTab(){
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        system:`You generate filming checklists from Reel scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
+        max_tokens:2000,
+        system:`You generate detailed shot plans for Instagram Reels from scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
 
 Output format:
-{"sections":[{"title":"Cast","items":["Item 1","Item 2"]},{"title":"Wardrobe","items":["Item 1"]},{"title":"Props","items":["Item 1","Item 2"]},{"title":"Location & Set Dressing","items":["Item 1"]},{"title":"Equipment","items":["Item 1","Item 2"]}]}
+{
+  "shots": [
+    {
+      "type": "HERO",
+      "duration": "3 seconds",
+      "description": "Description of what to film",
+      "cameraAngle": "medium close-up",
+      "audioType": "on-camera",
+      "onScreenText": "Text overlay if any",
+      "notes": "Director note for this shot"
+    }
+  ],
+  "bRollIdeas": ["idea 1", "idea 2", "idea 3", "idea 4"],
+  "equipment": {
+    "camera": "Camera recommendation",
+    "audio": "Audio recommendation",
+    "other": "Lighting and other gear"
+  },
+  "filmingTips": ["tip 1", "tip 2", "tip 3"]
+}
+
+Shot type rules:
+- HERO: main on-camera presenter/model shots, talking head, product display
+- B-ROLL: cutaway shots, detail shots, environment shots (no speaking)
+- REVEAL: the payoff moment — product reveal, before/after, transformation
+- REACTION: genuine reaction shots, surprise moments, emotional responses
 
 Rules:
-- Cast: list each on-camera role needed with a brief description of their action
-- Wardrobe: specific clothing for each person/scene — include what NOT to wear if relevant
-- Props: every physical item needed, separated into "before" and "after" or "problem" and "solution" groups if applicable
-- Location & Set Dressing: where to film each scene, background details, lighting notes
-- Equipment: phone (clean lens), tripod (note if non-negotiable), lighting, audio, shot list printout
-- Be specific to THIS script — not generic. Include actual product names, outfit details, and prop descriptions from the script.`,
-        messages:[{role:'user',content:`Generate a filming checklist for this script:\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
+- Duration per shot: 2–5 seconds, totaling the target reel duration
+- cameraAngle: close-up, medium, medium close-up, wide, overhead, detail
+- audioType: on-camera (person speaking), voiceover (speaking over b-roll), none
+- onScreenText: the exact on-screen text for this shot, or empty string if none
+- notes: one sentence director tip specific to this shot
+- bRollIdeas: 3–5 extra b-roll shots they could film for more variety
+- filmingTips: 3 practical tips specific to THIS script's content
+- Be specific — use actual product names, colors, people from the script`,
+        messages:[{role:'user',content:`Generate a shot plan for this reel.\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\nTarget duration: ${idea.scriptDuration||'~20s'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
       })
     });
     const data = await resp.json();
     loading.style.display = 'none';
 
     if(data.content&&data.content[0]){
-      let raw = data.content[0].text.trim();
-      raw = raw.replace(/```json|```/g,'').trim();
+      let raw = data.content[0].text.trim().replace(/```json|```/g,'').trim();
       const parsed = JSON.parse(raw);
 
       // Save to idea
       const all2 = getAllIdeas();
       if(all2[currentIdeaId]){
-        all2[currentIdeaId].filmingChecklist = parsed;
-        all2[currentIdeaId].filmingChecked = {};
+        all2[currentIdeaId].shotPlan = parsed;
         all2[currentIdeaId].updatedAt = Date.now();
         saveAllIdeas(all2);
       }
 
       checklist.style.display = 'block';
-      renderChecklist(parsed, {});
+      renderShotPlan(parsed);
     } else {
       empty.style.display = 'block';
-      empty.querySelector('p').textContent = 'Could not generate checklist. Please try again.';
+      empty.querySelector('p').textContent = 'Could not generate shot plan. Please try again.';
     }
   } catch(err){
     loading.style.display = 'none';
     empty.style.display = 'block';
-    empty.querySelector('p').textContent = 'Error generating checklist. Please try again.';
+    empty.querySelector('p').textContent = 'Error generating shot plan. Please try again.';
   }
 }
 
-function renderChecklist(data, checked){
+function renderShotPlan(plan){
   const body = document.getElementById('filmingChecklistBody');
   body.innerHTML = '';
 
-  data.sections.forEach(section=>{
-    const sectionEl = document.createElement('div');
-    sectionEl.style.cssText = 'margin-bottom:20px;';
+  const shots = plan.shots||[];
+  const countEl = document.getElementById('shotPlanCount');
+  if(countEl) countEl.textContent = shots.length + ' shot' + (shots.length!==1?'s':'');
 
-    const title = document.createElement('div');
-    title.style.cssText = 'font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--teal-border);';
-    title.textContent = section.title;
-    sectionEl.appendChild(title);
+  // Reset thumb ratings
+  document.getElementById('shotPlanThumbUp').style.background='';
+  document.getElementById('shotPlanThumbUp').style.borderColor='';
+  document.getElementById('shotPlanThumbDown').style.background='';
+  document.getElementById('shotPlanThumbDown').style.borderColor='';
 
-    section.items.forEach((item, idx)=>{
-      const key = section.title+'__'+idx;
-      const row = document.createElement('label');
-      row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:7px 0;cursor:pointer;border-bottom:1px solid var(--border);';
+  // Badge color map
+  const badgeClass = {
+    'HERO':'shot-badge-hero',
+    'B-ROLL':'shot-badge-broll',
+    'REVEAL':'shot-badge-reveal',
+    'REACTION':'shot-badge-reaction'
+  };
 
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = !!checked[key];
-      cb.style.cssText = 'margin-top:2px;flex-shrink:0;accent-color:var(--teal);width:16px;height:16px;cursor:pointer;';
-      cb.addEventListener('change', ()=>saveCheckboxState(key, cb.checked));
+  // Render shot cards
+  shots.forEach((shot, i) => {
+    const type = (shot.type||'SHOT').toUpperCase();
+    const cls = badgeClass[type]||'shot-badge-default';
 
-      const text = document.createElement('span');
-      text.style.cssText = 'font-size:13px;font-weight:300;color:var(--charcoal);line-height:1.5;';
-      if(cb.checked) text.style.textDecoration = 'line-through';
-      if(cb.checked) text.style.color = 'var(--light)';
-      text.textContent = item;
+    const card = document.createElement('div');
+    card.className = 'shot-card';
+    card.setAttribute('contenteditable','false');
 
-      cb.addEventListener('change', ()=>{
-        text.style.textDecoration = cb.checked ? 'line-through' : '';
-        text.style.color = cb.checked ? 'var(--light)' : 'var(--charcoal)';
-      });
+    let metaHtml = '';
+    if(shot.cameraAngle){
+      metaHtml += `<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>${escHtml(shot.cameraAngle)}</span>`;
+    }
+    if(shot.audioType){
+      metaHtml += `<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>${escHtml(shot.audioType)}</span>`;
+    }
+    if(shot.onScreenText){
+      metaHtml += `<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span class="shot-meta-text">Text: ${escHtml(shot.onScreenText)}</span></span>`;
+    }
 
-      row.appendChild(cb);
-      row.appendChild(text);
-      sectionEl.appendChild(row);
-    });
-
-    body.appendChild(sectionEl);
+    card.innerHTML = `
+      <div class="shot-card-header">
+        <div class="shot-card-left">
+          <span class="shot-type-badge ${cls}">${escHtml(type)}</span>
+          <span class="shot-number">Shot ${i+1}</span>
+        </div>
+        <span class="shot-duration">${escHtml(shot.duration||'')}</span>
+      </div>
+      <div class="shot-desc" contenteditable="true" style="outline:none;cursor:text;" onblur="saveShotEdit(${i},'description',this.textContent)">${escHtml(shot.description||'')}</div>
+      ${metaHtml?`<div class="shot-meta">${metaHtml}</div>`:''}
+      ${shot.notes?`<div class="shot-notes"><strong>Notes:</strong> <span contenteditable="true" style="outline:none;" onblur="saveShotEdit(${i},'notes',this.textContent)">${escHtml(shot.notes)}</span></div>`:''}
+    `;
+    body.appendChild(card);
   });
+
+  // B-Roll Ideas
+  if(plan.bRollIdeas&&plan.bRollIdeas.length){
+    const broll = document.createElement('div');
+    broll.className = 'shotplan-broll';
+    broll.innerHTML = `<div class="shotplan-broll-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/></svg>
+      B-Roll Ideas
+    </div>`;
+    plan.bRollIdeas.forEach(idea=>{
+      const item = document.createElement('div');
+      item.className = 'shotplan-broll-item';
+      item.innerHTML = `<span class="shotplan-broll-dot"></span><span>${escHtml(idea)}</span>`;
+      broll.appendChild(item);
+    });
+    body.appendChild(broll);
+  }
+
+  // Equipment
+  if(plan.equipment){
+    const eq = document.createElement('div');
+    eq.className = 'shotplan-equipment';
+    eq.innerHTML = `<div class="shotplan-equipment-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
+      Equipment
+    </div>
+    ${plan.equipment.camera?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Camera</div><div class="shotplan-equip-val">${escHtml(plan.equipment.camera)}</div></div>`:''}
+    ${plan.equipment.audio?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Audio</div><div class="shotplan-equip-val">${escHtml(plan.equipment.audio)}</div></div>`:''}
+    ${plan.equipment.other?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Other</div><div class="shotplan-equip-val">${escHtml(plan.equipment.other)}</div></div>`:''}`;
+    body.appendChild(eq);
+  }
+
+  // Filming Tips
+  if(plan.filmingTips&&plan.filmingTips.length){
+    const tips = document.createElement('div');
+    tips.className = 'shotplan-tips';
+    tips.innerHTML = `<div class="shotplan-tips-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Filming Tips
+    </div>`;
+    plan.filmingTips.forEach(tip=>{
+      const item = document.createElement('div');
+      item.className = 'shotplan-tip-item';
+      item.innerHTML = `<span class="shotplan-tip-dot"></span><span>${escHtml(tip)}</span>`;
+      tips.appendChild(item);
+    });
+    body.appendChild(tips);
+  }
 }
 
-function saveCheckboxState(key, value){
+function saveShotEdit(shotIndex, field, value){
   if(!currentIdeaId) return;
   const all = getAllIdeas();
-  if(!all[currentIdeaId]) return;
-  if(!all[currentIdeaId].filmingChecked) all[currentIdeaId].filmingChecked = {};
-  all[currentIdeaId].filmingChecked[key] = value;
-  all[currentIdeaId].updatedAt = Date.now();
-  saveAllIdeas(all);
+  if(!all[currentIdeaId]||!all[currentIdeaId].shotPlan) return;
+  const shots = all[currentIdeaId].shotPlan.shots;
+  if(shots&&shots[shotIndex]){
+    shots[shotIndex][field] = value;
+    all[currentIdeaId].updatedAt = Date.now();
+    saveAllIdeas(all);
+  }
 }
 
 async function regenerateChecklist(){
   if(!currentIdeaId) return;
   const all = getAllIdeas();
   if(!all[currentIdeaId]) return;
-  // Clear saved checklist and re-run
-  all[currentIdeaId].filmingChecklist = null;
-  all[currentIdeaId].filmingChecked = {};
+  all[currentIdeaId].shotPlan = null;
+  all[currentIdeaId].updatedAt = Date.now();
   saveAllIdeas(all);
   await initFilmingTab();
 }
 
 async function generateChecklistInBackground(){
-  // Silent background generation — saves to idea without switching tabs
   if(!currentIdeaId) return;
   const all = getAllIdeas();
   const idea = all[currentIdeaId];
-  if(!idea||idea.filmingChecklist) return;
+  if(!idea||idea.shotPlan) return;
 
   const scriptHistory = tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
   const assistantMsgs = scriptHistory.filter(m=>m.role==='assistant');
@@ -3190,20 +3415,34 @@ async function generateChecklistInBackground(){
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        system:`You generate filming checklists from Reel scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
+        max_tokens:2000,
+        system:`You generate detailed shot plans for Instagram Reels from scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
 
 Output format:
-{"sections":[{"title":"Cast","items":["Item 1","Item 2"]},{"title":"Wardrobe","items":["Item 1"]},{"title":"Props","items":["Item 1","Item 2"]},{"title":"Location & Set Dressing","items":["Item 1"]},{"title":"Equipment","items":["Item 1","Item 2"]}]}
+{
+  "shots": [
+    {
+      "type": "HERO",
+      "duration": "3 seconds",
+      "description": "Description of what to film",
+      "cameraAngle": "medium close-up",
+      "audioType": "on-camera",
+      "onScreenText": "Text overlay if any",
+      "notes": "Director note for this shot"
+    }
+  ],
+  "bRollIdeas": ["idea 1", "idea 2", "idea 3", "idea 4"],
+  "equipment": {
+    "camera": "Camera recommendation",
+    "audio": "Audio recommendation",
+    "other": "Lighting and other gear"
+  },
+  "filmingTips": ["tip 1", "tip 2", "tip 3"]
+}
 
-Rules:
-- Cast: list each on-camera role needed with a brief description of their action
-- Wardrobe: specific clothing for each person/scene — include what NOT to wear if relevant
-- Props: every physical item needed, separated into "before" and "after" or "problem" and "solution" groups if applicable
-- Location & Set Dressing: where to film each scene, background details, lighting notes
-- Equipment: phone (clean lens), tripod (note if non-negotiable), lighting, audio, shot list printout
-- Be specific to THIS script — not generic. Include actual product names, outfit details, and prop descriptions from the script.`,
-        messages:[{role:'user',content:`Generate a filming checklist for this script:\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
+Shot type rules: HERO = main on-camera shots; B-ROLL = cutaway/detail shots; REVEAL = payoff/reveal moments; REACTION = genuine reaction shots.
+Duration per shot: 2–5 seconds. cameraAngle: close-up/medium/medium close-up/wide/overhead/detail. audioType: on-camera/voiceover/none. Be specific to THIS script.`,
+        messages:[{role:'user',content:`Generate a shot plan for this reel.\n\nIdea: ${idea.hook}\nFormat: ${idea.format||'not specified'}\nTarget duration: ${idea.scriptDuration||'~20s'}\n\nScript:\n${scriptText.slice(0,3000)}`}]
       })
     });
     const data = await resp.json();
@@ -3212,15 +3451,133 @@ Rules:
       const parsed = JSON.parse(raw);
       const all2 = getAllIdeas();
       if(all2[currentIdeaId]){
-        all2[currentIdeaId].filmingChecklist = parsed;
-        all2[currentIdeaId].filmingChecked = {};
+        all2[currentIdeaId].shotPlan = parsed;
         all2[currentIdeaId].updatedAt = Date.now();
         saveAllIdeas(all2);
       }
     }
-  } catch(e){ /* silent fail — user can generate manually by clicking Filming tab */ }
+  } catch(e){ /* silent fail */ }
 }
 
+
+
+function selectScriptDuration(btn, dur){
+  selectedScriptDuration = dur;
+  // Sync all pill sets
+  document.querySelectorAll('.script-dur-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.script-dur-pill').forEach(p=>{
+    if(p.textContent.trim()===dur) p.classList.add('active');
+  });
+  // Save to idea
+  if(currentIdeaId){
+    const all=getAllIdeas();
+    if(all[currentIdeaId]){all[currentIdeaId].scriptDuration=dur;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+  }
+}
+
+function syncDurationPills(){
+  document.querySelectorAll('.script-dur-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.script-dur-pill').forEach(p=>{
+    if(p.textContent.trim()===selectedScriptDuration) p.classList.add('active');
+  });
+}
+
+async function triggerScriptGenerate(){
+  const all=getAllIdeas();
+  const idea=all[currentIdeaId];
+  if(!idea)return;
+
+  // Save duration
+  idea.scriptDuration = selectedScriptDuration;
+  saveAllIdeas(all);
+
+  const generateBtn = document.getElementById('scriptGenerateBtn');
+  const generatingState = document.getElementById('scriptGeneratingState');
+  generateBtn.style.display='none';
+  generatingState.style.display='block';
+
+  const notesEl=document.getElementById('notesTextarea');
+  const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
+  const notesBlock=notes?`\n**Notes & context:**\n${notes}`:'';
+
+  const context=`I want to write a full script for this reel. Target duration: **${selectedScriptDuration}**.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease generate the following four sections:\n\n**1. Script**\nA-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational — written the way someone would actually say it, not how they'd write it. Scale the length to fit approximately ${selectedScriptDuration}.\n\n**2. On-Screen Text**\nList each text overlay with: the exact text, which clip or moment it appears on, and any font or animation notes that differ from the account defaults (System font, white, size 12, Black Shadow 60%/30%, centered above bottom UI).\n\n**3. Cover Image**\nSuggest the ideal cover frame: which moment in the reel to use, what the Canva text overlay should say (short and punchy, as few words as possible), font choice (Montserrat ExtraBold, Anton, or League Spartan), and whether a semi-transparent rectangle background element is needed for readability. Remind that all text must stay within the center square and be placed in the lower third.\n\n**4. CapCut Editing Notes**\nConcise — assume all clips are already filmed on iPhone and the editor knows CapCut well. Include: clip order on the timeline, transition between each clip (default to Jump Cut; use White Flash at Transitions > Overlay for before/after reveals; use Pull In/Pull Out at Transitions > Movement for high-energy scene changes; note any Keyframe Zoom punch-ins needed; note any in-camera transitions that should have been filmed — Clap/Snap, Lens Cover, or Spin), any speed adjustments, music mood/tempo suggestion, and a final line reminding to run Auto-Captions with standard styling. Default to Jump Cuts for 90% of edits — only one stylized transition per reel maximum.`;
+
+  tabChatHistory.script[currentIdeaId]=[{role:'user',content:context}];
+
+  // Switch to chat area
+  document.getElementById('scriptPreGenerate').style.display='none';
+  document.getElementById('scriptChatArea').style.display='flex';
+  syncDurationPills();
+
+  const messagesEl=document.getElementById('scriptMessages');
+  messagesEl.innerHTML='';
+
+  await sendTabAuto('script');
+}
+
+async function regenerateScript(){
+  if(!currentIdeaId)return;
+  // Clear history and reset to pre-generate
+  tabChatHistory.script[currentIdeaId]=[];
+  const all=getAllIdeas();
+  if(all[currentIdeaId]){
+    all[currentIdeaId].scriptHistory=[];
+    all[currentIdeaId].filmingChecklist=null;
+    all[currentIdeaId].shotPlan=null;
+    all[currentIdeaId].updatedAt=Date.now();
+    saveAllIdeas(all);
+  }
+  // Reset UI back to pre-generate
+  document.getElementById('scriptPreGenerate').style.display='block';
+  document.getElementById('scriptChatArea').style.display='none';
+  document.getElementById('scriptGenerateBtn').style.display='inline-flex';
+  document.getElementById('scriptGeneratingState').style.display='none';
+  document.getElementById('scriptMessages').innerHTML='';
+  syncDurationPills();
+}
+
+function copyShotPlan(){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();
+  const idea=all[currentIdeaId];
+  if(!idea||!idea.shotPlan)return;
+  const plan=idea.shotPlan;
+  let text='SHOT PLAN\n'+(plan.shots?plan.shots.length+' shots':'')+(idea.scriptDuration?' · '+idea.scriptDuration:'')+'\n\n';
+  if(plan.shots){
+    plan.shots.forEach((s,i)=>{
+      text+=`[${s.type||'SHOT'}] Shot ${i+1} — ${s.duration||''}\n`;
+      text+=s.description+'\n';
+      if(s.cameraAngle||s.audioType) text+=`Camera: ${s.cameraAngle||''}  Audio: ${s.audioType||''}\n`;
+      if(s.onScreenText) text+=`Text: ${s.onScreenText}\n`;
+      if(s.notes) text+=`Notes: ${s.notes}\n`;
+      text+='\n';
+    });
+  }
+  if(plan.bRollIdeas&&plan.bRollIdeas.length){
+    text+='B-ROLL IDEAS\n';
+    plan.bRollIdeas.forEach(b=>text+='• '+b+'\n');
+    text+='\n';
+  }
+  if(plan.equipment){
+    text+='EQUIPMENT\n';
+    if(plan.equipment.camera) text+='Camera: '+plan.equipment.camera+'\n';
+    if(plan.equipment.audio) text+='Audio: '+plan.equipment.audio+'\n';
+    if(plan.equipment.other) text+='Other: '+plan.equipment.other+'\n';
+    text+='\n';
+  }
+  if(plan.filmingTips&&plan.filmingTips.length){
+    text+='FILMING TIPS\n';
+    plan.filmingTips.forEach(t=>text+='• '+t+'\n');
+  }
+  navigator.clipboard.writeText(text).then(()=>showToast('Shot plan copied!')).catch(()=>showToast('Copy failed — try again.'));
+}
+
+function rateShotPlan(dir){
+  const upBtn=document.getElementById('shotPlanThumbUp');
+  const downBtn=document.getElementById('shotPlanThumbDown');
+  if(dir==='up'){upBtn.style.background='var(--teal-light)';upBtn.style.borderColor='var(--teal)';downBtn.style.background='';downBtn.style.borderColor='';}
+  else{downBtn.style.background='var(--blush-light)';downBtn.style.borderColor='var(--blush)';upBtn.style.background='';upBtn.style.borderColor='';}
+}
 
 
 function getTabSystemPrompt(){
@@ -3251,25 +3608,42 @@ function initTabChat(tab){
   const messagesEl=document.getElementById(tab+'Messages');
   messagesEl.innerHTML='';
 
+  if(tab==='script'){
+    // Restore saved duration if any
+    if(idea.scriptDuration) selectedScriptDuration = idea.scriptDuration;
+    if(history.length===0){
+      // Show pre-generate state
+      document.getElementById('scriptPreGenerate').style.display='block';
+      document.getElementById('scriptChatArea').style.display='none';
+      // Sync duration pills to saved value
+      syncDurationPills();
+      return;
+    } else {
+      // Already has script — show chat area
+      document.getElementById('scriptPreGenerate').style.display='none';
+      document.getElementById('scriptChatArea').style.display='flex';
+      syncDurationPills();
+      history.forEach(m=>appendTabBubble(tab,m.role,m.content));
+      messagesEl.scrollTop=messagesEl.scrollHeight;
+      return;
+    }
+  }
+
   if(history.length===0){
     const notesEl=document.getElementById('notesTextarea');
     const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
     const notesBlock=notes?`\n**Notes & context:**\n${notes}`:'';
 
     let context;
-    if(tab==='script'){
-      context=`I want to write a full script for this reel.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease generate the following four sections:\n\n**1. Script**\nA-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational — written the way someone would actually say it, not how they'd write it.\n\n**2. On-Screen Text**\nList each text overlay with: the exact text, which clip or moment it appears on, and any font or animation notes that differ from the account defaults (System font, white, size 12, Black Shadow 60%/30%, centered above bottom UI).\n\n**3. Cover Image**\nSuggest the ideal cover frame: which moment in the reel to use, what the Canva text overlay should say (short and punchy, as few words as possible), font choice (Montserrat ExtraBold, Anton, or League Spartan), and whether a semi-transparent rectangle background element is needed for readability. Remind that all text must stay within the center square and be placed in the lower third.\n\n**4. CapCut Editing Notes**\nConcise — assume all clips are already filmed on iPhone and the editor knows CapCut well. Include: clip order on the timeline, transition between each clip (default to Jump Cut; use White Flash at Transitions > Overlay for before/after reveals; use Pull In/Pull Out at Transitions > Movement for high-energy scene changes; note any Keyframe Zoom punch-ins needed; note any in-camera transitions that should have been filmed — Clap/Snap, Lens Cover, or Spin), any speed adjustments, music mood/tempo suggestion, and a final line reminding to run Auto-Captions with standard styling. Default to Jump Cuts for 90% of edits — only one stylized transition per reel maximum.`;
-    } else {
-      const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
-      const scriptExists=scriptHistory.length>0;
+    const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
+    const scriptExists=scriptHistory.length>0;
 
-      if(scriptExists){
-        const scriptMsgs=scriptHistory.filter(m=>m.role==='assistant');
-        const lastScript=scriptMsgs.length>0?scriptMsgs[scriptMsgs.length-1].content:'';
-        context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
-      } else {
-        context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
-      }
+    if(scriptExists){
+      const scriptMsgs=scriptHistory.filter(m=>m.role==='assistant');
+      const lastScript=scriptMsgs.length>0?scriptMsgs[scriptMsgs.length-1].content:'';
+      context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
+    } else {
+      context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
     }
     appendTabBubble(tab,'user',context);
     tabChatHistory[tab][currentIdeaId]=[{role:'user',content:context}];
@@ -3316,11 +3690,10 @@ async function sendTabAuto(tab){
       tabChatHistory[tab][currentIdeaId].push({role:'assistant',content:reply});
       appendTabBubble(tab,'assistant',reply);
       saveTabHistory(tab);
-      // Auto-generate filming checklist after first script response
+      // Auto-generate shot plan after first script response
       if(tab==='script'){
         const all=getAllIdeas();
-        if(all[currentIdeaId]&&!all[currentIdeaId].filmingChecklist){
-          // Generate in background — don't wait, don't block
+        if(all[currentIdeaId]&&!all[currentIdeaId].shotPlan){
           setTimeout(()=>generateChecklistInBackground(),500);
         }
       }
