@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFC Email Copy Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --slate: #6B8FA3; --slate-dark: #4a6e82; --slate-light: #d4e4ed;
+    --blush: #f5ddd8; --cream: #faf7f5; --charcoal: #2c2c2c;
+    --mid: #777; --success: #3d8b5c; --danger: #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--charcoal); min-height: 100vh; }
+
+  /* ── Header ── */
+  header { background: var(--slate); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .logo { font-family: 'Playfair Display', serif; font-style: italic; color: white; font-size: 1.05rem; }
+  .logo-badge { font-style: normal; font-weight: 600; font-size: 0.65rem; background: var(--blush); color: var(--slate-dark); padding: 3px 9px; border-radius: 20px; margin-left: 10px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--slate-light); background: white; padding: 0 24px; position: sticky; top: 0; z-index: 10; }
+  .tab-btn { padding: 13px 20px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--mid); background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em; }
+  .tab-btn:hover { color: var(--slate); }
+  .tab-btn.active { color: var(--slate-dark); border-bottom-color: var(--slate); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 26px 20px 80px; }
+
+  /* ── Shared ── */
+  .perf-strip { background: white; border: 1px solid var(--slate-light); border-radius: 10px; padding: 11px 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .perf-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); font-weight: 600; margin-right: 4px; }
+  .pill { font-size: 0.7rem; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+  .pill.green { background: #d4edda; color: #2d6a4a; }
+  .pill.yellow { background: #fff3cd; color: #856404; }
+  .pill.red { background: #fde8e8; color: #8b3030; }
+
+  .card { background: white; border: 1px solid var(--slate-light); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--slate-dark); margin-bottom: 16px; }
+  .section-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); font-weight: 600; margin-bottom: 9px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.span2 { grid-column: 1 / -1; }
+  label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; color: var(--mid); }
+  input, select, textarea { font-family: 'DM Sans', sans-serif; font-size: 0.875rem; border: 1.5px solid #dde6ec; border-radius: 8px; padding: 9px 11px; color: var(--charcoal); background: var(--cream); transition: border-color 0.2s; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--slate); }
+  textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+
+  .type-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .type-btn { padding: 6px 14px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); }
+  .type-btn:hover { border-color: var(--slate); }
+  .type-btn.active { background: var(--slate); border-color: var(--slate); color: white; }
+
+  .gen-btn { width: 100%; padding: 13px; background: var(--slate); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+  .gen-btn:hover { background: var(--slate-dark); }
+  .gen-btn:active { transform: scale(0.99); }
+  .gen-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  .error { background: #fde8e8; color: #8b3030; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; margin-top: 10px; display: none; }
+  .error.show { display: block; }
+  .loading { text-align: center; padding: 30px; display: none; }
+  .loading.show { display: block; }
+  .spinner { width: 30px; height: 30px; border: 3px solid var(--slate-light); border-top-color: var(--slate); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 0.83rem; color: var(--mid); }
+
+  /* ── Results ── */
+  .results { display: none; }
+  .results.show { display: block; }
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .results-header h2 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--slate-dark); }
+  .regen-btn { font-size: 0.75rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--slate); background: none; border: 1.5px solid var(--slate); border-radius: 20px; padding: 5px 13px; cursor: pointer; transition: all 0.15s; }
+  .regen-btn:hover { background: var(--slate-light); }
+
+  .subject-card { background: white; border: 1.5px solid var(--slate-light); border-radius: 10px; padding: 11px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; display: flex; align-items: flex-start; gap: 10px; }
+  .subject-card:hover { border-color: var(--slate); }
+  .subject-card.selected { border-color: var(--slate); background: var(--slate-light); }
+  .subj-radio { width: 16px; height: 16px; border: 2px solid #ccd8e0; border-radius: 50%; flex-shrink: 0; margin-top: 3px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .subject-card.selected .subj-radio { border-color: var(--slate); background: var(--slate); }
+  .subj-radio-dot { width: 6px; height: 6px; background: white; border-radius: 50%; display: none; }
+  .subject-card.selected .subj-radio-dot { display: block; }
+  .subj-content { flex: 1; }
+  .subj-text { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; line-height: 1.4; }
+  .subj-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .style-badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .style-badge.bold { background: #fde8e8; color: #8b3030; }
+  .style-badge.curious { background: #fff3cd; color: #856404; }
+  .style-badge.direct { background: #d4edda; color: #2d6a4a; }
+  .style-badge.urgency { background: #ffe4cc; color: #8b4a10; }
+  .subj-note { font-size: 0.7rem; color: var(--mid); font-style: italic; }
+
+  .body-preview { background: white; border: 1.5px solid var(--slate-light); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+  .preview-bar { background: var(--slate); padding: 9px 14px; display: flex; align-items: center; gap: 6px; }
+  .preview-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+  .preview-bar span { font-size: 0.67rem; color: rgba(255,255,255,0.65); letter-spacing: 0.05em; margin-left: 4px; }
+  .preview-body { padding: 16px 18px; }
+  .preview-hook { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; color: var(--slate-dark); margin-bottom: 10px; line-height: 1.5; }
+  .preview-text { font-size: 0.87rem; line-height: 1.65; color: var(--charcoal); margin-bottom: 14px; }
+  .preview-ctas { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cta-tag { padding: 6px 13px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .cta-tag.primary { background: var(--slate); color: white; }
+  .cta-tag.secondary { background: var(--blush); color: var(--slate-dark); }
+  .preview-sign { font-size: 0.8rem; color: var(--mid); font-style: italic; border-top: 1px solid var(--slate-light); padding-top: 12px; }
+
+  .copy-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+  .copy-btn { font-size: 0.73rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--mid); background: white; border: 1.5px solid #dde6ec; border-radius: 20px; padding: 5px 13px; cursor: pointer; transition: all 0.15s; }
+  .copy-btn:hover { border-color: var(--slate); color: var(--slate); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); background: #d4edda; }
+
+  .insight { background: var(--slate-light); border-left: 3px solid var(--slate); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.78rem; color: var(--slate-dark); line-height: 1.5; }
+  .insight strong { font-weight: 600; }
+
+  /* ── Color Palette ── */
+  .palette-upload-zone { border: 2px dashed #dde6ec; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+  .palette-upload-zone:hover { border-color: var(--slate); background: #f0f6f9; }
+  .palette-upload-zone.has-image { border-style: solid; border-color: var(--slate-light); padding: 0; overflow: hidden; display: block; }
+  .palette-upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-hint { font-size: 0.8rem; color: var(--mid); pointer-events: none; text-align: center; }
+  .upload-hint span { display: block; font-size: 1.4rem; margin-bottom: 6px; }
+  #palettePreview { width: 100%; max-height: 180px; object-fit: cover; display: none; border-radius: 8px; }
+  .palette-result { margin-top: 14px; display: none; }
+  .palette-result.show { display: block; }
+  .palette-swatches { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .swatch-card { border-radius: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+  .swatch-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .swatch-color { height: 60px; width: 100%; }
+  .swatch-info { background: white; padding: 7px 9px; }
+  .swatch-role { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; color: var(--mid); margin-bottom: 2px; }
+  .swatch-hex { font-size: 0.82rem; font-weight: 600; color: var(--charcoal); font-family: 'Courier New', monospace; }
+  .swatch-copy-hint { font-size: 0.62rem; color: var(--mid); margin-top: 1px; }
+  .palette-note { font-size: 0.73rem; color: var(--mid); margin-top: 10px; font-style: italic; }
+  .reupload-btn { font-size: 0.73rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--mid); background: white; border: 1.5px solid #dde6ec; border-radius: 20px; padding: 4px 12px; cursor: pointer; margin-top: 10px; transition: all 0.15s; }
+  .reupload-btn:hover { border-color: var(--slate); color: var(--slate); }
+
+  /* ── Campaign Log ── */
+  .log-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .log-tab { padding: 6px 16px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); }
+  .log-tab.active { background: var(--slate); border-color: var(--slate); color: white; }
+  .log-subpanel { display: none; }
+  .log-subpanel.active { display: block; }
+
+  /* manual entry */
+  .add-btn { padding: 10px 18px; background: var(--slate); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .add-btn:hover { background: var(--slate-dark); }
+
+  /* CSV paste */
+  .csv-hint { font-size: 0.78rem; color: var(--mid); margin-bottom: 10px; line-height: 1.55; }
+  .csv-hint code { background: #eee; border-radius: 4px; padding: 1px 5px; font-size: 0.75rem; }
+  .import-btn { padding: 10px 18px; background: var(--slate); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+  .import-btn:hover { background: var(--slate-dark); }
+  .import-success { font-size: 0.78rem; color: var(--success); margin-top: 8px; display: none; font-weight: 500; }
+  .import-success.show { display: block; }
+
+  /* Campaign table */
+  .campaign-table-wrap { overflow-x: auto; margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th { text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid); font-weight: 600; padding: 8px 10px; border-bottom: 2px solid var(--slate-light); white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 1px solid #eef2f5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f7fbfd; }
+  .del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1rem; padding: 0 4px; transition: color 0.15s; line-height: 1; }
+  .del-btn:hover { color: var(--danger); }
+  .empty-state { text-align: center; padding: 30px 20px; color: var(--mid); font-size: 0.83rem; }
+  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+
+  /* Perf breakdown */
+  .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .breakdown-card { background: white; border: 1px solid var(--slate-light); border-radius: 10px; padding: 12px 14px; }
+  .breakdown-style { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; color: var(--mid); margin-bottom: 4px; }
+  .breakdown-open { font-size: 1.4rem; font-weight: 700; color: var(--slate-dark); line-height: 1; margin-bottom: 2px; }
+  .breakdown-sub { font-size: 0.68rem; color: var(--mid); }
+  .breakdown-bar-wrap { margin-top: 8px; background: var(--slate-light); border-radius: 4px; height: 5px; }
+  .breakdown-bar { height: 5px; border-radius: 4px; background: var(--slate); transition: width 0.4s; }
+
+  .top-insight { background: var(--slate-light); border-left: 3px solid var(--slate); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.78rem; color: var(--slate-dark); line-height: 1.5; margin-bottom: 18px; }
+  .top-insight strong { font-weight: 600; }
+
+  .clear-log-btn { font-size: 0.72rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: #bbb; background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 4px 12px; cursor: pointer; transition: all 0.15s; }
+  .clear-log-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Password gate ── */
+  #passwordGate { position: fixed; inset: 0; background: var(--slate); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  #passwordGate.hidden { display: none; }
+  .gate-card { background: white; border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 340px; text-align: center; }
+  .gate-logo { font-family: 'Playfair Display', serif; font-style: italic; color: var(--slate-dark); font-size: 1.1rem; margin-bottom: 6px; }
+  .gate-sub { font-size: 0.78rem; color: var(--mid); margin-bottom: 24px; }
+  .gate-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; border: 1.5px solid #dde6ec; border-radius: 8px; padding: 10px 14px; text-align: center; letter-spacing: 0.08em; color: var(--charcoal); background: var(--cream); transition: border-color 0.2s; margin-bottom: 12px; }
+  .gate-input:focus { outline: none; border-color: var(--slate); }
+  .gate-input.error { border-color: var(--danger); animation: shake 0.3s ease; }
+  .gate-btn { width: 100%; padding: 11px; background: var(--slate); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .gate-btn:hover { background: var(--slate-dark); }
+  .gate-error { font-size: 0.75rem; color: var(--danger); margin-top: 8px; min-height: 18px; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</head>
+<body>
+
+<!-- Password gate -->
+<div id="passwordGate">
+  <div class="gate-card">
+    <div class="gate-logo">Bra Fittings by Court</div>
+    <div class="gate-sub">Email Copy Generator</div>
+    <input class="gate-input" id="gateInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()" />
+    <button class="gate-btn" onclick="checkPassword()">Enter →</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Bra Fittings by Court<span class="logo-badge">Email Generator</span></div>
+</header>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="generate" onclick="switchTab('generate')">✦ Generate</button>
+  <button class="tab-btn" data-tab="log" onclick="switchTab('log')">📊 Campaign Log</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1 — GENERATE
+══════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-generate">
+<div class="container">
+
+  <div class="perf-strip" id="perfStrip">
+    <span class="perf-label">Benchmarks →</span>
+    <span class="pill green">58% open — mid-sale urgency</span>
+    <span class="pill yellow">22% open — sale launch / last day</span>
+    <span class="pill yellow">21% open — curiosity question</span>
+    <span class="pill red">1–2% click — all campaigns</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Campaign Details</div>
+    <div class="section-label" style="margin-bottom:9px;">Email type</div>
+    <div class="type-row">
+      <button class="type-btn active" data-type="sale">Sale</button>
+      <button class="type-btn" data-type="new-arrivals">New Arrivals</button>
+      <button class="type-btn" data-type="education">Education</button>
+      <button class="type-btn" data-type="last-chance">Last Chance</button>
+      <button class="type-btn" data-type="seasonal">Seasonal</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Campaign / Theme</label><input type="text" id="campaignName" placeholder="e.g. Spring Sale, Summer Drop…" /></div>
+      <div class="field"><label>Offer detail (if any)</label><input type="text" id="offerDetail" placeholder="e.g. 15% off, free shipping…" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Key message — what should readers know or do?</label><textarea id="keyMessage" placeholder="e.g. New summer colors just dropped. Elomi and Freya back in stock…"></textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Urgency</label>
+        <select id="urgency">
+          <option value="none">None — evergreen</option>
+          <option value="soft">Soft — "while they last"</option>
+          <option value="mid">Mid — sale ends soon</option>
+          <option value="high">High — last day / hours left</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <select id="tone">
+          <option value="warm-cheeky">Warm + cheeky (default)</option>
+          <option value="warm-sincere">Warm + sincere</option>
+          <option value="direct-punchy">Direct + punchy</option>
+        </select>
+      </div>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()">Generate Email Copy →</button>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <!-- Color Palette Card -->
+  <div class="card">
+    <div class="card-title">Color Palette from Image <span style="font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:400;color:var(--mid);font-style:normal;">— optional</span></div>
+    <p style="font-size:0.8rem;color:var(--mid);margin-bottom:14px;line-height:1.5;">Upload your product photo to pull a 3-color palette — light, mid, dark — ready to paste into Canva.</p>
+    <div class="palette-upload-zone" id="uploadZone">
+      <input type="file" id="paletteInput" accept="image/*" onchange="handleImageUpload(event)" />
+      <div class="upload-hint" id="uploadHint"><span>🖼️</span>Click to upload product image</div>
+      <img id="palettePreview" alt="Product preview" />
+    </div>
+    <div class="palette-result" id="paletteResult">
+      <div class="palette-swatches" id="paletteSwatches"></div>
+      <p class="palette-note">Click any swatch to copy its hex code for Canva.</p>
+      <button class="reupload-btn" onclick="resetPalette()">↺ Upload different image</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading"><div class="spinner"></div><p>Writing your copy…</p></div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <h2>Generated Copy</h2>
+      <button class="regen-btn" onclick="generate()">↺ Regenerate</button>
+    </div>
+    <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
+    <div id="subjectLines" style="margin-bottom:20px;"></div>
+    <div class="section-label" style="margin-bottom:9px;">Email body copy</div>
+    <div class="body-preview">
+      <div class="preview-bar"><div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div><span>Paste into AiTrillion text block</span></div>
+      <div class="preview-body">
+        <div class="preview-hook" id="previewHook"></div>
+        <div class="preview-text" id="previewBody"></div>
+        <div class="preview-ctas"><div class="cta-tag primary" id="ctaPrimary"></div><div class="cta-tag secondary" id="ctaSecondary"></div></div>
+        <div class="preview-sign">xoxo, Court ✦ Links in bio</div>
+      </div>
+    </div>
+    <div class="copy-row">
+      <button class="copy-btn" id="copyBodyBtn" onclick="copyBody()">Copy body text</button>
+      <button class="copy-btn" id="copySubjBtn" onclick="copySubject()">Copy selected subject</button>
+      <button class="copy-btn" id="copyAllBtn" onclick="copyAll()">Copy all</button>
+    </div>
+    <div class="insight" id="insight"></div>
+  </div>
+
+</div>
+</div><!-- /tab-generate -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 2 — CAMPAIGN LOG
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-log">
+<div class="container">
+
+  <!-- Sub-tabs -->
+  <div class="log-tabs">
+    <button class="log-tab active" onclick="switchLogTab('add', this)">+ Add Campaign</button>
+    <button class="log-tab" onclick="switchLogTab('paste', this)">Paste / Import</button>
+    <button class="log-tab" onclick="switchLogTab('breakdown', this)">Performance</button>
+    <button class="log-tab" onclick="switchLogTab('history', this)">History</button>
+  </div>
+
+  <!-- ADD MANUALLY -->
+  <div class="log-subpanel active" id="logpanel-add">
+    <div class="card">
+      <div class="card-title">Log a Sent Campaign</div>
+      <div class="form-grid">
+        <div class="field"><label>Entry name</label><input type="text" id="log-name" placeholder="e.g. Valentine Sale 2" /></div>
+        <div class="field"><label>Campaign grouping</label><input type="text" id="log-campaign" placeholder="e.g. Valentine's Sale" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field span2"><label>Subject line used</label><input type="text" id="log-subject" placeholder="e.g. New arrivals just dropped 🌸" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Subject line style</label>
+          <select id="log-style">
+            <option value="bold">Bold</option>
+            <option value="curious">Curious / Question</option>
+            <option value="direct">Direct</option>
+            <option value="urgency">Urgency</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Email type</label>
+          <select id="log-type">
+            <option value="sale">Sale</option>
+            <option value="new-arrivals">New Arrivals</option>
+            <option value="education">Education</option>
+            <option value="last-chance">Last Chance</option>
+            <option value="seasonal">Seasonal</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Open rate (%)</label><input type="number" id="log-open" placeholder="e.g. 28" min="0" max="100" step="0.1" /></div>
+        <div class="field"><label>CTR (%)</label><input type="number" id="log-click" placeholder="e.g. 2.4" min="0" max="100" step="0.1" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Orders</label><input type="number" id="log-orders" placeholder="e.g. 3" min="0" step="1" /></div>
+        <div class="field"><label>Revenue ($)</label><input type="number" id="log-revenue" placeholder="e.g. 450.00" min="0" step="0.01" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Week of (date sent)</label><input type="date" id="log-date" /></div>
+        <div class="field"></div>
+      </div>
+      <div class="error" id="log-error"></div>
+      <button class="add-btn" onclick="addCampaign()" style="margin-top:4px;">Save Campaign →</button>
+      <div id="log-success" style="font-size:0.78rem;color:var(--success);margin-top:8px;display:none;font-weight:500;">✓ Campaign saved!</div>
+    </div>
+  </div>
+
+  <!-- PASTE / IMPORT -->
+  <div class="log-subpanel" id="logpanel-paste">
+    <div class="card">
+      <div class="card-title">Paste Bulk Data</div>
+      <p class="csv-hint">Paste rows from AiTrillion or a spreadsheet. One campaign per line, columns separated by commas or tabs.<br><br>
+      Expected column order: <code>Name</code>, <code>Campaign</code>, <code>Subject</code>, <code>Style</code>, <code>Type</code>, <code>Open%</code>, <code>CTR%</code>, <code>Orders</code>, <code>Revenue</code>, <code>Date</code><br><br>
+      Style options: <code>bold</code>, <code>curious</code>, <code>direct</code>, <code>urgency</code>, <code>unknown</code><br>
+      Type options: <code>sale</code>, <code>new-arrivals</code>, <code>education</code>, <code>last-chance</code>, <code>seasonal</code><br><br>
+      Example row:<br><code>Valentine Sale 2, Valentine's Sale, Still time to shop 💕, urgency, sale, 58, 2, 2, 254.98, 2026-02-08</code></p>
+      <textarea id="csvPaste" style="min-height:140px;font-family:'Courier New',monospace;font-size:0.78rem;" placeholder="Paste your rows here…"></textarea>
+      <div class="import-success" id="importSuccess"></div>
+      <div class="error" id="importError"></div>
+      <button class="import-btn" onclick="importCSV()">Import Rows →</button>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE BREAKDOWN -->
+  <div class="log-subpanel" id="logpanel-breakdown">
+    <div id="breakdownContent">
+      <div class="empty-state"><div class="empty-icon">📊</div>No campaigns logged yet.<br>Add campaigns to see performance by subject line style.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="log-subpanel" id="logpanel-history">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="section-label" style="margin-bottom:0;">All campaigns</div>
+      <div style="display:flex;gap:8px;">
+        <button class="clear-log-btn" onclick="exportCSV()" style="color:var(--slate);border-color:var(--slate-light);">↓ Export CSV</button>
+        <button class="clear-log-btn" onclick="clearLog()">Clear all</button>
+      </div>
+    </div>
+    <div id="historyContent">
+      <div class="empty-state"><div class="empty-icon">📭</div>No campaigns logged yet.</div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-log -->
+
+
+<script>
+// ══ STORAGE ══════════════════════════════════════
+const STORAGE_KEY = 'bfc_campaigns_v1';
+
+function loadCampaigns() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveCampaigns(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+// ══ TABS ════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+  if (name === 'log') refreshLogViews();
+}
+
+function switchLogTab(name, btn) {
+  document.querySelectorAll('.log-subpanel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.log-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('logpanel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'breakdown') renderBreakdown();
+  if (name === 'history') renderHistory();
+}
+
+// ══ GENERATE TAB ════════════════════════════════
+let selectedType = 'sale';
+let selectedSubjectIdx = 0;
+let generatedData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Password gate ──
+  const PASS = 'BFBCemail';
+  if (sessionStorage.getItem('bfc_auth') === '1') {
+    document.getElementById('passwordGate').classList.add('hidden');
+  }
+
+  document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedType = btn.dataset.type;
+    });
+  });
+  updatePerfStrip();
+});
+
+function selectSubject(idx) {
+  selectedSubjectIdx = idx;
+  document.querySelectorAll('.subject-card').forEach((c, i) => c.classList.toggle('selected', i === idx));
+}
+
+function buildPerfContext() {
+  const campaigns = loadCampaigns();
+  if (campaigns.length === 0) return null;
+
+  // Build style summary
+  const byStyle = {};
+  campaigns.forEach(c => {
+    if (!byStyle[c.style]) byStyle[c.style] = { opens: [], clicks: [], revenue: 0, orders: 0, count: 0 };
+    byStyle[c.style].opens.push(c.open);
+    byStyle[c.style].clicks.push(c.click);
+    byStyle[c.style].revenue += (c.revenue || 0);
+    byStyle[c.style].orders += (c.orders || 0);
+    byStyle[c.style].count++;
+  });
+
+  const lines = Object.entries(byStyle).map(([style, d]) => {
+    const avgOpen = (d.opens.reduce((a,b) => a+b, 0) / d.opens.length).toFixed(1);
+    const avgClick = (d.clicks.reduce((a,b) => a+b, 0) / d.clicks.length).toFixed(1);
+    const totalOrders = d.orders || 0;
+    return `- ${style}: avg ${avgOpen}% open, ${avgClick}% CTR (${d.count} campaign${d.count>1?'s':''}, ${totalOrders} orders, $${d.revenue.toFixed(0)} revenue)`;
+  });
+
+  // Top 3 by open rate
+  const top = [...campaigns].sort((a,b) => b.open - a.open).slice(0, 3);
+  const topLines = top.map(c => `- "${c.subject}" → ${c.open}% open, ${c.click}% click ($${(c.revenue||0).toFixed(0)})`);
+
+  return `YOUR ACTUAL CAMPAIGN DATA (${campaigns.length} campaigns logged):
+Performance by subject line style:
+${lines.join('\n')}
+
+Top performers:
+${topLines.join('\n')}`;
+}
+
+async function generate() {
+  const campaignName = document.getElementById('campaignName').value.trim();
+  const offerDetail  = document.getElementById('offerDetail').value.trim();
+  const keyMessage   = document.getElementById('keyMessage').value.trim();
+  const urgency      = document.getElementById('urgency').value;
+  const tone         = document.getElementById('tone').value;
+
+  if (!campaignName && !keyMessage) {
+    showError('Add a campaign name or key message to get started.');
+    return;
+  }
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('errorMsg').classList.remove('show');
+
+  const perfContext = buildPerfContext();
+
+  const system = `You write email copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
+
+CONTEXT: Emails are image-heavy, designed in Canva. Template header, footer, and CTA blocks (Book a Fitting, Shop, Bra Size Calculator, SMS signup) are FIXED. You only write text sections: subject line, opening hook, and 2–3 sentence body.
+
+BRAND RULES:
+- Zero guilt. Zero body shame. Zero emotional manipulation.
+- Subject line = hook 1. First body sentence = hook 2. Different angles — not the same idea reworded.
+- Body: 2–3 short sentences MAX. Scannable. No filler.
+- Voice: warm, slightly cheeky, like a knowledgeable friend.
+- CTA button text: short, action-forward. One for fitting, one for calculator.
+- No sign-off — "xoxo, Court" is already in the template.
+
+BASELINE BENCHMARKS:
+- 58% open: "Still time to shop our Valentines Sale" — mid-sale urgency
+- 22% open: sale launch / last-day deadline subject lines
+- 21% open: curiosity/question hooks
+- 1–2% click across the board
+
+${perfContext ? perfContext + '\n\nUse the actual campaign data above to inform which subject line styles and approaches are performing best for this specific audience.' : 'No custom campaign data logged yet — use the baseline benchmarks above.'}
+
+RETURN only valid JSON, no markdown or backticks:
+{
+  "subjects": [
+    {"text": "...", "style": "bold", "note": "..."},
+    {"text": "...", "style": "curious", "note": "..."},
+    {"text": "...", "style": "direct", "note": "..."}
+  ],
+  "hook": "Opening line — different angle from subject",
+  "body": "2–3 sentences.",
+  "cta_primary": "Fitting CTA text",
+  "cta_secondary": "Calculator CTA text",
+  "insight": "One sentence on why this approach should perform based on the data."
+}
+Style must be exactly one of: bold, curious, direct, urgency`;
+
+  const user = `Type: ${selectedType}\nCampaign: ${campaignName || '(not specified)'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nUrgency: ${urgency}\nTone: ${tone}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system, messages: [{ role: 'user', content: user }] })
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const data = await res.json();
+    let raw = data.content.map(b => b.text || '').join('');
+    raw = raw.replace(/```json|```/g, '').trim();
+    generatedData = JSON.parse(raw);
+    renderResults(generatedData);
+  } catch (err) {
+    showError('Something went wrong generating copy. Please try again.');
+    console.error(err);
+  } finally {
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('loading').classList.remove('show');
+  }
+}
+
+function renderResults(d) {
+  const container = document.getElementById('subjectLines');
+  container.innerHTML = '';
+  selectedSubjectIdx = 0;
+  d.subjects.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'subject-card' + (i === 0 ? ' selected' : '');
+    card.onclick = () => selectSubject(i);
+    card.innerHTML = `<div class="subj-radio"><div class="subj-radio-dot"></div></div><div class="subj-content"><div class="subj-text">${s.text}</div><div class="subj-meta"><span class="style-badge ${s.style}">${s.style}</span><span class="subj-note">${s.note}</span></div></div>`;
+    container.appendChild(card);
+  });
+  document.getElementById('previewHook').textContent = d.hook;
+  document.getElementById('previewBody').textContent = d.body;
+  document.getElementById('ctaPrimary').textContent = d.cta_primary;
+  document.getElementById('ctaSecondary').textContent = d.cta_secondary;
+  document.getElementById('insight').innerHTML = `<strong>✦ Performance note:</strong> ${d.insight}`;
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('genBtn').disabled = false;
+  document.getElementById('loading').classList.remove('show');
+}
+
+function copyBody() { if (!generatedData) return; copyToClipboard(`${generatedData.hook}\n\n${generatedData.body}`, 'copyBodyBtn'); }
+function copySubject() { if (!generatedData) return; copyToClipboard(generatedData.subjects[selectedSubjectIdx].text, 'copySubjBtn'); }
+function copyAll() {
+  if (!generatedData) return;
+  const subj = generatedData.subjects[selectedSubjectIdx].text;
+  copyToClipboard(`SUBJECT LINE:\n${subj}\n\nBODY COPY:\n${generatedData.hook}\n\n${generatedData.body}\n\nCTA — Fitting: ${generatedData.cta_primary}\nCTA — Calculator: ${generatedData.cta_secondary}`, 'copyAllBtn');
+}
+function copyToClipboard(text, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// ══ COLOR PALETTE ═══════════════════════════════
+function handleImageUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('palettePreview');
+    img.src = ev.target.result; img.style.display = 'block';
+    document.getElementById('uploadHint').style.display = 'none';
+    document.getElementById('uploadZone').classList.add('has-image');
+    img.onload = () => { const palette = extractPalette(img); renderPalette(palette); };
+  };
+  reader.readAsDataURL(file);
+}
+
+function extractPalette(img) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 100; canvas.height = 100;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, 100, 100);
+  const data = ctx.getImageData(0, 0, 100, 100).data;
+  const samples = [];
+  for (let i = 0; i < data.length; i += 16) {
+    const r = data[i], g = data[i+1], b = data[i+2];
+    const brightness = (r*299 + g*587 + b*114) / 1000;
+    if (brightness > 240 || brightness < 15) continue;
+    samples.push({ r, g, b, brightness });
+  }
+  if (!samples.length) for (let i = 0; i < data.length; i += 16) samples.push({ r:data[i], g:data[i+1], b:data[i+2], brightness:(data[i]*299+data[i+1]*587+data[i+2]*114)/1000 });
+  samples.sort((a, b) => a.brightness - b.brightness);
+  const third = Math.floor(samples.length / 3);
+  function avgColor(pool) {
+    if (!pool.length) return { r:128, g:128, b:128 };
+    let best = pool[Math.floor(pool.length/2)], bestSat = 0;
+    for (const c of pool) { const mx=Math.max(c.r,c.g,c.b),mn=Math.min(c.r,c.g,c.b); const sat=mx===0?0:(mx-mn)/mx; if(sat>bestSat){bestSat=sat;best=c;} }
+    const med = pool[Math.floor(pool.length/2)];
+    return { r:Math.round(best.r*0.6+med.r*0.4), g:Math.round(best.g*0.6+med.g*0.4), b:Math.round(best.b*0.6+med.b*0.4) };
+  }
+  return [{ role:'Light',...avgColor(samples.slice(third*2)) },{ role:'Mid',...avgColor(samples.slice(third,third*2)) },{ role:'Dark',...avgColor(samples.slice(0,third)) }];
+}
+
+function toHex(r,g,b) { return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase(); }
+
+function renderPalette(palette) {
+  const container = document.getElementById('paletteSwatches');
+  container.innerHTML = '';
+  palette.forEach(color => {
+    const hex = toHex(color.r, color.g, color.b);
+    const card = document.createElement('div');
+    card.className = 'swatch-card'; card.title = `Click to copy ${hex}`;
+    card.onclick = () => copySwatchHex(hex, card);
+    card.innerHTML = `<div class="swatch-color" style="background:${hex}"></div><div class="swatch-info"><div class="swatch-role">${color.role}</div><div class="swatch-hex">${hex}</div><div class="swatch-copy-hint">Click to copy</div></div>`;
+    container.appendChild(card);
+  });
+  document.getElementById('paletteResult').classList.add('show');
+}
+
+function copySwatchHex(hex, card) {
+  navigator.clipboard.writeText(hex).then(() => {
+    const hint = card.querySelector('.swatch-copy-hint');
+    hint.textContent = 'Copied!'; hint.style.color = 'var(--success)';
+    setTimeout(() => { hint.textContent = 'Click to copy'; hint.style.color = ''; }, 1600);
+  });
+}
+
+function resetPalette() {
+  document.getElementById('paletteInput').value = '';
+  document.getElementById('palettePreview').style.display = 'none';
+  document.getElementById('palettePreview').src = '';
+  document.getElementById('uploadHint').style.display = '';
+  document.getElementById('uploadZone').classList.remove('has-image');
+  document.getElementById('paletteResult').classList.remove('show');
+  document.getElementById('paletteSwatches').innerHTML = '';
+}
+
+// ══ CAMPAIGN LOG ═════════════════════════════════
+function addCampaign() {
+  const name     = document.getElementById('log-name').value.trim();
+  const campaign = document.getElementById('log-campaign').value.trim();
+  const subject  = document.getElementById('log-subject').value.trim();
+  const style    = document.getElementById('log-style').value;
+  const type     = document.getElementById('log-type').value;
+  const open     = parseFloat(document.getElementById('log-open').value);
+  const click    = parseFloat(document.getElementById('log-click').value);
+  const orders   = parseInt(document.getElementById('log-orders').value) || 0;
+  const revenue  = parseFloat(document.getElementById('log-revenue').value) || 0;
+  const date     = document.getElementById('log-date').value;
+
+  const errEl = document.getElementById('log-error');
+  if (!name || !subject || isNaN(open) || isNaN(click)) {
+    errEl.textContent = 'Please fill in entry name, subject, open rate, and CTR.';
+    errEl.classList.add('show'); return;
+  }
+  errEl.classList.remove('show');
+
+  const campaigns = loadCampaigns();
+  campaigns.push({ id: Date.now(), name, campaign, subject, style, type, open, click, orders, revenue, date });
+  saveCampaigns(campaigns);
+
+  ['log-name','log-campaign','log-subject','log-open','log-click','log-orders','log-revenue','log-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('log-style').value = 'bold';
+  document.getElementById('log-type').value = 'sale';
+
+  const suc = document.getElementById('log-success');
+  suc.style.display = 'block';
+  setTimeout(() => suc.style.display = 'none', 2200);
+  updatePerfStrip();
+}
+
+function importCSV() {
+  const raw = document.getElementById('csvPaste').value.trim();
+  const errEl = document.getElementById('importError');
+  const sucEl = document.getElementById('importSuccess');
+  errEl.classList.remove('show'); sucEl.classList.remove('show');
+
+  if (!raw) { errEl.textContent = 'Nothing to import.'; errEl.classList.add('show'); return; }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const campaigns = loadCampaigns();
+  let count = 0, errors = 0;
+
+  lines.forEach((line, i) => {
+    const parts = line.includes('\t') ? line.split('\t') : line.split(',');
+    const clean = parts.map(p => p.trim().replace(/^"|"$/g, ''));
+    if (clean.length < 7) { errors++; return; }
+    const [name, campaign, subject, style, type, openStr, clickStr, ordersStr, revenueStr, date] = clean;
+    const open = parseFloat(openStr), click = parseFloat(clickStr);
+    const orders = parseInt(ordersStr) || 0;
+    const revenue = parseFloat(revenueStr) || 0;
+    if (!name || !subject || isNaN(open) || isNaN(click)) { errors++; return; }
+    const validStyles = ['bold','curious','direct','urgency','unknown'];
+    const validTypes = ['sale','new-arrivals','education','last-chance','seasonal'];
+    campaigns.push({
+      id: Date.now() + i,
+      name, campaign: campaign || '',
+      subject,
+      style: validStyles.includes(style) ? style : 'unknown',
+      type: validTypes.includes(type) ? type : 'sale',
+      open, click, orders, revenue,
+      date: date || ''
+    });
+    count++;
+  });
+
+  saveCampaigns(campaigns);
+  document.getElementById('csvPaste').value = '';
+
+  if (count > 0) {
+    sucEl.textContent = `✓ ${count} campaign${count>1?'s':''} imported${errors>0?` (${errors} row${errors>1?'s':''} skipped)`:''}.`;
+    sucEl.classList.add('show');
+    updatePerfStrip();
+  } else {
+    errEl.textContent = `No valid rows found. Check the format and try again.`;
+    errEl.classList.add('show');
+  }
+}
+
+function deleteCampaign(id) {
+  const campaigns = loadCampaigns().filter(c => c.id !== id);
+  saveCampaigns(campaigns);
+  renderHistory();
+  renderBreakdown();
+  updatePerfStrip();
+}
+
+function clearLog() {
+  if (!confirm('Clear all logged campaigns? This cannot be undone.')) return;
+  saveCampaigns([]);
+  renderHistory(); renderBreakdown(); updatePerfStrip();
+}
+
+function refreshLogViews() {
+  const activePanel = document.querySelector('.log-subpanel.active');
+  if (!activePanel) return;
+  if (activePanel.id === 'logpanel-breakdown') renderBreakdown();
+  if (activePanel.id === 'logpanel-history') renderHistory();
+}
+
+function renderBreakdown() {
+  const campaigns = loadCampaigns();
+  const el = document.getElementById('breakdownContent');
+  if (!campaigns.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div>No campaigns logged yet.<br>Add campaigns to see performance by style.</div>';
+    return;
+  }
+
+  const byStyle = {};
+  campaigns.forEach(c => {
+    if (!byStyle[c.style]) byStyle[c.style] = { opens:[], clicks:[], revenue:0, orders:0, count:0 };
+    byStyle[c.style].opens.push(c.open);
+    byStyle[c.style].clicks.push(c.click);
+    byStyle[c.style].revenue += (c.revenue||0);
+    byStyle[c.style].orders += (c.orders||0);
+    byStyle[c.style].count++;
+  });
+
+  const styleData = Object.entries(byStyle).map(([style, d]) => ({
+    style,
+    avgOpen: d.opens.reduce((a,b)=>a+b,0)/d.opens.length,
+    avgClick: d.clicks.reduce((a,b)=>a+b,0)/d.clicks.length,
+    revenue: d.revenue,
+    orders: d.orders,
+    count: d.count
+  })).sort((a,b) => b.avgOpen - a.avgOpen);
+
+  const maxOpen = Math.max(...styleData.map(s => s.avgOpen));
+  const best = styleData[0];
+
+  const allOpens = campaigns.map(c=>c.open);
+  const allClicks = campaigns.map(c=>c.click);
+  const totalOrders = campaigns.reduce((s,c)=>s+(c.orders||0),0);
+  const totalRevenue = campaigns.reduce((s,c)=>s+(c.revenue||0),0);
+  const avgOpen = (allOpens.reduce((a,b)=>a+b,0)/allOpens.length);
+  const avgClick = (allClicks.reduce((a,b)=>a+b,0)/allClicks.length);
+  // Best performer = highest combined score: open rate + (CTR × 10)
+  // CTR multiplied so a 2% CTR adds 20pts — meaningful but open rate still anchors it
+  const scored = [...campaigns].map(c => ({ ...c, score: c.open + (c.click * 10) }));
+  const bestCampaign = scored.sort((a,b) => b.score - a.score)[0];
+
+  // Benchmarks
+  const BENCH_OPEN = 22;
+  const BENCH_CTR  = 1.5;
+  const openDiff   = avgOpen - BENCH_OPEN;
+  const clickDiff  = avgClick - BENCH_CTR;
+  const openColor  = openDiff >= 0 ? 'var(--success)' : '#c0392b';
+  const clickColor = clickDiff >= 0 ? 'var(--success)' : '#c0392b';
+  const openArrow  = openDiff >= 0 ? '↑' : '↓';
+  const clickArrow = clickDiff >= 0 ? '↑' : '↓';
+
+  // Best campaign vs benchmark
+  const bestVsBench = bestCampaign.open - BENCH_OPEN;
+  const bestColor   = bestVsBench >= 0 ? 'var(--success)' : '#c0392b';
+
+  el.innerHTML = `
+    <div class="top-insight"><strong>✦ Your top style:</strong> <em>${best.style}</em> averages ${best.avgOpen.toFixed(1)}% open across ${best.count} campaign${best.count>1?'s':''} — use this more. ${best.avgClick < 2 ? 'Click rates still low — try more specific CTAs.' : 'Click rate is healthy.'}</div>
+
+    <div class="section-label" style="margin-bottom:12px;">How you're measuring up</div>
+    <div class="card" style="margin-bottom:18px;padding:16px 18px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Avg open rate</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${avgOpen.toFixed(1)}%</div>
+            <div style="font-size:0.75rem;font-weight:600;color:${openColor};padding-bottom:2px;">${openArrow} ${Math.abs(openDiff).toFixed(1)}%</div>
+          </div>
+          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">Benchmark: ~${BENCH_OPEN}%</div>
+          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${openColor};width:${Math.min(avgOpen/50*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Avg CTR</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${avgClick.toFixed(1)}%</div>
+            <div style="font-size:0.75rem;font-weight:600;color:${clickColor};padding-bottom:2px;">${clickArrow} ${Math.abs(clickDiff).toFixed(1)}%</div>
+          </div>
+          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">Benchmark: ~${BENCH_CTR}%</div>
+          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${clickColor};width:${Math.min(avgClick/5*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Best campaign</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;">
+            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${bestCampaign.open}%</div>
+            <div style="font-size:0.75rem;font-weight:600;color:${bestColor};padding-bottom:2px;">${bestVsBench >= 0 ? '↑' : '↓'} ${Math.abs(bestVsBench).toFixed(1)}%</div>
+          </div>
+          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">vs ${BENCH_OPEN}% benchmark</div>
+          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${bestColor};width:${Math.min(bestCampaign.open/80*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--slate-light);font-size:0.72rem;color:var(--mid);line-height:1.5;">
+        <strong style="color:var(--charcoal);">Benchmarks based on your historical AiTrillion data:</strong> ~22% avg open for sale/seasonal sends, ~58% peak for mid-sale urgency, ~1–2% CTR across all types.
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:12px;">By subject line style</div>
+    <div class="breakdown-grid">${styleData.map(s => `
+      <div class="breakdown-card">
+        <div class="breakdown-style">${s.style}</div>
+        <div class="breakdown-open">${s.avgOpen.toFixed(1)}%</div>
+        <div class="breakdown-sub">avg open · ${s.count} email${s.count>1?'s':''}</div>
+        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${(s.avgOpen/Math.max(maxOpen,1)*100).toFixed(0)}%"></div></div>
+        <div class="breakdown-sub" style="margin-top:6px;">${s.avgClick.toFixed(1)}% CTR · ${s.orders} orders · $${s.revenue.toFixed(0)}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="section-label" style="margin-bottom:12px;">Overall (${campaigns.length} campaigns)</div>
+    <div class="breakdown-grid">
+      <div class="breakdown-card"><div class="breakdown-style">Avg open rate</div><div class="breakdown-open">${avgOpen.toFixed(1)}%</div></div>
+      <div class="breakdown-card"><div class="breakdown-style">Avg CTR</div><div class="breakdown-open">${avgClick.toFixed(1)}%</div></div>
+      <div class="breakdown-card"><div class="breakdown-style">Total orders</div><div class="breakdown-open">${totalOrders}</div></div>
+      <div class="breakdown-card"><div class="breakdown-style">Total revenue</div><div class="breakdown-open">$${totalRevenue.toFixed(0)}</div></div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:8px;">Best performer</div>
+    <div class="card" style="margin-bottom:0;padding:14px 16px;">
+      <div style="font-size:0.88rem;font-weight:500;margin-bottom:6px;">"${bestCampaign.subject}"</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px;">
+        <div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.open}%</strong> <span style="color:var(--mid);">open rate</span></div>
+        <div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.click}%</strong> <span style="color:var(--mid);">CTR</span></div>
+        ${bestCampaign.orders ? `<div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.orders}</strong> <span style="color:var(--mid);">orders</span></div>` : ''}
+        ${bestCampaign.revenue ? `<div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">$${(bestCampaign.revenue).toFixed(0)}</strong> <span style="color:var(--mid);">revenue</span></div>` : ''}
+      </div>
+      <div style="font-size:0.7rem;color:var(--mid);">${bestCampaign.name}${bestCampaign.campaign?' · '+bestCampaign.campaign:''} · Ranked by open rate + CTR combined</div>
+    </div>`;
+}
+
+function renderHistory() {
+  const campaigns = loadCampaigns();
+  const el = document.getElementById('historyContent');
+  if (!campaigns.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No campaigns logged yet.</div>';
+    return;
+  }
+  const sorted = [...campaigns].sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
+  el.innerHTML = `<div class="campaign-table-wrap"><table>
+    <thead><tr><th>Entry Name</th><th>Campaign</th><th>Subject</th><th>Style</th><th>Open</th><th>CTR</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
+    <tbody>${sorted.map(c => `<tr>
+      <td><strong>${c.name}</strong>${c.date?`<br><span style="font-size:0.7rem;color:var(--mid);">${c.date}</span>`:''}</td>
+      <td style="font-size:0.78rem;color:var(--mid);">${c.campaign||'—'}</td>
+      <td style="max-width:160px;word-break:break-word;font-size:0.78rem;">${c.subject}</td>
+      <td><span class="style-badge ${c.style}">${c.style}</span></td>
+      <td><strong>${c.open}%</strong></td>
+      <td>${c.click}%</td>
+      <td>${c.orders||0}</td>
+      <td>$${(c.revenue||0).toFixed(0)}</td>
+      <td><button class="del-btn" onclick="deleteCampaign(${c.id})" title="Delete">×</button></td>
+    </tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+function updatePerfStrip() {
+  const campaigns = loadCampaigns();
+  const strip = document.getElementById('perfStrip');
+  if (!campaigns.length) {
+    strip.innerHTML = `<span class="perf-label">Benchmarks →</span>
+      <span class="pill green">58% open — mid-sale urgency</span>
+      <span class="pill yellow">22% open — sale launch / last day</span>
+      <span class="pill yellow">21% open — curiosity question</span>
+      <span class="pill red">1–2% click — all campaigns</span>`;
+    return;
+  }
+  const allOpens = campaigns.map(c=>c.open);
+  const avg = (allOpens.reduce((a,b)=>a+b,0)/allOpens.length).toFixed(1);
+  const best = [...campaigns].map(c => ({ ...c, score: c.open + (c.click * 10) })).sort((a,b) => b.score - a.score)[0];
+  const totalRev = campaigns.reduce((s,c)=>s+(c.revenue||0),0);
+  const vsB = parseFloat((avg - 22).toFixed(1));
+  const vsColor = vsB >= 0 ? 'green' : 'red';
+  strip.innerHTML = `<span class="perf-label">Your data →</span>
+    <span class="pill green">${best.open}% open — best campaign</span>
+    <span class="pill ${vsColor}">${avg}% avg open (${vsB >= 0 ? '+' : ''}${vsB}% vs 22% benchmark)</span>
+    <span class="pill yellow">$${totalRev.toFixed(0)} revenue · ${campaigns.length} campaigns</span>`;
+}
+
+function exportCSV() {
+  const campaigns = loadCampaigns();
+  if (!campaigns.length) { alert('No campaigns to export yet.'); return; }
+
+  const header = ['Entry Name','Campaign','Subject','Style','Type','Open %','CTR %','Orders','Revenue','Week Of'];
+  const rows = campaigns.map(c => [
+    c.name, c.campaign||'', c.subject, c.style, c.type,
+    c.open, c.click, c.orders||0, (c.revenue||0).toFixed(2), c.date||''
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bfc-campaigns-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Password gate ──────────────────────────────
+function checkPassword() {
+  const val = document.getElementById('gateInput').value;
+  const input = document.getElementById('gateInput');
+  const errEl = document.getElementById('gateError');
+  if (val === 'BFBCemail') {
+    sessionStorage.setItem('bfc_auth', '1');
+    document.getElementById('passwordGate').classList.add('hidden');
+  } else {
+    errEl.textContent = 'Incorrect password. Try again.';
+    input.classList.add('error');
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 400);
+  }
+}
+
+// Init handled in DOMContentLoaded above
+</script>
+</body>
+</html>
