@@ -584,14 +584,17 @@ Style must be exactly one of: bold, curious, direct, urgency`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system, messages: [{ role: 'user', content: user }] })
     });
-    if (!res.ok) throw new Error(`API ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(`API ${res.status}: ${errBody?.error?.message || res.statusText}`);
+    }
     const data = await res.json();
     let raw = data.content.map(b => b.text || '').join('');
     raw = raw.replace(/```json|```/g, '').trim();
     generatedData = JSON.parse(raw);
     renderResults(generatedData);
   } catch (err) {
-    showError('Something went wrong generating copy. Please try again.');
+    showError(`Error: ${err.message}`);
     console.error(err);
   } finally {
     document.getElementById('genBtn').disabled = false;
