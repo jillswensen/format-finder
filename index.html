@@ -2679,7 +2679,7 @@ async function sendMessage(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
         messages:history
@@ -2825,7 +2825,7 @@ Provide a thorough analysis grounded in this account's specific benchmark data.$
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:1500,
         system:ANALYZE_SYSTEM,
         messages:[{role:'user',content:messageContent}]
@@ -2945,7 +2945,7 @@ async function openSaveIdeaModal(){
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 80,
         system: 'You extract a single short hook from a content brainstorm conversation. Output ONLY the hook — one punchy sentence or phrase, maximum 10 words, no quotes, no explanation, no punctuation at the end. The hook should capture the core reel concept or angle discussed.',
         messages: [{role:'user', content: 'Extract a short hook from this brainstorm chat:\n\n' + _saveIdeaFullText.slice(0, 3000)}]
@@ -3205,7 +3205,7 @@ async function initFilmingTab(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:`You generate detailed shot plans for Instagram Reels from scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
 
@@ -3422,7 +3422,7 @@ async function generateChecklistInBackground(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:`You generate detailed shot plans for Instagram Reels from scripts. Output ONLY valid JSON — no markdown, no explanation, no backticks.
 
@@ -3685,7 +3685,7 @@ async function sendTabAuto(tab){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:4000,
         system:getTabSystemPrompt(),
         messages:history
@@ -3925,7 +3925,7 @@ async function sendStoriesMessage(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:STORIES_SYSTEM+(getCurrentNiche()?'\n\nCURRENT NICHE:\n'+getCurrentNiche():''),
         messages:storiesHistory
