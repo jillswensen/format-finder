@@ -918,70 +918,6 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   .pdf-footer{margin-top:32px;padding-top:14px;border-top:1px solid #E0D5D0;font-size:11px;color:#B8A8A3;}
 }
 
-/* ══════════════════════════════════════
-   PERFORMANCE SCREEN
-══════════════════════════════════════ */
-.perf-card{
-  background:var(--white);border:1px solid var(--border);
-  border-radius:var(--radius);box-shadow:var(--shadow);
-  overflow:hidden;max-width:680px;width:100%;
-}
-.perf-section{padding:20px 24px;border-bottom:1px solid var(--border);}
-.perf-section:last-child{border-bottom:none;}
-.perf-section-label{
-  font-size:11px;font-weight:500;letter-spacing:0.12em;
-  text-transform:uppercase;color:var(--mid);margin-bottom:12px;
-}
-.perf-upload-btn{
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-  color:#fff;background:var(--teal);border:none;border-radius:10px;
-  padding:11px 22px;cursor:pointer;transition:background 0.15s;
-  display:inline-flex;align-items:center;gap:8px;
-}
-.perf-upload-btn:hover{background:#3a6359;}
-.perf-status{font-size:13px;color:var(--mid);margin-top:10px;min-height:20px;}
-.perf-summary{display:none;}
-.perf-summary.visible{display:block;}
-.perf-stats-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:10px;margin-bottom:16px;
-}
-.perf-stat-box{
-  background:var(--cream);border:1px solid var(--border);
-  border-radius:10px;padding:12px 14px;
-}
-.perf-stat-value{
-  font-family:'DM Serif Display',serif;
-  font-size:22px;font-weight:400;color:var(--charcoal);margin-bottom:2px;
-}
-.perf-stat-value.good{color:var(--teal);}
-.perf-stat-label{font-size:11px;color:var(--mid);}
-.perf-format-table{width:100%;border-collapse:collapse;font-size:13px;}
-.perf-format-table th{
-  text-align:left;font-size:10px;font-weight:500;
-  letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--light);padding:6px 10px;
-  border-bottom:1px solid var(--border);
-}
-.perf-format-table td{
-  padding:8px 10px;border-bottom:1px solid var(--border);
-  color:var(--charcoal);font-weight:300;
-}
-.perf-format-table tr:last-child td{border-bottom:none;}
-.perf-format-table tr:hover td{background:var(--cream);}
-.perf-score-bar-wrap{display:flex;align-items:center;gap:8px;}
-.perf-score-bar{height:6px;border-radius:3px;background:var(--teal);min-width:4px;}
-.perf-insights{
-  background:var(--teal-light);border:1px solid var(--teal-border);
-  border-radius:10px;padding:14px 16px;margin-top:4px;
-}
-.perf-insights-title{font-size:12px;font-weight:500;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-.perf-insight-item{font-size:13px;color:var(--charcoal);font-weight:300;line-height:1.5;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;}
-.perf-insight-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
-.perf-clear-btn{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--light);background:none;border:none;cursor:pointer;transition:color 0.15s;margin-top:12px;}
-.perf-clear-btn:hover{color:var(--rose);}
-
 /* ── Password gate ── */
 #password-gate{
   position:fixed;inset:0;
@@ -1495,83 +1431,6 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   </div>
 </div>
 
-<!-- ── SCREEN: Performance Import ── -->
-<div class="screen" id="screen-performance" style="flex-direction:column;align-items:center;padding:40px 16px 80px;overflow-y:auto;min-height:100vh;">
-  <div style="width:100%;max-width:680px;">
-    <button onclick="showScreen('screen-selector');renderSelector();" style="font-family:'DM Sans',sans-serif;font-size:13px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;margin-bottom:20px;transition:color 0.15s;" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color='var(--mid)'">&#8592; Back</button>
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-family:'DM Serif Display',serif;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;">Bra Fittings by Court</div>
-      <h1 style="font-family:'DM Serif Display',serif;font-size:30px;font-weight:400;color:var(--charcoal);margin-bottom:6px;">Performance <em style="font-style:italic;color:var(--teal);">Import</em></h1>
-      <p style="font-size:13px;color:var(--mid);font-weight:300;">Upload your weekly Notion CSV export — CFF learns from your real data</p>
-    </div>
-
-    <div class="perf-card">
-      <!-- Upload section -->
-      <div class="perf-section">
-        <div class="perf-section-label">Upload CSV</div>
-        <p style="font-size:13px;color:var(--mid);font-weight:300;line-height:1.6;margin-bottom:14px;">Export your Performance Log from Notion as a CSV and upload it here each Wednesday. CFF will parse your data and use it to inform script recommendations.</p>
-        <label class="perf-upload-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Upload Performance CSV
-          <input type="file" id="perfCsvInput" accept=".csv" style="display:none;" onchange="handlePerfCsvUpload(event)">
-        </label>
-        <div class="perf-status" id="perfStatus"></div>
-      </div>
-
-      <!-- Summary section (shown after upload) -->
-      <div class="perf-section perf-summary" id="perfSummary">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div class="perf-section-label" style="margin-bottom:0;">Summary</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span id="perfLastUpdated" style="font-size:11px;color:var(--light);"></span>
-            <button class="perf-clear-btn" onclick="clearPerfData()" style="margin-top:0;">Clear data</button>
-          </div>
-        </div>
-        <div class="perf-stats-grid" id="perfStatsGrid"></div>
-        <div class="perf-insights" id="perfInsights" style="display:none;">
-          <div class="perf-insights-title">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            What CFF learned from your data
-          </div>
-          <div id="perfInsightsList"></div>
-        </div>
-      </div>
-
-      <!-- Format breakdown (shown after upload) -->
-      <div class="perf-section perf-summary" id="perfFormatSection">
-        <div class="perf-section-label">Format performance</div>
-        <div style="overflow-x:auto;">
-          <table class="perf-format-table" id="perfFormatTable">
-            <thead>
-              <tr>
-                <th>Format</th>
-                <th>Reels</th>
-                <th>Avg Viral Score</th>
-                <th>Avg WTC%</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody id="perfFormatBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- How to export instructions -->
-      <div class="perf-section">
-        <div class="perf-section-label">How to export from Notion</div>
-        <ol style="font-size:13px;color:var(--mid);font-weight:300;line-height:1.8;padding-left:18px;">
-          <li>Open your Performance Log database in Notion</li>
-          <li>Click the <strong style="color:var(--charcoal);">···</strong> menu (top right of the database)</li>
-          <li>Select <strong style="color:var(--charcoal);">Export</strong></li>
-          <li>Choose <strong style="color:var(--charcoal);">CSV</strong> format, then Export</li>
-          <li>Upload the downloaded file above</li>
-        </ol>
-        <p style="font-size:12px;color:var(--light);margin-top:10px;">Only Instagram Reels rows are used. Other channels are ignored.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ── SCREEN 1: Business Selector ── -->
 <div class="screen active" id="screen-selector">
   <div style="width:100%;display:flex;flex-direction:column;align-items:center;padding:60px 20px 80px;">
@@ -1584,12 +1443,8 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     </div>
     <div class="businesses-grid" id="bizGrid"></div>
 
-    <!-- Backup / Restore / Performance -->
+    <!-- Backup / Restore -->
     <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
-      <button onclick="showScreen('screen-performance');renderPerfScreen();" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:10px;padding:9px 18px;cursor:pointer;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;gap:6px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Performance
-      </button>
       <button onclick="exportBackup()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--white);border:1px solid var(--border);border-radius:10px;padding:9px 18px;cursor:pointer;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;gap:6px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Back up data
@@ -1907,12 +1762,25 @@ HOW YOU WORK:
 5. When asked to compile, provide everything clean in one block, ready to copy.
 
 CAPTION & HASHTAG RULES (non-negotiable):
-- Captions: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one CTA offering both in-person fitting in Kaysville UT and the free online size calculator, both links in bio
+- Captions: aim for 20-30 words, 35 absolute maximum. Shorter is almost always better. Hook-first, no bullet points or lists, one CTA offering both in-person fitting in Kaysville UT and the free online size calculator, both links in bio
+- Voice: conversational and slightly cheeky -- write like you're texting a friend who would find this funny or useful, not presenting to a client. Short punchy sentences. Never sound like a brand. Never sound educational. If the reel is funny, the caption should have a hint of that energy too.
 - Do NOT use the on-screen hook as the caption's second hook — write a distinct second hook that creates curiosity without revealing the video's conclusion
 - Caption opening line must function as a standalone hook — "Your photographer can fix lighting, but they can't fix this" creates mystery; never reuse the on-screen hook
 - Caption should drive a specific engagement action — a comment vote, a question for viewers to answer, or a reaction prompt. Not just a description of the video.
 - Hashtags: always exactly 5, always include #brafittingsbycourt, fill remaining 4 with intent-based niche-specific tags that target users actively searching for solutions — not broad reach tags
 - NEVER use local or geographic hashtags by default (#kaysville, #utah, #slc, #utahcheck, #utahbusiness, or any location-based tag) — only include a local tag if the video content is explicitly and specifically about the Utah location
+
+INSTAGRAM ALGORITHM UPDATE (current as of 2025):
+Instagram has re-ranked the metrics that drive Reel reach, in order of importance:
+1. Skip rate -- the #1 signal. If people swipe past in the first few seconds, reach drops. The hook is the single most important thing you can do for reach.
+2. Share rate
+3. Like rate
+4. Save rate
+5. Repost rate
+6. Comment rate
+Hook quality directly controls distribution. Every script decision must prioritize stopping the skip first.
+
+REEL LENGTH RULE: Reels over 3 minutes are NOT recommended to new audiences. Keep all content under 3 minutes. For this account, target under 60 seconds whenever possible.
 
 PRODUCT NAMING STRATEGY:
 - Do NOT put product names on screen in reveal, transformation, or showcase formats — it kills pacing, pre-empts comment engagement, and may send traffic away from the account
@@ -1988,10 +1856,14 @@ SCRIPT QUALITY RULES — apply these to every script output before finalizing:
 
 10. EDUCATIONAL FORMATS: every item must be labeled — when the format involves multiple options, tips, or comparisons, every single item gets its own labeled moment. Never compress multiple options into one shot.
 
+11. HOOKS MUST BE FULLY WRITTEN, NOT TITLED -- when presenting hook options, write the actual hook the creator would say or show on screen. "Myths about swimsuits" is a topic, not a hook. "Swimsuit brands have been telling you to size up for coverage -- that's exactly why you're miserable" is a hook. Every hook suggestion must be a complete, specific, deliverable sentence. If you don't have enough context to write it specifically, ask before presenting options.
+
 CAPTION QUALITY RULES — apply these to every caption output:
 
 - The caption opening line is a SECOND HOOK — it must be distinct from the on-screen hook and create curiosity without revealing the video's conclusion. "Your photographer can fix lighting, but they can't fix this." creates mystery. Never reuse the on-screen hook as the caption opening.
 - Summarize the philosophy, not the plot — the caption should reinforce the core message without describing what happens in the video. A viewer who reads the caption before watching should be intrigued, not informed.
+- Voice is conversational and slightly cheeky -- write like texting a friend, not briefing a client. Short punchy sentences. Never educational, never brand-speak. Match the energy of the format -- a Skit caption should feel like a comment, not a lesson.
+- Length: aim for 20-30 words, 35 absolute max. Every word earns its place.
 - Always offer both CTA paths: book an in-person fitting in Kaysville AND use the free size calculator online. Both links in bio.
 - Hashtags must be intent-based and niche-specific — target users actively searching for solutions (#boudoirprep, #bridallingerie, #brafitting) not broad reach tags (#bride, #fyp). Always include #brafittingsbycourt.
 
@@ -2681,7 +2553,7 @@ async function sendMessage(){
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:2000,
-        system:CHAT_SYSTEM_PREFIX+getCurrentNiche()+getPerfSystemInjection(),
+        system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
         messages:history
       })
     });
@@ -3384,7 +3256,7 @@ function getTabSystemPrompt(){
     if(key) frameworkText = `\n\nFORMAT FRAMEWORK — ${key}:\n${FORMAT_FRAMEWORKS[key]}`;
   }
 
-  return CHAT_SYSTEM_PREFIX + getCurrentNiche() + frameworkText + getPerfSystemInjection();
+  return CHAT_SYSTEM_PREFIX + getCurrentNiche() + frameworkText;
 }
 
 function initTabChat(tab){
@@ -3962,284 +3834,6 @@ function importBackup(event){
   reader.readAsText(file);
   // Reset input so same file can be re-imported if needed
   event.target.value = '';
-}
-
-/* ════════════════════════════════════════════
-   PERFORMANCE IMPORT SYSTEM
-════════════════════════════════════════════ */
-
-const PERF_KEY = 'ff3_perf_data';
-
-function getPerfData(){ try{return JSON.parse(localStorage.getItem(PERF_KEY))||null;}catch(e){return null;} }
-function savePerfData(data){ try{localStorage.setItem(PERF_KEY,JSON.stringify(data));}catch(e){showToast('Storage full.');} }
-function clearPerfData(){
-  localStorage.removeItem(PERF_KEY);
-  document.getElementById('perfSummary').classList.remove('visible');
-  document.getElementById('perfFormatSection').classList.remove('visible');
-  document.getElementById('perfStatus').textContent='Data cleared.';
-  showToast('Performance data cleared.');
-}
-
-function renderPerfScreen(){
-  const data = getPerfData();
-  if(data){ renderPerfSummary(data); }
-}
-
-function handlePerfCsvUpload(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  const status = document.getElementById('perfStatus');
-  status.textContent = 'Reading CSV...';
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const parsed = parsePerfCSV(e.target.result);
-      if(parsed.rows.length === 0){
-        status.textContent = '⚠️ No Instagram Reel rows found. Make sure you exported the Performance Log database.';
-        return;
-      }
-      const summary = buildPerfSummary(parsed);
-      summary.importedAt = new Date().toISOString();
-      summary.rowCount = parsed.rows.length;
-      savePerfData(summary);
-      status.textContent = `✓ Imported ${parsed.rows.length} reels from ${file.name}`;
-      renderPerfSummary(summary);
-      showToast('Performance data imported!');
-    } catch(err){
-      status.textContent = '⚠️ Could not parse CSV. Make sure it\'s exported directly from Notion.';
-      console.error(err);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value='';
-}
-
-function parsePerfCSV(text){
-  // Parse CSV respecting quoted fields
-  const lines = text.split('\n');
-  if(lines.length < 2) return {headers:[], rows:[]};
-
-  function parseLine(line){
-    const result = [];
-    let current = '';
-    let inQuotes = false;
-    for(let i = 0; i < line.length; i++){
-      const ch = line[i];
-      if(ch === '"'){
-        if(inQuotes && line[i+1] === '"'){ current += '"'; i++; }
-        else { inQuotes = !inQuotes; }
-      } else if(ch === ',' && !inQuotes){
-        result.push(current.trim()); current = '';
-      } else { current += ch; }
-    }
-    result.push(current.trim());
-    return result;
-  }
-
-  const headers = parseLine(lines[0]).map(h => h.replace(/^\uFEFF/,'').trim());
-  const rows = [];
-
-  for(let i = 1; i < lines.length; i++){
-    if(!lines[i].trim()) continue;
-    const vals = parseLine(lines[i]);
-    const row = {};
-    headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
-    // Only include Instagram rows with some data
-    const channel = (row['Channel'] || row['channel'] || '').toLowerCase();
-    const entryType = (row['Type'] || row['type'] || '').toLowerCase();
-    if(channel && !channel.includes('instagram')) continue;
-    rows.push(row);
-  }
-  return {headers, rows};
-}
-
-function parseNum(val){
-  if(!val) return null;
-  const cleaned = String(val).replace(/[%,\s]/g,'');
-  const n = parseFloat(cleaned);
-  return isNaN(n) ? null : n;
-}
-
-function buildPerfSummary(parsed){
-  const rows = parsed.rows;
-
-  // Field name aliases (Notion exports can vary)
-  function getField(row, ...names){
-    for(const name of names){
-      if(row[name] !== undefined && row[name] !== '') return row[name];
-    }
-    return '';
-  }
-
-  // Parse each row into structured data
-  const reels = rows.map(row => ({
-    name: getField(row, 'Entry Name', 'Name', 'Title'),
-    format: getField(row, 'Format', 'Format Category'),
-    postDate: getField(row, 'Post Date', 'Date'),
-    dayOfWeek: getField(row, 'Day of Week', 'Day of...', 'Day'),
-    viralScore: parseNum(getField(row, 'Viral Score', 'Σ Viral Score')),
-    wtc: parseNum(getField(row, '% Watch Time Completion', 'Σ % Wat...', 'WTC%', '% Watch Time')),
-    rewatchFactor: parseNum(getField(row, 'Rewatch Factor', 'Σ Rewatc...')),
-    views: parseNum(getField(row, 'Views', '# Views')),
-    accountsReached: parseNum(getField(row, 'Accounts Reached', 'Accounts Re...', '# Accounts Re...')),
-    avgWatchTime: parseNum(getField(row, 'Avg Watch Time', 'Avg Wa...', '# Avg Wa...')),
-    skipRate: parseNum(getField(row, 'Skip Rate %', 'Skip Ra...', '# Skip Ra...')),
-    videoLength: parseNum(getField(row, 'Video Length', '# Video L...', 'Video L...')),
-    lengthCategory: getField(row, 'Length', 'Video Length Category'),
-    likes: parseNum(getField(row, 'Likes', '# Likes')),
-    comments: parseNum(getField(row, 'Comments', '# Comm...')),
-    shares: parseNum(getField(row, 'Shares', '# Shares')),
-    saves: parseNum(getField(row, 'Saves', '# Saves')),
-    follows: parseNum(getField(row, 'Follows', 'Follows...', '# Follows...')),
-    profileVisits: parseNum(getField(row, 'Profile Visits', 'Profile ...', '# Profile ...')),
-  }));
-
-  // Overall stats
-  const withViral = reels.filter(r => r.viralScore !== null);
-  const withWTC = reels.filter(r => r.wtc !== null);
-  const withViews = reels.filter(r => r.views !== null);
-
-  const avgViralScore = withViral.length ? Math.round(withViral.reduce((s,r)=>s+r.viralScore,0)/withViral.length) : null;
-  const avgWTC = withWTC.length ? Math.round(withWTC.reduce((s,r)=>s+r.wtc,0)/withWTC.length) : null;
-  const totalViews = withViews.length ? withViews.reduce((s,r)=>s+r.views,0) : null;
-  const topReel = withViral.length ? withViral.sort((a,b)=>b.viralScore-a.viralScore)[0] : null;
-
-  // Format breakdown
-  const formatMap = {};
-  reels.forEach(r => {
-    const fmt = r.format || 'Unknown';
-    if(!formatMap[fmt]) formatMap[fmt] = {name:fmt, reels:[], viralScores:[], wtcs:[]};
-    formatMap[fmt].reels.push(r);
-    if(r.viralScore !== null) formatMap[fmt].viralScores.push(r.viralScore);
-    if(r.wtc !== null) formatMap[fmt].wtcs.push(r.wtc);
-  });
-
-  const formats = Object.values(formatMap).map(f => ({
-    name: f.name,
-    count: f.reels.length,
-    avgViralScore: f.viralScores.length ? Math.round(f.viralScores.reduce((s,v)=>s+v,0)/f.viralScores.length) : null,
-    avgWTC: f.wtcs.length ? Math.round(f.wtcs.reduce((s,v)=>s+v,0)/f.wtcs.length) : null,
-  })).sort((a,b)=>(b.avgViralScore||0)-(a.avgViralScore||0));
-
-  // Day of week breakdown
-  const dayMap = {};
-  reels.forEach(r => {
-    const day = r.dayOfWeek || 'Unknown';
-    if(!dayMap[day]) dayMap[day] = {viralScores:[], count:0};
-    dayMap[day].count++;
-    if(r.viralScore !== null) dayMap[day].viralScores.push(r.viralScore);
-  });
-  const bestDay = Object.entries(dayMap)
-    .filter(([,v]) => v.viralScores.length >= 2)
-    .map(([day, v]) => ({day, avg: Math.round(v.viralScores.reduce((s,n)=>s+n,0)/v.viralScores.length)}))
-    .sort((a,b)=>b.avg-a.avg)[0];
-
-  // Short video performance
-  const shortReels = reels.filter(r => r.lengthCategory && r.lengthCategory.toLowerCase().includes('short') && r.viralScore !== null);
-  const shortAvg = shortReels.length ? Math.round(shortReels.reduce((s,r)=>s+r.viralScore,0)/shortReels.length) : null;
-
-  // Build insights
-  const insights = [];
-  if(formats.length > 0 && formats[0].avgViralScore !== null){
-    insights.push(`Top format: ${formats[0].name} (avg Viral Score ${formats[0].avgViralScore})`);
-  }
-  if(formats.length > 1){
-    const bottom = formats[formats.length-1];
-    if(bottom.avgViralScore !== null && bottom.count >= 2){
-      insights.push(`Weakest format: ${bottom.name} (avg ${bottom.avgViralScore}) — consider fewer of these`);
-    }
-  }
-  if(bestDay) insights.push(`Best posting day: ${bestDay.day} (avg Viral Score ${bestDay.avg})`);
-  if(shortAvg !== null && shortReels.length >= 2) insights.push(`Short videos avg Viral Score: ${shortAvg} across ${shortReels.length} reels`);
-  if(topReel) insights.push(`Best performer: "${topReel.name}" — Viral Score ${topReel.viralScore}${topReel.wtc ? ', '+topReel.wtc+'% WTC' : ''}`);
-
-  // Build system prompt injection text
-  const topFormats = formats.filter(f=>f.avgViralScore!==null).slice(0,3).map(f=>`${f.name} (avg ${f.avgViralScore})`).join(', ');
-  const bottomFormats = formats.filter(f=>f.avgViralScore!==null && f.count>=2).slice(-2).map(f=>`${f.name} (avg ${f.avgViralScore})`).join(', ');
-
-  let systemInjection = `\n\nPERFORMANCE DATA (${reels.length} reels, imported ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}):\n`;
-  if(avgViralScore!==null) systemInjection += `- Account avg Viral Score: ${avgViralScore}\n`;
-  if(avgWTC!==null) systemInjection += `- Account avg Watch Time Completion: ${avgWTC}%\n`;
-  if(topFormats) systemInjection += `- Top performing formats: ${topFormats}\n`;
-  if(bottomFormats) systemInjection += `- Underperforming formats: ${bottomFormats}\n`;
-  if(bestDay) systemInjection += `- Best posting day: ${bestDay.day}\n`;
-  if(topReel) systemInjection += `- Best single reel: "${topReel.name}" (Viral Score ${topReel.viralScore})\n`;
-  systemInjection += `When recommending formats or scripting, reference these performance patterns. Flag if a chosen format has a below-average history.`;
-
-  return {
-    reelCount: reels.length,
-    avgViralScore,
-    avgWTC,
-    totalViews,
-    topReel: topReel ? {name: topReel.name, viralScore: topReel.viralScore, wtc: topReel.wtc} : null,
-    formats,
-    insights,
-    systemInjection,
-    bestDay: bestDay || null,
-  };
-}
-
-function renderPerfSummary(data){
-  document.getElementById('perfSummary').classList.add('visible');
-  document.getElementById('perfFormatSection').classList.add('visible');
-
-  // Last updated
-  const lu = document.getElementById('perfLastUpdated');
-  if(data.importedAt) lu.textContent = 'Updated '+new Date(data.importedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-
-  // Stats grid
-  const grid = document.getElementById('perfStatsGrid');
-  const stats = [
-    {label:'Reels analyzed', value:data.reelCount, cls:''},
-    {label:'Avg Viral Score', value:data.avgViralScore!==null?data.avgViralScore:'—', cls:data.avgViralScore>=13?'good':''},
-    {label:'Avg Watch Time', value:data.avgWTC!==null?data.avgWTC+'%':'—', cls:data.avgWTC>=40?'good':''},
-    {label:'Best posting day', value:data.bestDay?data.bestDay.day:'—', cls:''},
-  ];
-  grid.innerHTML = stats.map(s=>`
-    <div class="perf-stat-box">
-      <div class="perf-stat-value ${s.cls}">${s.value}</div>
-      <div class="perf-stat-label">${s.label}</div>
-    </div>`).join('');
-
-  // Insights
-  const insightsEl = document.getElementById('perfInsights');
-  const insightsList = document.getElementById('perfInsightsList');
-  if(data.insights && data.insights.length){
-    insightsEl.style.display='block';
-    insightsList.innerHTML = data.insights.map(i=>`
-      <div class="perf-insight-item">
-        <span class="perf-insight-dot"></span>
-        <span>${escHtml(i)}</span>
-      </div>`).join('');
-  } else {
-    insightsEl.style.display='none';
-  }
-
-  // Format table
-  const tbody = document.getElementById('perfFormatBody');
-  const maxScore = Math.max(...(data.formats||[]).filter(f=>f.avgViralScore!==null).map(f=>f.avgViralScore), 1);
-  tbody.innerHTML = (data.formats||[]).map(f=>{
-    const score = f.avgViralScore !== null ? f.avgViralScore : '—';
-    const wtc = f.avgWTC !== null ? f.avgWTC+'%' : '—';
-    const barWidth = f.avgViralScore !== null ? Math.round((f.avgViralScore/Math.max(maxScore,1))*80) : 0;
-    return `<tr>
-      <td>${escHtml(f.name)}</td>
-      <td>${f.count}</td>
-      <td>${score}</td>
-      <td>${wtc}</td>
-      <td>
-        <div class="perf-score-bar-wrap">
-          <div class="perf-score-bar" style="width:${barWidth}px;"></div>
-          <span style="font-size:11px;color:var(--light);">${score}</span>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function getPerfSystemInjection(){
-  const data = getPerfData();
-  return data ? data.systemInjection || '' : '';
 }
 
 /* ── Init ── */
