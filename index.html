@@ -4225,18 +4225,17 @@ function saveApiKey(){
   document.getElementById('api-key-gate').style.display='none';
   error.textContent='';
 }
-
 function initGate(){
   if(sessionStorage.getItem(GATE_KEY)==='1'){
     document.getElementById('password-gate').style.display='none';
     if(!getApiKey()){
       document.getElementById('api-key-gate').style.display='flex';
     }
+    syncPull().then(()=>renderSelector());
   } else {
     setTimeout(()=>document.getElementById('gateInput').focus(),100);
   }
 }
-
 /* ════════════════════════════════════════════
    BACKUP & RESTORE
 ════════════════════════════════════════════ */
