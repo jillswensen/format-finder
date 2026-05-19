@@ -2638,9 +2638,6 @@ function lsSave(key, val) {
 }
 
 async function initWithSync() {
-  showSyncStatus('Syncing...');
-  await syncPull();
-  showSyncStatus('');
   initGate();
   renderSelector();
   document.querySelectorAll('#versionDisplay').forEach(el => el.textContent = CFF_VERSION);
@@ -4205,6 +4202,7 @@ function checkPassword(){
   if(input === GATE_PASS){
     sessionStorage.setItem(GATE_KEY,'1');
     document.getElementById('password-gate').style.display='none';
+    syncPull().then(() => renderSelector());
     if(!getApiKey()){
       document.getElementById('api-key-gate').style.display='flex';
     }
