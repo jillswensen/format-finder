@@ -3423,6 +3423,8 @@ function openIdeaDetail(id){
   if(wm){const bizAll=ls(BIZ_KEY);const biz=activeBizId?bizAll[activeBizId]:null;wm.textContent=biz?biz.name:'';}
 
   document.getElementById('notesTextarea').value=idea.notes||'';
+  const transcriptEl = document.getElementById('transcriptTextarea');
+if(transcriptEl) transcriptEl.value = idea.transcript || '';
   switchDetailTab('notes');
   showScreen('screen-idea-detail');
 }
@@ -4619,9 +4621,32 @@ function showTranscriptError(msg){
   document.getElementById('transcriptResults').style.display = 'flex';
   document.getElementById('transcriptContent').innerHTML = `<div class="transcript-error">${escHtml(msg)}</div>`;
 }
+function saveTranscriptText(){
+  if(!currentIdeaId) return;
+  const text = document.getElementById('transcriptTextarea').value;
+  const all = getAllIdeas();
+  if(all[currentIdeaId]){
+    all[currentIdeaId].transcript = text;
+    all[currentIdeaId].updatedAt = Date.now();
+    saveAllIdeas(all);
+  }
+  showToast('Transcript saved.');
+}
 
-function uploadNewVideo(){
-  document.getElementById('transcriptVideoInput').click();
+function sendTranscriptToScript(){
+  const text = document.getElementById('transcriptTextarea').value.trim();
+  if(!text){ showToast('Paste a transcript first.'); return; }
+  saveTranscriptText();
+  switchDetailTab('script');
+  setTimeout(() => {
+    const input = document.getElementById('scriptInput');
+    if(input){
+      input.value = 'I have a video transcript:\n\n' + text + '\n\nPlease create a reel script from this transcript.';
+      input.focus();
+      autoResize(input);
+      showToast('Transcript ready in Script tab!');
+    }
+  }, 100);
 }
 
 </script>
