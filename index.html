@@ -2634,6 +2634,128 @@ Analyze the provided reel transcript and metrics. Your output must include:
 
 Be specific, data-driven, and direct. Reference the account's actual benchmark data. Don't be generic.`;
 
+/* ════════════════════════════════════════════
+   SUPABASE CLOUD SYNC
+════════════════════════════════════════════ */
+
+const SUPABASE_URL = 'https://lokbwadszzmfsqcbrmrl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxva2J3YWRzenptZnNxY2JybXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNzE0NDcsImV4cCI6MjA5NDc0NzQ0N30.InBfUDtqQFDKz11RvxOtF2cS9J96XYpyloZV0gcMcbk';
+const SYNC_USER_KEY = 'ff_sync_user_id';
+
+function getSyncUserId() {
+  let uid = localStorage.getItem(SYNC_USER_KEY);
+  if (!uid) {
+    uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(SYNC_USER_KEY, uid);
+  }
+  return uid;
+}
+
+async function syncPush(key, value) {
+  try {
+    const userId = getSyncUserId();
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/cff_sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        key: key,
+        value: value,
+        updated_at: new Date().toISOString()
+      })
+    });
+    return resp.ok;
+  } catch(e) {
+    console.warn('Sync push failed:', e);
+    return false;
+  }
+}
+
+async function syncPull() {
+  try {
+    const userId = getSyncUserId();
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/cff_sync?user_id=eq.${encodeURIComponent(userId)}`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY
+        }
+      }
+    );
+    if (!resp.ok) return false;
+    const rows = await resp.json();
+    let updated = false;
+    for (const row of rows) {
+      const localVal = localStorage.getItem(row.key);
+      if (localVal !== row.value) {
+        localStorage.setItem(row.key, row.value);
+        updated = true;
+      }
+    }
+    return updated;
+  } catch(e) {
+    console.warn('Sync pull failed:', e);
+    return false;
+  }
+}
+
+async function syncKey(key) {
+  const val = localStorage.getItem(key);
+  if (val !== null) {
+    await syncPush(key, val);
+  }
+}
+
+async function syncPushAll() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('ff3_')) keys.push(k);
+  }
+  await Promise.all(keys.map(k => syncKey(k)));
+  showToast('Synced to cloud ☁️');
+}
+
+async function syncPullAndReload() {
+  showSyncStatus('Syncing...');
+  const updated = await syncPull();
+  if (updated) {
+    showSyncStatus('Synced ✓');
+    renderSelector();
+  } else {
+    showSyncStatus('Up to date ✓');
+  }
+  setTimeout(() => showSyncStatus(''), 3000);
+}
+
+function showSyncStatus(msg) {
+  let el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.textContent = msg;
+}
+
+const _origLsSave = lsSave;
+function lsSave(key, val) {
+  _origLsSave(key, val);
+  if (key.startsWith('ff3_')) {
+    syncKey(key);
+  }
+}
+
+async function initWithSync() {
+  showSyncStatus('Syncing...');
+  await syncPull();
+  showSyncStatus('');
+  initGate();
+  renderSelector();
+  document.querySelectorAll('#versionDisplay').forEach(el => el.textContent = CFF_VERSION);
+}
 /* ── Utilities ── */
 function ls(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return{};} }
 function lsSave(key,val){ try{localStorage.setItem(key,JSON.stringify(val));}catch(e){showToast('Storage full.');} }
@@ -4534,129 +4656,6 @@ function showTranscriptError(msg){
 
 function uploadNewVideo(){
   document.getElementById('transcriptVideoInput').click();
-}
-
-/* ════════════════════════════════════════════
-   SUPABASE CLOUD SYNC
-════════════════════════════════════════════ */
-
-const SUPABASE_URL = 'https://lokbwadszzmfsqcbrmrl.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxva2J3YWRzenptZnNxY2JybXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNzE0NDcsImV4cCI6MjA5NDc0NzQ0N30.InBfUDtqQFDKz11RvxOtF2cS9J96XYpyloZV0gcMcbk';
-const SYNC_USER_KEY = 'ff_sync_user_id';
-
-function getSyncUserId() {
-  let uid = localStorage.getItem(SYNC_USER_KEY);
-  if (!uid) {
-    uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem(SYNC_USER_KEY, uid);
-  }
-  return uid;
-}
-
-async function syncPush(key, value) {
-  try {
-    const userId = getSyncUserId();
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/cff_sync`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        key: key,
-        value: value,
-        updated_at: new Date().toISOString()
-      })
-    });
-    return resp.ok;
-  } catch(e) {
-    console.warn('Sync push failed:', e);
-    return false;
-  }
-}
-
-async function syncPull() {
-  try {
-    const userId = getSyncUserId();
-    const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/cff_sync?user_id=eq.${encodeURIComponent(userId)}`,
-      {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        }
-      }
-    );
-    if (!resp.ok) return false;
-    const rows = await resp.json();
-    let updated = false;
-    for (const row of rows) {
-      const localVal = localStorage.getItem(row.key);
-      if (localVal !== row.value) {
-        localStorage.setItem(row.key, row.value);
-        updated = true;
-      }
-    }
-    return updated;
-  } catch(e) {
-    console.warn('Sync pull failed:', e);
-    return false;
-  }
-}
-
-async function syncKey(key) {
-  const val = localStorage.getItem(key);
-  if (val !== null) {
-    await syncPush(key, val);
-  }
-}
-
-async function syncPushAll() {
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith('ff3_')) keys.push(k);
-  }
-  await Promise.all(keys.map(k => syncKey(k)));
-  showToast('Synced to cloud ☁️');
-}
-
-async function syncPullAndReload() {
-  showSyncStatus('Syncing...');
-  const updated = await syncPull();
-  if (updated) {
-    showSyncStatus('Synced ✓');
-    renderSelector();
-  } else {
-    showSyncStatus('Up to date ✓');
-  }
-  setTimeout(() => showSyncStatus(''), 3000);
-}
-
-function showSyncStatus(msg) {
-  let el = document.getElementById('syncStatus');
-  if (!el) return;
-  el.textContent = msg;
-}
-
-const _origLsSave = lsSave;
-function lsSave(key, val) {
-  _origLsSave(key, val);
-  if (key.startsWith('ff3_')) {
-    syncKey(key);
-  }
-}
-
-async function initWithSync() {
-  showSyncStatus('Syncing...');
-  await syncPull();
-  showSyncStatus('');
-  initGate();
-  renderSelector();
-  document.querySelectorAll('#versionDisplay').forEach(el => el.textContent = CFF_VERSION);
 }
 
 </script>
