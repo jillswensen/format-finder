@@ -1353,304 +1353,6 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 <div id="pdf-print-area" style="display:none;"></div>
 
 <!-- ── SCREEN 4: Ideas List ── -->
-<div class="screen" id="screen-ideas">
-  <div class="overlay" id="overlay3" onclick="closeSidebar3()"></div>
-  <div class="sidebar" id="sidebar3">
-    <div class="sidebar-header">
-      <div class="sidebar-header-row">
-        <div style="min-width:0;">
-          <div class="sidebar-biz-name" id="sidebarBizName3"></div>
-          <div class="sidebar-sub">Saved conversations</div>
-        </div>
-        <button class="sidebar-close" onclick="closeSidebar3()">&#x2715;</button>
-      </div>
-    </div>
-    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
-    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
-    <button class="sidebar-settings-btn" onclick="openSettings()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
-      Settings
-    </button>
-    <div class="conversations-list" id="convList3"></div>
-  </div>
-
-  <header class="page-header">
-    <button class="menu-btn" onclick="openSidebar3()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="page-wordmark" id="ideasWordmark"></div>
-    <h1>My <em>Ideas</em></h1>
-    <div class="page-subtitle">Content pipeline — from hook to posted</div>
-    <div class="page-divider"></div>
-    <div class="tab-switcher">
-      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
-      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
-      <button class="tab-btn active" onclick="goToIdeas()">Ideas</button>
-      <button class="tab-btn" onclick="goToStories()">Stories</button>
-    </div>
-  </header>
-
-  <div class="ideas-main">
-    <div class="ideas-toolbar">
-      <div class="ideas-filter-row" id="ideasFilterRow">
-        <button class="filter-pill active" onclick="filterIdeas('all',this)">All</button>
-        <button class="filter-pill" onclick="filterIdeas('idea',this)">Idea</button>
-        <button class="filter-pill" onclick="filterIdeas('scripting',this)">Scripting</button>
-        <button class="filter-pill" onclick="filterIdeas('filming',this)">Ready to Film</button>
-        <button class="filter-pill" onclick="filterIdeas('posted',this)">Posted</button>
-        <button class="filter-pill" onclick="filterIdeas('analyzed',this)">Analyzed</button>
-      </div>
-      <button class="add-idea-btn" onclick="openAddIdeaModal()">+ Add idea</button>
-    </div>
-    <div id="ideasList"></div>
-  </div>
-</div>
-
-<!-- ── SCREEN 5: Idea Detail ── -->
-<div class="screen" id="screen-idea-detail">
-  <header class="page-header" style="text-align:left;padding-top:28px;padding-bottom:16px;">
-    <div class="page-wordmark" id="detailWordmark" style="text-align:left;"></div>
-  </header>
-
-  <div class="detail-main">
-    <button class="detail-back-btn" onclick="goToIdeas()">&#8592; Back to ideas</button>
-
-    <div class="detail-hook-card">
-      <div class="detail-hook-top">
-        <div class="detail-hook-text" id="detailHookText" contenteditable="true"
-          onblur="saveDetailHookEdit()" style="outline:none;border-bottom:1px dashed var(--border);padding-bottom:4px;cursor:text;"
-          title="Click to edit"></div>
-        <select class="detail-status-select" id="detailStatusSelect" onchange="updateIdeaStatus(this.value)">
-          <option value="idea">💭 Idea</option>
-          <option value="scripting">✏️ Scripting</option>
-          <option value="filming">🎬 Ready to Film</option>
-          <option value="posted">✅ Posted</option>
-          <option value="analyzed">📊 Analyzed</option>
-        </select>
-      </div>
-      <div class="detail-format-row">
-        <span class="detail-format-label">Format:</span>
-        <select class="detail-format-select" id="detailFormatSelect" onchange="updateIdeaFormat(this.value)">
-          <option value="">— select format —</option>
-          <optgroup label="Challenges">
-            <option>Classic Challenge</option><option>Doing X</option><option>Increasing Difficulty</option>
-            <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
-            <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
-            <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences Format</option><option>Throwing A Dart To Decide X</option>
-            <option>Trying Something I Saw Online</option><option>Trying the Lowest Rated X</option>
-          </optgroup>
-          <optgroup label="Education">
-            <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>How to 5 List</option>
-            <option>Common Belief Buster</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
-            <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
-            <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
-            <option>So That's How They Do It</option><option>If You Have X</option>
-          </optgroup>
-          <optgroup label="Storytelling">
-            <option>The Why Format</option><option>Come With Me Vlog</option><option>Knowledge Gap Story</option>
-            <option>How I Built This</option><option>Story Of the Best Worst</option><option>Great Question</option>
-            <option>I Just Experienced X</option><option>FOMO Story Format</option>
-          </optgroup>
-          <optgroup label="Skits &amp; Bits">
-            <option>Duet/Stitch</option><option>Comparison Skit</option><option>Personifying Relatable Things</option>
-            <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
-            <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
-            <option>Things in Public</option><option>Classic Pranks</option>
-          </optgroup>
-          <optgroup label="Wait for It">
-            <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
-            <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
-            <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
-          </optgroup>
-          <optgroup label="Custom"><option>Custom</option><option>One Peak Style Ad</option></optgroup>
-        </select>
-      </div>
-      <div class="detail-meta" id="detailMeta"></div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="detail-tabs">
-      <button class="detail-tab-btn active" id="tabBtnNotes" onclick="switchDetailTab('notes')">Notes</button>
-      <button class="detail-tab-btn" id="tabBtnTranscript" onclick="switchDetailTab('transcript')">Transcript</button>
-      <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
-      <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
-      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Shot Plan</button>
-    </div>
-
-    <!-- Notes tab -->
-    <div class="detail-tab-content" id="tabNotes">
-      <textarea class="notes-area" id="notesTextarea"
-        placeholder="Add notes, references, filming reminders, or anything else for this idea..."></textarea>
-      <div class="notes-save-row">
-        <button class="notes-save-btn" onclick="saveNotes()">Save notes</button>
-      </div>
-    </div>
-<!-- Transcript tab -->
-<div class="detail-tab-content" id="tabTranscript" style="display:none;">
-  <input type="file" id="transcriptVideoInput" accept="video/*" style="display:none;" onchange="handleVideoUpload(event)">
-  
-  <div id="transcriptUploadArea">
-    <label class="transcript-upload-label">Upload a video file (MP4, MOV, WebM, etc.)</label>
-    <button class="transcript-upload-btn" onclick="uploadNewVideo()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Upload video
-    </button>
-    <div class="transcript-upload-hint">
-      Videos up to 25MB are supported.<br>Larger videos will need compression first.<br>Audio will be transcribed with timestamps.
-    </div>
-  </div>
-
-  <div id="transcriptProcessing">
-    <div class="transcript-spinner">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <p style="font-size:13px;color:var(--mid);font-weight:300;">Transcribing video...</p>
-    <p style="font-size:12px;color:var(--light);font-weight:300;">This may take a minute depending on video length.</p>
-  </div>
-
-  <div id="transcriptResults">
-    <div id="transcriptContent"></div>
-  </div>
-</div>
-    <!-- Script tab -->
-    <div class="detail-tab-content" id="tabScript" style="display:none;">
-      <!-- Pre-generation state -->
-      <div id="scriptPreGenerate" style="display:none;padding:36px 24px;text-align:center;">
-        <p style="font-size:15px;font-weight:400;color:var(--charcoal);margin-bottom:20px;">Generate a full script based on your hook</p>
-        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span style="font-size:13px;font-weight:500;color:var(--mid);">Target duration:</span>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
-            <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
-            <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
-            <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
-            <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
-            <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
-            <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
-          </div>
-        </div>
-        <div id="scriptGeneratingState" style="display:none;margin-bottom:16px;">
-          <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px;">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          </div>
-          <p style="font-size:13px;color:var(--mid);font-weight:300;">Generating...</p>
-          <p style="font-size:12px;color:var(--light);font-weight:500;margin-top:6px;">Turning your hook into a scroll-stopping script... ✨</p>
-          <p style="font-size:11px;color:var(--light);font-weight:300;margin-top:2px;">Please don't navigate away.</p>
-        </div>
-        <button id="scriptGenerateBtn" onclick="triggerScriptGenerate()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:12px 28px;cursor:pointer;transition:background 0.15s;display:inline-flex;align-items:center;gap:8px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          Generate Full Script
-        </button>
-      </div>
-      <!-- Chat area (shown after generation) -->
-      <div class="tab-chat-area" id="scriptChatArea" style="display:none;">
-        <div class="tab-messages" id="scriptMessages"></div>
-        <div class="tab-typing-wrap">
-          <div class="typing-indicator" id="scriptTyping" style="margin:0;">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          </div>
-        </div>
-        <div class="tab-input-row">
-          <textarea class="tab-input" id="scriptInput" placeholder="Ask for a revision, different angle, or specific section..." rows="1"
-            onkeydown="handleTabKey(event,'script')" oninput="autoResize(this)"></textarea>
-          <button class="tab-send" id="scriptSendBtn" onclick="sendTabMessage('script')">
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          </button>
-        </div>
-        <div style="border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--cream);flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:5px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span style="font-size:11px;color:var(--mid);">Duration:</span>
-            </div>
-            <div style="display:flex;gap:4px;">
-              <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
-              <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
-              <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
-              <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
-              <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
-              <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
-            </div>
-            <button onclick="regenerateScript()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              Regenerate Script
-            </button>
-          </div>
-          <button onclick="downloadScriptPDF()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background 0.15s;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download PDF
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Caption tab -->
-    <div class="detail-tab-content" id="tabCaption" style="display:none;">
-      <div class="tab-chat-area">
-        <div class="tab-messages" id="captionMessages"></div>
-        <div class="tab-typing-wrap">
-          <div class="typing-indicator" id="captionTyping" style="margin:0;">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          </div>
-        </div>
-        <div class="tab-input-row">
-          <textarea class="tab-input" id="captionInput" placeholder="Ask for captions, variations, or hashtag options..." rows="1"
-            onkeydown="handleTabKey(event,'caption')" oninput="autoResize(this)"></textarea>
-          <button class="tab-send" id="captionSendBtn" onclick="sendTabMessage('caption')">
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Shot Plan tab -->
-    <div class="detail-tab-content" id="tabFilming" style="display:none;">
-      <div id="filmingLoading" style="display:none;padding:40px 24px;text-align:center;">
-        <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:12px;">
-          <div class="dot" style="background:var(--teal);"></div>
-          <div class="dot" style="background:var(--teal);animation-delay:0.2s;"></div>
-          <div class="dot" style="background:var(--teal);animation-delay:0.4s;"></div>
-        </div>
-        <p style="font-size:13px;color:var(--mid);font-weight:300;">Building a shot-by-shot blueprint for your reel...</p>
-        <p style="font-size:12px;color:var(--light);font-weight:300;margin-top:4px;">Please don't navigate away.</p>
-      </div>
-      <div id="filmingEmpty" style="padding:40px 24px;text-align:center;color:var(--light);">
-        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the shot plan will be created automatically once your script is ready.</p>
-      </div>
-      <div id="filmingChecklist" style="display:none;">
-        <div style="padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
-            <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Shot Plan</span>
-            <span id="shotPlanCount" style="font-size:12px;color:var(--light);"></span>
-          </div>
-          <button onclick="copyShotPlan()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy Shot Plan
-          </button>
-        </div>
-        <p style="font-size:12px;color:var(--light);text-align:center;padding:10px 0 4px;display:flex;align-items:center;justify-content:center;gap:5px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Click on any text to edit
-        </p>
-        <div id="filmingChecklistBody" style="padding:0 16px 8px;"></div>
-        <div style="border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);">
-          <button id="shotPlanThumbUp" onclick="rateShotPlan('up')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Good shot plan">👍</button>
-          <button id="shotPlanThumbDown" onclick="rateShotPlan('down')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Not great">👎</button>
-          <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color 0.15s;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            Regenerate Shot Plan
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
 
 <!-- Status/action dropdown menu -->
 <div class="idea-status-menu" id="ideaStatusMenu">
@@ -1794,41 +1496,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <button class="sidebar-new" onclick="newStoriesConversation()">+ New conversation</button>
     <div class="conversations-list" id="storiesConvList"></div>
   </div>
-<!-- Settings Panel -->
-<div id="settingsPanel">
-  <div class="settings-card">
-    <h2>Settings</h2>
-    
-    <div class="settings-section">
-      <p style="margin-bottom:12px;">Manage your API keys and integrations</p>
-    </div>
-    
-    <div class="settings-section">
-      <label class="settings-label">OpenAI API Key</label>
-      <div class="settings-hint">
-        Get your key from <a href="https://platform.openai.com/api/keys" target="_blank" style="color:var(--rose);text-decoration:none;">platform.openai.com</a>. 
-        It's stored securely in your browser only.
-      </div>
-      <input type="password" class="settings-input" id="openaiKeyInput" placeholder="sk-proj-...">
-      <div id="openaiKeyStatus" class="settings-status" style="display:none;"></div>
-      <button onclick="testOpenAIKey()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;margin-bottom:8px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Test Connection
-      </button>
-    </div>
-    
-    <div class="settings-section">
-      <label class="settings-label" style="margin-bottom:12px;">Danger Zone</label>
-      <button class="settings-clear" onclick="clearOpenAIKey()">Clear API Key</button>
-      <p style="font-size:11px;color:var(--light);margin-top:8px;">This will remove your OpenAI key from this browser.</p>
-    </div>
-    
-    <div class="settings-btns">
-      <button class="settings-cancel" onclick="closeSettings()">Close</button>
-      <button class="settings-save" onclick="saveSettings()">Save Changes</button>
-    </div>
-  </div>
-</div>
+
   <header class="page-header">
     <button class="menu-btn" onclick="openSidebar4()">
       <span></span><span></span><span></span>
@@ -2151,6 +1819,305 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   </div>
 </div>
 
+  
+<div class="screen" id="screen-ideas">
+  <div class="overlay" id="overlay3" onclick="closeSidebar3()"></div>
+  <div class="sidebar" id="sidebar3">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName3"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar3()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+      Settings
+    </button>
+    <div class="conversations-list" id="convList3"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar3()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-wordmark" id="ideasWordmark"></div>
+    <h1>My <em>Ideas</em></h1>
+    <div class="page-subtitle">Content pipeline — from hook to posted</div>
+    <div class="page-divider"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn active" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn" onclick="goToStories()">Stories</button>
+    </div>
+  </header>
+
+  <div class="ideas-main">
+    <div class="ideas-toolbar">
+      <div class="ideas-filter-row" id="ideasFilterRow">
+        <button class="filter-pill active" onclick="filterIdeas('all',this)">All</button>
+        <button class="filter-pill" onclick="filterIdeas('idea',this)">Idea</button>
+        <button class="filter-pill" onclick="filterIdeas('scripting',this)">Scripting</button>
+        <button class="filter-pill" onclick="filterIdeas('filming',this)">Ready to Film</button>
+        <button class="filter-pill" onclick="filterIdeas('posted',this)">Posted</button>
+        <button class="filter-pill" onclick="filterIdeas('analyzed',this)">Analyzed</button>
+      </div>
+      <button class="add-idea-btn" onclick="openAddIdeaModal()">+ Add idea</button>
+    </div>
+    <div id="ideasList"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN 5: Idea Detail ── -->
+<div class="screen" id="screen-idea-detail">
+  <header class="page-header" style="text-align:left;padding-top:28px;padding-bottom:16px;">
+    <div class="page-wordmark" id="detailWordmark" style="text-align:left;"></div>
+  </header>
+
+  <div class="detail-main">
+    <button class="detail-back-btn" onclick="goToIdeas()">&#8592; Back to ideas</button>
+
+    <div class="detail-hook-card">
+      <div class="detail-hook-top">
+        <div class="detail-hook-text" id="detailHookText" contenteditable="true"
+          onblur="saveDetailHookEdit()" style="outline:none;border-bottom:1px dashed var(--border);padding-bottom:4px;cursor:text;"
+          title="Click to edit"></div>
+        <select class="detail-status-select" id="detailStatusSelect" onchange="updateIdeaStatus(this.value)">
+          <option value="idea">💭 Idea</option>
+          <option value="scripting">✏️ Scripting</option>
+          <option value="filming">🎬 Ready to Film</option>
+          <option value="posted">✅ Posted</option>
+          <option value="analyzed">📊 Analyzed</option>
+        </select>
+      </div>
+      <div class="detail-format-row">
+        <span class="detail-format-label">Format:</span>
+        <select class="detail-format-select" id="detailFormatSelect" onchange="updateIdeaFormat(this.value)">
+          <option value="">— select format —</option>
+          <optgroup label="Challenges">
+            <option>Classic Challenge</option><option>Doing X</option><option>Increasing Difficulty</option>
+            <option>Comparison Challenge</option><option>Cash Challenge</option><option>Can You Tell The Difference</option>
+            <option>Challenging a Claim</option><option>X For Every Follower</option><option>Choose the Winner</option>
+            <option>I Bet I Can Guess Your X</option><option>Quiz With Consequences Format</option><option>Throwing A Dart To Decide X</option>
+            <option>Trying Something I Saw Online</option><option>Trying the Lowest Rated X</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option>I Tested Every X</option><option>I Can't Believe I'm Telling You This</option><option>How to 5 List</option>
+            <option>Common Belief Buster</option><option>Sharing a Life Hack</option><option>60s Tutorial</option>
+            <option>What I Learned Doing X</option><option>X You Should Know</option><option>The Run On / Did You Know</option>
+            <option>Does X Place Have Good Service?</option><option>How Much X Costs In Current Year</option>
+            <option>So That's How They Do It</option><option>If You Have X</option>
+          </optgroup>
+          <optgroup label="Storytelling">
+            <option>The Why Format</option><option>Come With Me Vlog</option><option>Knowledge Gap Story</option>
+            <option>How I Built This</option><option>Story Of the Best Worst</option><option>Great Question</option>
+            <option>I Just Experienced X</option><option>FOMO Story Format</option>
+          </optgroup>
+          <optgroup label="Skits &amp; Bits">
+            <option>Duet/Stitch</option><option>Comparison Skit</option><option>Personifying Relatable Things</option>
+            <option>Hypothetical Scenario</option><option>Comment Section Skit</option><option>Self Deprecating Skit</option>
+            <option>Dry Parody</option><option>How X Expects Me to Y</option><option>The POV Skit</option>
+            <option>Things in Public</option><option>Classic Pranks</option>
+          </optgroup>
+          <optgroup label="Wait for It">
+            <option>Blind Ranking</option><option>The Classic Wait For It</option><option>Classic Reaction</option>
+            <option>Stranger Reaction</option><option>Doing X Until Y</option><option>Wholesome Surprise</option>
+            <option>Will They Notice</option><option>Bait and Switch</option><option>Timelapse Build</option><option>Will It X?</option>
+          </optgroup>
+          <optgroup label="Custom"><option>Custom</option><option>One Peak Style Ad</option></optgroup>
+        </select>
+      </div>
+      <div class="detail-meta" id="detailMeta"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="detail-tabs">
+      <button class="detail-tab-btn active" id="tabBtnNotes" onclick="switchDetailTab('notes')">Notes</button>
+      <button class="detail-tab-btn" id="tabBtnTranscript" onclick="switchDetailTab('transcript')">Transcript</button>
+      <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
+      <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
+      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Shot Plan</button>
+    </div>
+
+    <!-- Notes tab -->
+    <div class="detail-tab-content" id="tabNotes">
+      <textarea class="notes-area" id="notesTextarea"
+        placeholder="Add notes, references, filming reminders, or anything else for this idea..."></textarea>
+      <div class="notes-save-row">
+        <button class="notes-save-btn" onclick="saveNotes()">Save notes</button>
+      </div>
+    </div>
+<!-- Transcript tab -->
+<div class="detail-tab-content" id="tabTranscript" style="display:none;">
+  <input type="file" id="transcriptVideoInput" accept="video/*" style="display:none;" onchange="handleVideoUpload(event)">
+  
+  <div id="transcriptUploadArea">
+    <label class="transcript-upload-label">Upload a video file (MP4, MOV, WebM, etc.)</label>
+    <button class="transcript-upload-btn" onclick="uploadNewVideo()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload video
+    </button>
+    <div class="transcript-upload-hint">
+      Videos up to 25MB are supported.<br>Larger videos will need compression first.<br>Audio will be transcribed with timestamps.
+    </div>
+  </div>
+
+  <div id="transcriptProcessing">
+    <div class="transcript-spinner">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <p style="font-size:13px;color:var(--mid);font-weight:300;">Transcribing video...</p>
+    <p style="font-size:12px;color:var(--light);font-weight:300;">This may take a minute depending on video length.</p>
+  </div>
+
+  <div id="transcriptResults">
+    <div id="transcriptContent"></div>
+  </div>
+</div>
+    <!-- Script tab -->
+    <div class="detail-tab-content" id="tabScript" style="display:none;">
+      <!-- Pre-generation state -->
+      <div id="scriptPreGenerate" style="display:none;padding:36px 24px;text-align:center;">
+        <p style="font-size:15px;font-weight:400;color:var(--charcoal);margin-bottom:20px;">Generate a full script based on your hook</p>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span style="font-size:13px;font-weight:500;color:var(--mid);">Target duration:</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+            <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
+            <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
+          </div>
+        </div>
+        <div id="scriptGeneratingState" style="display:none;margin-bottom:16px;">
+          <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:10px;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <p style="font-size:13px;color:var(--mid);font-weight:300;">Generating...</p>
+          <p style="font-size:12px;color:var(--light);font-weight:500;margin-top:6px;">Turning your hook into a scroll-stopping script... ✨</p>
+          <p style="font-size:11px;color:var(--light);font-weight:300;margin-top:2px;">Please don't navigate away.</p>
+        </div>
+        <button id="scriptGenerateBtn" onclick="triggerScriptGenerate()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:12px 28px;cursor:pointer;transition:background 0.15s;display:inline-flex;align-items:center;gap:8px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Full Script
+        </button>
+      </div>
+      <!-- Chat area (shown after generation) -->
+      <div class="tab-chat-area" id="scriptChatArea" style="display:none;">
+        <div class="tab-messages" id="scriptMessages"></div>
+        <div class="tab-typing-wrap">
+          <div class="typing-indicator" id="scriptTyping" style="margin:0;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+        <div class="tab-input-row">
+          <textarea class="tab-input" id="scriptInput" placeholder="Ask for a revision, different angle, or specific section..." rows="1"
+            onkeydown="handleTabKey(event,'script')" oninput="autoResize(this)"></textarea>
+          <button class="tab-send" id="scriptSendBtn" onclick="sendTabMessage('script')">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div style="border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--cream);flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style="font-size:11px;color:var(--mid);">Duration:</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="script-dur-pill active" onclick="selectScriptDuration(this,'15s')">15s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'30s')">30s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'45s')">45s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'60s')">60s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'75s')">75s</button>
+              <button class="script-dur-pill" onclick="selectScriptDuration(this,'90s')">90s</button>
+            </div>
+            <button onclick="regenerateScript()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Regenerate Script
+            </button>
+          </div>
+          <button onclick="downloadScriptPDF()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background 0.15s;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caption tab -->
+    <div class="detail-tab-content" id="tabCaption" style="display:none;">
+      <div class="tab-chat-area">
+        <div class="tab-messages" id="captionMessages"></div>
+        <div class="tab-typing-wrap">
+          <div class="typing-indicator" id="captionTyping" style="margin:0;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+        <div class="tab-input-row">
+          <textarea class="tab-input" id="captionInput" placeholder="Ask for captions, variations, or hashtag options..." rows="1"
+            onkeydown="handleTabKey(event,'caption')" oninput="autoResize(this)"></textarea>
+          <button class="tab-send" id="captionSendBtn" onclick="sendTabMessage('caption')">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shot Plan tab -->
+    <div class="detail-tab-content" id="tabFilming" style="display:none;">
+      <div id="filmingLoading" style="display:none;padding:40px 24px;text-align:center;">
+        <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:12px;">
+          <div class="dot" style="background:var(--teal);"></div>
+          <div class="dot" style="background:var(--teal);animation-delay:0.2s;"></div>
+          <div class="dot" style="background:var(--teal);animation-delay:0.4s;"></div>
+        </div>
+        <p style="font-size:13px;color:var(--mid);font-weight:300;">Building a shot-by-shot blueprint for your reel...</p>
+        <p style="font-size:12px;color:var(--light);font-weight:300;margin-top:4px;">Please don't navigate away.</p>
+      </div>
+      <div id="filmingEmpty" style="padding:40px 24px;text-align:center;color:var(--light);">
+        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the shot plan will be created automatically once your script is ready.</p>
+      </div>
+      <div id="filmingChecklist" style="display:none;">
+        <div style="padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
+            <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Shot Plan</span>
+            <span id="shotPlanCount" style="font-size:12px;color:var(--light);"></span>
+          </div>
+          <button onclick="copyShotPlan()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Shot Plan
+          </button>
+        </div>
+        <p style="font-size:12px;color:var(--light);text-align:center;padding:10px 0 4px;display:flex;align-items:center;justify-content:center;gap:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Click on any text to edit
+        </p>
+        <div id="filmingChecklistBody" style="padding:0 16px 8px;"></div>
+        <div style="border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);">
+          <button id="shotPlanThumbUp" onclick="rateShotPlan('up')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Good shot plan">👍</button>
+          <button id="shotPlanThumbDown" onclick="rateShotPlan('down')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Not great">👎</button>
+          <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color 0.15s;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Regenerate Shot Plan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
 <!-- Modal: Add business -->
 <div class="modal-bg" id="modalAddBiz">
   <div class="modal">
@@ -4570,11 +4537,43 @@ function uploadNewVideo(){
   document.getElementById('transcriptVideoInput').click();
 }
 
-function escHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
 </script>
+
+  <!-- Settings Panel -->
+<div id="settingsPanel">
+  <div class="settings-card">
+    <h2>Settings</h2>
+    
+    <div class="settings-section">
+      <p style="margin-bottom:12px;">Manage your API keys and integrations</p>
+    </div>
+    
+    <div class="settings-section">
+      <label class="settings-label">OpenAI API Key</label>
+      <div class="settings-hint">
+        Get your key from <a href="https://platform.openai.com/api/keys" target="_blank" style="color:var(--rose);text-decoration:none;">platform.openai.com</a>. 
+        It's stored securely in your browser only.
+      </div>
+      <input type="password" class="settings-input" id="openaiKeyInput" placeholder="sk-proj-...">
+      <div id="openaiKeyStatus" class="settings-status" style="display:none;"></div>
+      <button onclick="testOpenAIKey()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;margin-bottom:8px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Test Connection
+      </button>
+    </div>
+    
+    <div class="settings-section">
+      <label class="settings-label" style="margin-bottom:12px;">Danger Zone</label>
+      <button class="settings-clear" onclick="clearOpenAIKey()">Clear API Key</button>
+      <p style="font-size:11px;color:var(--light);margin-top:8px;">This will remove your OpenAI key from this browser.</p>
+    </div>
+    
+    <div class="settings-btns">
+      <button class="settings-cancel" onclick="closeSettings()">Close</button>
+      <button class="settings-save" onclick="saveSettings()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
