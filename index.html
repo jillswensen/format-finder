@@ -3459,7 +3459,16 @@ function switchDetailTab(tab){
     if(sh.length > 0 || existingHistory.length > 0){
       document.getElementById('scriptPreGenerate').style.display='none';
       document.getElementById('scriptChatArea').style.display='flex';
-      initTabChat('script');
+      // Render existing messages
+      const messagesEl = document.getElementById('scriptMessages');
+      messagesEl.innerHTML='';
+      sh.forEach(m=>appendTabBubble('script',m.role,m.content));
+      messagesEl.scrollTop=messagesEl.scrollHeight;
+      // If last message has no assistant reply yet, fire the API call
+      const lastMsg = sh[sh.length-1];
+      if(lastMsg && lastMsg.role==='user'){
+        setTimeout(()=>sendTabAuto('script'), 100);
+      }
     } else {
       document.getElementById('scriptPreGenerate').style.display='block';
       document.getElementById('scriptChatArea').style.display='none';
@@ -4640,7 +4649,10 @@ function sendTranscriptToScript(){
   }
 
   switchDetailTab('script');
-  showToast('Transcript sent to Script tab!');
+  // Fire the API call after the tab switches and chat area is visible
+  setTimeout(async () => {
+    await sendTabAuto('script');
+  }, 200);
 }
 
 </script>
