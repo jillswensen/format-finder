@@ -2638,9 +2638,17 @@ function lsSave(key, val) {
 }
 
 async function initWithSync() {
-  initGate();
-  renderSelector();
   document.querySelectorAll('#versionDisplay').forEach(el => el.textContent = CFF_VERSION);
+  if(sessionStorage.getItem(GATE_KEY)==='1'){
+    document.getElementById('password-gate').style.display='none';
+    if(!getApiKey()){
+      document.getElementById('api-key-gate').style.display='flex';
+    }
+    await syncPull();
+    renderSelector();
+  } else {
+    setTimeout(()=>document.getElementById('gateInput').focus(),100);
+  }
 }
 /* ── Utilities ── */
 function ls(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return{};} }
