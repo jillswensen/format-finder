@@ -1842,7 +1842,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <!-- Script tab -->
     <div class="detail-tab-content" id="tabScript" style="display:none;">
       <!-- Pre-generation state -->
-      <div id="scriptPreGenerate" style="display:none;padding:36px 24px;text-align:center;">
+      <div id="scriptPreGenerate" style="padding:36px 24px;text-align:center;">
         <p style="font-size:15px;font-weight:400;color:var(--charcoal);margin-bottom:20px;">Generate a full script based on your hook</p>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
           <div style="display:flex;align-items:center;gap:6px;">
@@ -2603,13 +2603,7 @@ function saveSyncUserId(){
   showToast('Sync ID saved — reloading...');
   setTimeout(() => location.reload(), 1200);
 }
-const _origLsSave = lsSave;
-function lsSave(key, val) {
-  _origLsSave(key, val);
-  if (key.startsWith('ff3_')) {
-    syncKey(key);
-  }
-}
+
 
 async function initWithSync() {
   document.querySelectorAll('#versionDisplay').forEach(el => el.textContent = CFF_VERSION);
@@ -2626,6 +2620,10 @@ async function initWithSync() {
 }
 /* ── Utilities ── */
 function ls(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return{};} }
+function lsSave(key,val){
+  try{localStorage.setItem(key,JSON.stringify(val));}catch(e){showToast('Storage full.');}
+  if(key.startsWith('ff3_')){ syncKey(key); }
+}
 function genId(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtDate(ts){
@@ -3452,8 +3450,22 @@ function switchDetailTab(tab){
     document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display=t===tab?'':'none';
     document.getElementById('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
   });
-  if((tab==='script'||tab==='caption')&&currentIdeaId){
-    initTabChat(tab);
+  if(tab==='script'&&currentIdeaId){
+    const sh = tabChatHistory.script[currentIdeaId]||[];
+    const all2 = getAllIdeas();
+    const idea2 = all2[currentIdeaId];
+    const existingHistory = idea2?.scriptHistory||[];
+    if(sh.length > 0 || existingHistory.length > 0){
+      document.getElementById('scriptPreGenerate').style.display='none';
+      document.getElementById('scriptChatArea').style.display='flex';
+      initTabChat('script');
+    } else {
+      document.getElementById('scriptPreGenerate').style.display='block';
+      document.getElementById('scriptChatArea').style.display='none';
+    }
+  }
+  if(tab==='caption'&&currentIdeaId){
+    initTabChat('caption');
   }
   if(tab==='filming'&&currentIdeaId){
     initFilmingTab();
@@ -4607,16 +4619,27 @@ function sendTranscriptToScript(){
   const text = document.getElementById('transcriptTextarea').value.trim();
   if(!text){ showToast('Paste a transcript first.'); return; }
   saveTranscriptText();
-  switchDetailTab('script');
-  setTimeout(() => {
-    const input = document.getElementById('scriptInput');
-    if(input){
-      input.value = 'I have a video transcript:\n\n' + text + '\n\nPlease create a reel script from this transcript.';
-      input.focus();
-      autoResize(input);
-      showToast('Transcript ready in Script tab!');
+
+  // Pre-load the transcript into the script input BEFORE switching tabs
+  // so initTabChat picks it up as the first message instead of wiping it
+  if(currentIdeaId){
+    const all = getAllIdeas();
+    if(all[currentIdeaId]){
+      const idea = all[currentIdeaId];
+      const notesBlock = idea.notes ? '\n\n**Notes & context:**\n' + idea.notes : '';
+      const prompt = 'I have a video transcript for this reel.\n\n**Hook:** ' + idea.hook + '\n**Format:** ' + (idea.format||'to be determined') + notesBlock + '\n\nTRANSCRIPT:\n' + text + '\n\nPlease create a full reel script from this transcript — include the script, on-screen text, cover image suggestion, and CapCut editing notes.';
+      // Store as the opening message so initTabChat uses it
+      tabChatHistory.script[currentIdeaId] = [{role:'user', content: prompt}];
+      // Clear any existing shot plan since we have new source material
+      idea.scriptHistory = [];
+      idea.shotPlan = null;
+      idea.updatedAt = Date.now();
+      saveAllIdeas(all);
     }
-  }, 100);
+  }
+
+  switchDetailTab('script');
+  showToast('Transcript sent to Script tab!');
 }
 
 </script>
