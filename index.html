@@ -4534,57 +4534,23 @@ async function handleVideoUpload(event){
       return;
     }
 
-    if(processingP) processingP.textContent = 'Reading audio...';
-
-    const arrayBuffer = await file.arrayBuffer();
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let audioBuffer;
-    try {
-      audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    } catch(e) {
-      audioContext.close();
-      throw new Error('Could not read audio from this file. Try exporting as MP4.');
-    }
-    audioContext.close();
-
-    const totalDuration = audioBuffer.duration;
-    const CHUNK_SECONDS = 120;
-    const numChunks = Math.ceil(totalDuration / CHUNK_SECONDS);
-    const allSegments = [];
+    // Split file into 24MB chunks and send each directly to Whisper
+    const CHUNK_SIZE = 24 * 1024 * 1024; // 24MB per chunk
+    const numChunks = Math.ceil(file.size / CHUNK_SIZE);
     let fullText = '';
+    const allSegments = [];
     let timeOffset = 0;
 
     for(let i = 0; i < numChunks; i++){
-      if(processingP) processingP.textContent = `Transcribing part ${i+1} of ${numChunks}...`;
+      if(processingP) processingP.textContent = numChunks > 1
+        ? `Transcribing part ${i+1} of ${numChunks}...`
+        : 'Transcribing...';
 
-      const startSample = Math.floor(i * CHUNK_SECONDS * audioBuffer.sampleRate);
-      const endSample = Math.min(
-        Math.floor((i + 1) * CHUNK_SECONDS * audioBuffer.sampleRate),
-        audioBuffer.length
-      );
-      const chunkLength = endSample - startSample;
-
-      const targetRate = 16000;
-      const chunkDuration = chunkLength / audioBuffer.sampleRate;
-      const offlineCtx = new OfflineAudioContext(1, Math.ceil(chunkDuration * targetRate), targetRate);
-      const source = offlineCtx.createBufferSource();
-
-      const chunkBuffer = new AudioBuffer({
-        numberOfChannels: 1,
-        length: chunkLength,
-        sampleRate: audioBuffer.sampleRate
-      });
-      const srcData = audioBuffer.getChannelData(0);
-      const chunkData = chunkBuffer.getChannelData(0);
-      for(let s = 0; s < chunkLength; s++) chunkData[s] = srcData[startSample + s];
-
-      source.buffer = chunkBuffer;
-      source.connect(offlineCtx.destination);
-      source.start();
-      const rendered = await offlineCtx.startRendering();
-
-      const wavBlob = audioBufferToWav(rendered);
-      const chunkFile = new File([wavBlob], `chunk_${i}.wav`, {type:'audio/wav'});
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunk = file.slice(start, end);
+      const ext = file.name.split('.').pop() || 'mp4';
+      const chunkFile = new File([chunk], `chunk_${i}.${ext}`, {type: file.type});
 
       const formData = new FormData();
       formData.append('file', chunkFile);
@@ -4598,7 +4564,7 @@ async function handleVideoUpload(event){
       });
 
       const data = await response.json();
-      if(data.error){ throw new Error(data.error.message); }
+      if(data.error) throw new Error(data.error.message);
       if(!data.text) continue;
 
       fullText += (fullText ? ' ' : '') + data.text;
@@ -4611,9 +4577,8 @@ async function handleVideoUpload(event){
             end: seg.end + timeOffset
           });
         });
+        timeOffset += data.segments[data.segments.length - 1]?.end || 0;
       }
-
-      timeOffset += chunkDuration;
     }
 
     processing.style.display = 'none';
