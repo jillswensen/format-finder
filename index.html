@@ -1346,28 +1346,6 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
   Settings
 </button>
-    .sidebar-settings-btn{
-  margin:12px 16px 0;
-  padding:9px 14px;
-  background:var(--white);
-  border:1px solid var(--border);
-  border-radius:10px;
-  font-family:'DM Sans',sans-serif;
-  font-size:12px;
-  font-weight:500;
-  color:var(--mid);
-  cursor:pointer;
-  text-align:center;
-  transition:border-color 0.15s,color 0.15s;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-}
-.sidebar-settings-btn:hover{
-  border-color:var(--blush);
-  color:var(--rose-dark);
-}
     <div class="conversations-list" id="convList3"></div>
   </div>
 <!-- Settings Panel -->
@@ -4321,7 +4299,6 @@ function importBackup(event){
 initGate();
 renderSelector();
 document.querySelectorAll('#versionDisplay').forEach(el=>el.textContent=CFF_VERSION);
-</script>
   /* ════════════════════════════════════════════
    SETTINGS PANEL — API KEY MANAGEMENT
 ════════════════════════════════════════════ */
@@ -4573,5 +4550,6 @@ function escHtml(str){
   div.textContent = str;
   return div.innerHTML;
 }
+</script>
 </body>
 </html>
