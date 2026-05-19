@@ -1328,60 +1328,6 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 <div id="pdf-print-area" style="display:none;"></div>
 
 <!-- ── SCREEN 4: Ideas List ── -->
-<div class="screen" id="screen-ideas">
-  <div class="overlay" id="overlay3" onclick="closeSidebar3()"></div>
-  <div class="sidebar" id="sidebar3">
-    <div class="sidebar-header">
-      <div class="sidebar-header-row">
-        <div style="min-width:0;">
-          <div class="sidebar-biz-name" id="sidebarBizName3"></div>
-          <div class="sidebar-sub">Saved conversations</div>
-        </div>
-        <button class="sidebar-close" onclick="closeSidebar3()">&#x2715;</button>
-      </div>
-    </div>
-    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
-    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
-    <button class="sidebar-settings-btn" onclick="openSettings()">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
-  Settings
-</button>
-    <div class="conversations-list" id="convList3"></div>
-  </div>
-<!-- Settings Panel -->
-<div id="settingsPanel">
-  <div class="settings-card">
-    <h2>Settings</h2>
-    
-    <div class="settings-section">
-      <p style="margin-bottom:12px;">Manage your API keys and integrations</p>
-    </div>
-    
-    <div class="settings-section">
-      <label class="settings-label">OpenAI API Key</label>
-      <div class="settings-hint">
-        Get your key from <a href="https://platform.openai.com/api/keys" target="_blank" style="color:var(--rose);text-decoration:none;">platform.openai.com</a>. 
-        It's stored securely in your browser only.
-      </div>
-      <input type="password" class="settings-input" id="openaiKeyInput" placeholder="sk-proj-...">
-      <div id="openaiKeyStatus" class="settings-status" style="display:none;"></div>
-      <button onclick="testOpenAIKey()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;margin-bottom:8px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Test Connection
-      </button>
-    </div>
-    
-    <div class="settings-section">
-      <label class="settings-label" style="margin-bottom:12px;">Danger Zone</label>
-      <button class="settings-clear" onclick="clearOpenAIKey()">Clear API Key</button>
-      <p style="font-size:11px;color:var(--light);margin-top:8px;">This will remove your OpenAI key from this browser.</p>
-    </div>
-    
-    <div class="settings-btns">
-      <button class="settings-cancel" onclick="closeSettings()">Close</button>
-      <button class="settings-save" onclick="saveSettings()">Save Changes</button>
-    </div>
-  </div>
 </div>
   <header class="page-header">
     <button class="menu-btn" onclick="openSidebar3()">
@@ -4547,5 +4493,59 @@ function uploadNewVideo(){
 }
 
 </script>
+<div class="screen" id="screen-ideas">
+  <div class="overlay" id="overlay3" onclick="closeSidebar3()"></div>
+  <div class="sidebar" id="sidebar3">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName3"></div>
+          <div class="sidebar-sub">Saved conversations</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar3()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+  Settings
+</button>
+    <div class="conversations-list" id="convList3"></div>
+  </div>
+<!-- Settings Panel -->
+<div id="settingsPanel">
+  <div class="settings-card">
+    <h2>Settings</h2>
+    
+    <div class="settings-section">
+      <p style="margin-bottom:12px;">Manage your API keys and integrations</p>
+    </div>
+    
+    <div class="settings-section">
+      <label class="settings-label">OpenAI API Key</label>
+      <div class="settings-hint">
+        Get your key from <a href="https://platform.openai.com/api/keys" target="_blank" style="color:var(--rose);text-decoration:none;">platform.openai.com</a>. 
+        It's stored securely in your browser only.
+      </div>
+      <input type="password" class="settings-input" id="openaiKeyInput" placeholder="sk-proj-...">
+      <div id="openaiKeyStatus" class="settings-status" style="display:none;"></div>
+      <button onclick="testOpenAIKey()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:8px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background 0.15s;margin-bottom:8px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Test Connection
+      </button>
+    </div>
+    
+    <div class="settings-section">
+      <label class="settings-label" style="margin-bottom:12px;">Danger Zone</label>
+      <button class="settings-clear" onclick="clearOpenAIKey()">Clear API Key</button>
+      <p style="font-size:11px;color:var(--light);margin-top:8px;">This will remove your OpenAI key from this browser.</p>
+    </div>
+    
+    <div class="settings-btns">
+      <button class="settings-cancel" onclick="closeSettings()">Close</button>
+      <button class="settings-save" onclick="saveSettings()">Save Changes</button>
+    </div>
+  </div>
 </body>
 </html>
