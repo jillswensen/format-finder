@@ -1198,10 +1198,14 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <div class="gate-wordmark">Bra Fittings by Court</div>
     <h1 class="gate-title">Format <em>Finder</em></h1>
     <div class="gate-subtitle">Enter your password to continue</div>
-    <input type="password" class="gate-input" id="gateInput"
+    <input type="text" class="gate-input" id="gateInput"
       placeholder="Password"
       onkeydown="if(event.key==='Enter')checkPassword()"
-      autocomplete="off">
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      style="-webkit-text-security:disc;">
     <button class="gate-btn" onclick="checkPassword()">Enter</button>
     <div class="gate-error" id="gateError"></div>
   </div>
