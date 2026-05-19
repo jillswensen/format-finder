@@ -1963,8 +1963,8 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       Upload video
     </button>
-    <div class="transcript-upload-hint">
-      Videos up to 25MB are supported.<br>Larger videos will need compression first.<br>Audio will be transcribed with timestamps.
+<div class="transcript-upload-hint">
+      Videos up to 25MB per clip.<br>Upload multiple clips — transcripts will be combined.<br>Audio will be transcribed with timestamps.
     </div>
   </div>
 
@@ -4641,16 +4641,25 @@ function audioBufferToWav(buffer) {
 
 function displayTranscript(data){
   const container = document.getElementById('transcriptContent');
+  const existing = container.innerHTML;
   const lines = [];
-  
-  lines.push('<div class="transcript-header">');
-  lines.push(`<div class="transcript-meta">File: ${escHtml(data.fileName)} — ${data.timestamp}</div>`);
-  lines.push('<div class="transcript-controls">');
-  lines.push(`<button onclick="copyFullTranscript()" class="transcript-copy-btn">Copy Transcript</button>`);
-  lines.push(`<button onclick="copyToScriptTab()" class="transcript-copy-btn">→ Script Tab</button>`);
-  lines.push('</div></div>');
-  
+
+  // If there's already a transcript, add a divider
+  if(existing && existing.trim()){
+    lines.push('<div style="border-top:2px dashed var(--border);margin:16px 0;padding-top:4px;text-align:center;font-size:11px;color:var(--light);letter-spacing:0.08em;text-transform:uppercase;">Next clip</div>');
+  } else {
+    // First clip — add the header
+    lines.push('<div class="transcript-header">');
+    lines.push(`<div class="transcript-meta">Started: ${data.timestamp}</div>`);
+    lines.push('<div class="transcript-controls">');
+    lines.push(`<button onclick="copyFullTranscript()" class="transcript-copy-btn">Copy All</button>`);
+    lines.push(`<button onclick="copyToScriptTab()" class="transcript-copy-btn">→ Script Tab</button>`);
+    lines.push(`<button onclick="clearTranscript()" class="transcript-copy-btn" style="color:var(--rose);border-color:var(--blush);">Clear</button>`);
+    lines.push('</div></div>');
+  }
+
   lines.push('<div class="transcript-body">');
+  lines.push(`<div style="font-size:11px;color:var(--light);margin-bottom:8px;">${escHtml(data.fileName)}</div>`);
   if(data.segments && data.segments.length > 0){
     data.segments.forEach(seg => {
       const time = formatTimestamp(seg.start);
@@ -4660,10 +4669,26 @@ function displayTranscript(data){
     lines.push(`<div style="white-space:pre-wrap;">${escHtml(data.fullText)}</div>`);
   }
   lines.push('</div>');
-  
-  container.innerHTML = lines.join('');
-}
 
+  if(existing && existing.trim()){
+    container.innerHTML = existing + lines.join('');
+  } else {
+    container.innerHTML = lines.join('');
+  }
+
+  // Accumulate full text across clips
+  if(!currentTranscriptData.allFullText){
+    currentTranscriptData.allFullText = currentTranscriptData.fullText;
+  } else {
+    currentTranscriptData.allFullText += ' ' + data.fullText;
+  }
+}
+function clearTranscript(){
+  document.getElementById('transcriptContent').innerHTML = '';
+  currentTranscriptData = null;
+  document.getElementById('transcriptUploadArea').style.display = 'block';
+  document.getElementById('transcriptResults').style.display = 'none';
+}
 function formatTimestamp(seconds){
   if(typeof seconds !== 'number') return '0:00';
   const hrs = Math.floor(seconds / 3600);
@@ -4672,10 +4697,10 @@ function formatTimestamp(seconds){
   if(hrs > 0) return `${hrs}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
   return `${mins}:${String(secs).padStart(2,'0')}`;
 }
-
 function copyFullTranscript(){
   if(!currentTranscriptData) return;
-  navigator.clipboard.writeText(currentTranscriptData.fullText)
+  const text = currentTranscriptData.allFullText || currentTranscriptData.fullText;
+  navigator.clipboard.writeText(text)
     .then(() => showToast('Transcript copied!'))
     .catch(() => showToast('Copy failed.'));
 }
