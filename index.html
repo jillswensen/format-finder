@@ -3189,6 +3189,7 @@ function ideaKey(bizId){ return 'ff3_ideas_'+bizId; }
 let currentIdeaId = null;
 let activeIdeaFilter = 'all';
 let menuTargetIdeaId = null;
+let selectedScriptDuration = '15s';  
 let tabChatHistory = { script:{}, caption:{} };
 
 const STATUS_LABELS = {
@@ -4545,11 +4546,6 @@ function uploadNewVideo(){
   document.getElementById('transcriptVideoInput').click();
 }
 
-function escHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
 </script>
 </body>
 </html>
