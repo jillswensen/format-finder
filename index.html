@@ -2622,7 +2622,7 @@ async function initWithSync() {
 function ls(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return{};} }
 function lsSave(key,val){
   try{localStorage.setItem(key,JSON.stringify(val));}catch(e){showToast('Storage full.');}
-  if(key.startsWith('ff3_')){ syncKey(key); }
+  if(key.startsWith('ff3_')){ setTimeout(()=>syncKey(key),0); }
 }
 function genId(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
