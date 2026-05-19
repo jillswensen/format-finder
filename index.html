@@ -4630,29 +4630,27 @@ function sendTranscriptToScript(){
   if(!text){ showToast('Paste a transcript first.'); return; }
   saveTranscriptText();
 
-  // Pre-load the transcript into the script input BEFORE switching tabs
-  // so initTabChat picks it up as the first message instead of wiping it
-  if(currentIdeaId){
-    const all = getAllIdeas();
-    if(all[currentIdeaId]){
-      const idea = all[currentIdeaId];
-      const notesBlock = idea.notes ? '\n\n**Notes & context:**\n' + idea.notes : '';
-      const prompt = 'I have a raw video transcript and I need you to edit it into a Reel script.\n\n**Hook idea:** ' + idea.hook + '\n**Format:** ' + (idea.format||'to be determined') + '\n**Target duration:** ' + (idea.scriptDuration||selectedScriptDuration||'30s') + notesBlock + '\n\nTRANSCRIPT (raw footage with timestamps):\n' + text + '\n\nYOUR JOB — treat this like a video editor, not a scriptwriter:\n\n1. **Find the best hook** — scan the transcript for the single most compelling moment, confession, reaction, or statement. That becomes the opening. It does not have to be from the beginning of the footage.\n\n2. **Pull the best moments** — identify 4-8 specific timestamp moments from across the transcript that together tell a complete story. Look for: surprising statements, emotional reactions, before/after moments, concrete demonstrations, or anything that would make someone stop scrolling.\n\n3. **Build a script using those timestamps** — write out the reel as a sequence of clips, each referenced by its timestamp range (e.g. [2:14–2:22]). Include what is being said or shown in each clip, any on-screen text to add, and how to transition between clips.\n\n4. **Deliver the full output:** Script with timestamps, On-Screen Text overlays, Cover Image suggestion, and CapCut Editing Notes.\n\nThe goal is a tight, emotionally compelling reel built from the best raw material in this footage — not a summary of the whole video.';
-      // Store as the opening message so initTabChat uses it
-      tabChatHistory.script[currentIdeaId] = [{role:'user', content: prompt}];
-      // Clear any existing shot plan since we have new source material
-      idea.scriptHistory = [];
-      idea.shotPlan = null;
-      idea.updatedAt = Date.now();
-      saveAllIdeas(all);
-    }
-  }
+  const prompt = 'I have a raw video transcript for this idea. Treat this like a video editor cutting a reel:\n\n**Hook idea:** ' + (currentIdeaId ? (getAllIdeas()[currentIdeaId]?.hook||'') : '') + '\n**Format:** ' + (currentIdeaId ? (getAllIdeas()[currentIdeaId]?.format||'to be determined') : '') + '\n**Target duration:** ' + (selectedScriptDuration||'30s') + '\n\nTRANSCRIPT (raw footage with timestamps):\n' + text + '\n\nYOUR JOB:\n1. Find the best hook — the most compelling moment, reaction, or statement from anywhere in the transcript.\n2. Pull 4-8 specific timestamp moments from across the transcript that together tell a complete story.\n3. Write the reel as a sequence of clips, each with its timestamp range (e.g. [2:14–2:22]), what is said or shown, and any on-screen text.\n4. Then deliver: On-Screen Text overlays, Cover Image suggestion, and CapCut Editing Notes.';
 
-  switchDetailTab('script');
-  // Fire the API call after the tab switches and chat area is visible
-  setTimeout(async () => {
-    await sendTabAuto('script');
-  }, 200);
+  // Switch to script tab and show chat area
+  tabChatHistory.script[currentIdeaId] = [];
+  document.getElementById('scriptPreGenerate').style.display='none';
+  document.getElementById('scriptChatArea').style.display='flex';
+  ['notes','transcript','script','caption','filming'].forEach(t=>{
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display=t==='script'?'':'none';
+    document.getElementById('tabBtn'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t==='script');
+  });
+
+  // Put the prompt in the script input so the user can review and send
+  setTimeout(()=>{
+    const input = document.getElementById('scriptInput');
+    if(input){
+      input.value = prompt;
+      autoResize(input);
+      input.focus();
+      showToast('Transcript ready — hit send to generate script!');
+    }
+  }, 150);
 }
 
 </script>
