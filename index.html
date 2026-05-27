@@ -943,37 +943,73 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 .shotplan-tip-item{font-size:13px;color:var(--charcoal);font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
 .shotplan-tip-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
 
-/* ── Beat View (integrated Script + Shot Plan) ── */
-.beat-overview{background:var(--blush-light);border:1px solid var(--blush);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
-.beat-overview-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);margin-bottom:6px;}
+/* ── Beat View (OFF-style integrated Script + Visual per beat) ── */
+.beat-overview{background:var(--blush-light);border:1px solid var(--blush);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.beat-overview-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);margin-bottom:5px;}
 .beat-overview-text{font-size:13px;color:var(--charcoal);line-height:1.65;font-weight:300;}
-.beat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;}
-.beat-card-header{background:var(--charcoal);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
-.beat-card-title{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#fff;}
-.beat-refine-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,0.6);background:none;border:1px solid rgba(255,255,255,0.25);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;}
-.beat-refine-btn:hover{color:#fff;border-color:rgba(255,255,255,0.6);}
-.beat-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
-.beat-field{}
-.beat-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-bottom:6px;}
-.beat-pill-script{background:#FFF3E0;color:#E65100;}
-.beat-pill-visual{background:#E8F5E9;color:#2E7D32;}
-.beat-pill-alt{background:#F3F4F6;color:#6B7280;}
-.beat-pill-overlay{background:#EDE7F6;color:#4527A0;}
-.beat-pill-notes{background:#E3F2FD;color:#1565C0;}
-.beat-text{font-size:13px;color:var(--charcoal);line-height:1.65;font-weight:300;}
-.beat-alt-text{font-size:13px;color:var(--mid);line-height:1.65;font-weight:300;font-style:italic;border-left:2px solid var(--border);padding-left:10px;margin-top:4px;}
-.beat-notes-toggle{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;transition:color 0.15s;}
-.beat-notes-toggle:hover{color:var(--rose);}
-.beat-notes-body{font-size:12px;color:var(--mid);line-height:1.6;padding:8px 12px;background:#F0F7FF;border-radius:8px;margin-top:6px;}
-.beat-notes-body ul{margin:4px 0 0 14px;}
-.beat-notes-body li{margin-bottom:3px;}
-.beat-divider{height:1px;background:var(--border);}
-.beat-actions{padding:10px 16px;display:flex;align-items:center;justify-content:flex-end;border-top:1px solid var(--border);background:var(--cream);}
-.beat-view-header{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+
+/* Card matches OFF's dark-header white-body style */
+.beat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(44,36,32,0.06);}
+.beat-card-header{background:#1a1a1a;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;}
+.beat-card-title{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#fff;}
+.beat-refine-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:rgba(255,255,255,0.55);background:none;border:none;cursor:pointer;transition:color 0.15s;display:flex;align-items:center;gap:4px;padding:0;}
+.beat-refine-btn:hover{color:#fff;}
+
+/* Card body — generous padding, fields spaced with padding not dividers */
+.beat-card-body{padding:0;}
+.beat-field{padding:12px 16px;border-bottom:1px solid #F0EDED;}
+.beat-field:last-child{border-bottom:none;}
+
+/* OFF-style amber pills */
+.beat-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:7px;}
+.beat-pill-script{background:#F5A623;color:#fff;}
+.beat-pill-visual{background:#F5A623;color:#fff;}
+.beat-pill-alt{background:transparent;color:var(--light);border:1px solid var(--border);font-size:9px;}
+.beat-pill-overlay{background:#F5A623;color:#fff;}
+.beat-pill-overlay-opt{font-size:9px;font-weight:400;opacity:0.75;margin-left:5px;text-transform:none;letter-spacing:0;}
+.beat-pill-notes{background:transparent;color:var(--mid);border:1px solid var(--border);}
+
+.beat-text{font-size:13.5px;color:var(--charcoal);line-height:1.7;font-weight:300;}
+.beat-alt-row{margin-top:8px;padding:8px 10px;background:var(--cream);border-radius:6px;border-left:2px solid var(--border);}
+.beat-alt-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--light);margin-bottom:3px;}
+.beat-alt-text{font-size:13px;color:var(--mid);line-height:1.6;font-weight:300;font-style:italic;}
+
+.beat-notes-toggle{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+.beat-notes-toggle:hover{color:var(--charcoal);}
+.beat-notes-body{margin-top:8px;padding-left:4px;}
+.beat-notes-body ul{margin:0 0 0 14px;padding:0;}
+.beat-notes-body li{font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:4px;font-weight:300;}
+
+.beat-view-header{padding:12px 16px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
 .beat-view-empty{padding:40px 24px;text-align:center;color:var(--light);}
 .beat-view-loading{display:none;padding:40px 24px;text-align:center;}
-.beat-view-body{padding:0 16px 8px;}
+.beat-view-body{padding:12px 14px 8px;}
 .beat-view-footer{border-top:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);}
+.beat-divider{display:none;}/* no longer used — padding-based separation instead */
+
+/* ── OFF-style format cards in brainstorm ── */
+.format-card-wrap{display:flex;flex-direction:column;gap:10px;margin:4px 0;}
+.format-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(44,36,32,0.06);}
+.format-card-header{background:#1a1a1a;padding:16px 18px 14px;}
+.format-card-cat-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;background:#F5A623;color:#fff;}
+.format-card-name{font-size:17px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:10px;}
+.format-card-btns{display:flex;gap:8px;}
+.format-card-info-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#fff;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all 0.15s;}
+.format-card-info-btn:hover{background:rgba(255,255,255,0.22);}
+.format-card-body{padding:14px 16px;}
+.format-card-hooks-label{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--light);margin-bottom:10px;text-align:center;}
+.format-card-hook-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F5F0EE;}
+.format-card-hook-row:last-of-type{border-bottom:none;}
+.format-card-hook-dot{width:7px;height:7px;border-radius:50%;background:#F5A623;flex-shrink:0;margin-top:5px;}
+.format-card-hook-text{font-size:13px;color:var(--charcoal);line-height:1.55;font-weight:300;flex:1;}
+.format-card-save-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#fff;background:#F5A623;border:none;border-radius:20px;padding:5px 12px;cursor:pointer;transition:background 0.15s;white-space:nowrap;flex-shrink:0;}
+.format-card-save-btn:hover{background:#E09415;}
+.format-card-save-btn.saved{background:#ECFDF5;color:#065F46;cursor:default;}
+.format-card-more-hooks{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--rose);background:none;border:none;cursor:pointer;padding:10px 0 2px;display:block;width:100%;text-align:center;transition:color 0.15s;}
+.format-card-more-hooks:hover{color:var(--rose-dark);}
+
+/* Hide raw assistant bubble text when format cards are present */
+.has-format-cards .bubble-text-hidden{display:none;}
 
 /* ── Category filter pills (brainstorm) ── */
 .cat-filter-wrap{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:4px;display:none;}
@@ -3061,75 +3097,95 @@ function appendBubble(role,text){
 }
 
 function formatTextWithHooks(text, role){
-  // For assistant messages, inject save buttons next to hook lines and category pills next to format names
-  const base = formatText(text);
-  if(role !== 'assistant') return base;
+  if(role !== 'assistant') return formatText(text);
 
-  // Post-process: wrap hook lines with save button
-  // A hook line is a strong/bolded line starting with a number or bullet that contains a hook suggestion
-  const el = document.createElement('div');
-  el.innerHTML = base;
+  // Detect if this message contains format suggestions (has bold format names + numbered hooks)
+  // Look for pattern: **Format Name** followed by numbered hook lines
+  const formatBlockRegex = /\*\*([^*]{5,80}(?:Format|format|Skit|Story|Challenge|Parody|Vlog|Buster|Tutorial|Hack|Ranking|Reaction|Reveal|Ad|Stitch|Duet)[^*]{0,40})\*\*/g;
+  const hasFormatCards = formatBlockRegex.test(text);
 
-  // Look for format name patterns — bold lines containing known format keywords
-  // Inject category pill after format name bold tags
-  el.querySelectorAll('strong').forEach(s=>{
-    const txt = s.textContent.trim();
-    const catInfo = getFormatCatLabel(txt);
-    if(catInfo && txt.length > 5 && txt.length < 80){
-      // Check active filter
-      if(activeBrainstormCat !== 'all'){
-        const matches = formatMatchesCat(txt, activeBrainstormCat);
-        if(!matches){
-          // Dim the whole line
-          const parent = s.parentElement;
-          if(parent) parent.style.opacity = '0.35';
-        }
-      }
-      // Add category pill after the bold element
-      const pill = document.createElement('span');
-      pill.className = `format-category-pill ${catInfo.cls}`;
-      pill.textContent = catInfo.label;
-      pill.style.marginLeft = '8px';
-      pill.style.verticalAlign = 'middle';
-      s.parentNode.insertBefore(pill, s.nextSibling);
+  if(!hasFormatCards) return formatText(text);
+
+  // Parse format blocks out of the text
+  // Strategy: split on **FormatName** headers and render each as a card
+  const lines = text.split('\n');
+  let cards = [];
+  let currentCard = null;
+  let preCardText = [];
+  let inPreCard = true;
+
+  lines.forEach(line => {
+    const boldFormatMatch = line.match(/^\*\*(.{5,80}(?:Format|Skit|Story|Challenge|Parody|Vlog|Buster|Tutorial|Hack|Ranking|Reaction|Reveal|Ad|Stitch|Duet|Wait|Reel).{0,40})\*\*\s*$/i);
+    const hookMatch = line.match(/^[\d]+[.)]\s+(.{15,})$/) || line.match(/^[-•]\s+(.{15,})$/);
+
+    if(boldFormatMatch){
+      inPreCard = false;
+      if(currentCard) cards.push(currentCard);
+      currentCard = {name: boldFormatMatch[1].trim(), hooks: [], extra: []};
+    } else if(currentCard && hookMatch){
+      currentCard.hooks.push(hookMatch[1].trim());
+    } else if(currentCard){
+      currentCard.extra.push(line);
+    } else if(inPreCard){
+      preCardText.push(line);
     }
   });
+  if(currentCard) cards.push(currentCard);
 
-  // Look for hook lines — lines that appear to be hook suggestions (quoted or numbered hooks)
-  // Strategy: find <li> items or numbered lines inside assistant bubbles that look like hooks
-  const hookPattern = /^[\d]+\.\s+[""]?(.{20,150})[""]?$/;
-  el.querySelectorAll('li').forEach(li=>{
-    const txt = li.textContent.trim();
-    if(txt.length > 20 && txt.length < 200 && !txt.startsWith('Link') && !txt.startsWith('http')){
-      // Wrap content and add save button
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;';
-      const textSpan = document.createElement('span');
-      textSpan.innerHTML = li.innerHTML;
-      const btn = document.createElement('button');
-      btn.className = 'save-hook-btn';
-      btn.textContent = '+ Save';
-      const hookText = txt;
-      // Try to find format from nearest preceding strong
-      btn.addEventListener('click', function(){
-        // Find nearest format name above this element
-        let format = '';
-        let el2 = li.previousElementSibling;
-        while(el2){
-          const s = el2.querySelector('strong');
-          if(s && getFormatCatLabel(s.textContent)){format=s.textContent.trim();break;}
-          el2=el2.previousElementSibling;
-        }
-        saveHookFromBrainstorm(hookText, format, btn);
+  // If we couldn't parse any cards cleanly, fall back to plain rendering
+  if(cards.length === 0) return formatText(text);
+
+  // Apply category filter
+  if(activeBrainstormCat !== 'all'){
+    cards = cards.map(c => ({...c, _filtered: !formatMatchesCat(c.name, activeBrainstormCat)}));
+  }
+
+  let html = '';
+
+  // Pre-card text (intro, core message, etc.)
+  if(preCardText.length && preCardText.some(l=>l.trim())){
+    html += `<div style="margin-bottom:12px;">${formatText(preCardText.join('\n'))}</div>`;
+  }
+
+  // Format cards wrap
+  html += '<div class="format-card-wrap">';
+
+  cards.forEach(card => {
+    const catInfo = getFormatCatLabel(card.name);
+    const catPill = catInfo ? `<div class="format-card-cat-pill">${escHtml(catInfo.label)}</div>` : '';
+    const opacity = card._filtered ? 'opacity:0.3;pointer-events:none;' : '';
+
+    let hooksHtml = '';
+    if(card.hooks.length){
+      hooksHtml = `<div class="format-card-hooks-label">Hooks for your niche</div>`;
+      card.hooks.forEach((hook,hi) => {
+        const btnId = `fhook_${Math.random().toString(36).slice(2,8)}`;
+        hooksHtml += `<div class="format-card-hook-row">
+          <span class="format-card-hook-dot"></span>
+          <span class="format-card-hook-text">${escHtml(hook)}</span>
+          <button class="format-card-save-btn" id="${btnId}" onclick="saveHookFromBrainstorm(${JSON.stringify(hook)},${JSON.stringify(card.name)},this)">+ Save</button>
+        </div>`;
       });
-      wrap.appendChild(textSpan);
-      wrap.appendChild(btn);
-      li.innerHTML='';
-      li.appendChild(wrap);
     }
+
+    html += `<div class="format-card" style="${opacity}">
+      <div class="format-card-header">
+        ${catPill}
+        <div class="format-card-name">${escHtml(card.name)}</div>
+        <div class="format-card-btns">
+          <button class="format-card-info-btn" onclick="this.closest('.format-card').querySelector('.format-card-desc')?.classList.toggle('hidden')">ⓘ More Info</button>
+        </div>
+      </div>
+      <div class="format-card-body">
+        ${hooksHtml}
+      </div>
+    </div>`;
   });
 
-  return el.innerHTML;
+  html += '</div>';
+
+  // Post-card text (if any after the last card)
+  return html;
 }
 
 function formatText(text){
@@ -3749,7 +3805,7 @@ function renderBeatView(plan){
   beats.forEach((beat,i)=>{
     const card=document.createElement('div');card.className='beat-card';
 
-    // Header
+    // Header — dark bar, white uppercase title + refine button
     const header=document.createElement('div');header.className='beat-card-header';
     header.innerHTML=`<span class="beat-card-title">${escHtml(beat.title||'Beat '+(i+1))}</span>
       <button class="beat-refine-btn" onclick="refineBeat(${i})">
@@ -3758,45 +3814,42 @@ function renderBeatView(plan){
       </button>`;
     card.appendChild(header);
 
-    // Body
+    // Body — each field is a padded row with border-bottom
     const cardBody=document.createElement('div');cardBody.className='beat-card-body';
 
-    // SCRIPT
+    // SCRIPT field
     if(beat.script){
       const sf=document.createElement('div');sf.className='beat-field';
-      sf.innerHTML=`<div class="beat-pill beat-pill-script">Script</div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'script',this.textContent)">${escHtml(beat.script)}</div>`;
+      sf.innerHTML=`<div><span class="beat-pill beat-pill-script">Script</span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'script',this.textContent)">${escHtml(beat.script)}</div>`;
       cardBody.appendChild(sf);
     }
 
-    // Divider
-    cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
-
-    // VISUAL
+    // VISUAL field
     if(beat.visual){
       const vf=document.createElement('div');vf.className='beat-field';
-      let visualHtml=`<div class="beat-pill beat-pill-visual">Visual</div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'visual',this.textContent)">${escHtml(beat.visual)}</div>`;
-      if(beat.alt){visualHtml+=`<div class="beat-alt-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'alt',this.textContent)"><strong style="font-style:normal;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--light);margin-right:6px;">Alt</strong>${escHtml(beat.alt)}</div>`;}
-      vf.innerHTML=visualHtml;
+      let altHtml='';
+      if(beat.alt){
+        altHtml=`<div class="beat-alt-row"><div class="beat-alt-label">Alt</div><div class="beat-alt-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'alt',this.textContent)">${escHtml(beat.alt)}</div></div>`;
+      }
+      vf.innerHTML=`<div><span class="beat-pill beat-pill-visual">Visuals</span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'visual',this.textContent)">${escHtml(beat.visual)}</div>${altHtml}`;
       cardBody.appendChild(vf);
     }
 
-    // TEXT OVERLAY
+    // TEXT OVERLAY field
     if(beat.textOverlay){
-      cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
       const tf=document.createElement('div');tf.className='beat-field';
-      tf.innerHTML=`<div class="beat-pill beat-pill-overlay">Text Overlay <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;opacity:0.7;">(optional)</span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'textOverlay',this.textContent)">${escHtml(beat.textOverlay)}</div>`;
+      tf.innerHTML=`<div><span class="beat-pill beat-pill-overlay">Text Overlay <span class="beat-pill-overlay-opt">(optional)</span></span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'textOverlay',this.textContent)">${escHtml(beat.textOverlay)}</div>`;
       cardBody.appendChild(tf);
     }
 
-    // NOTES (collapsible)
+    // NOTES field (collapsible)
     const notes=beat.notes||[];
     if(notes.length){
-      cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
       const nf=document.createElement('div');nf.className='beat-field';
       const notesId=`beatNotes${i}`;
       const noteItems=notes.map(n=>`<li>${escHtml(n)}</li>`).join('');
       nf.innerHTML=`<button class="beat-notes-toggle" onclick="toggleBeatNotes('${notesId}',this)">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
         <span class="beat-pill beat-pill-notes" style="margin:0;">Notes (${notes.length})</span>
       </button>
       <div class="beat-notes-body" id="${notesId}" style="display:none;"><ul>${noteItems}</ul></div>`;
