@@ -943,6 +943,64 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 .shotplan-tip-item{font-size:13px;color:var(--charcoal);font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
 .shotplan-tip-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
 
+/* ── Beat View (integrated Script + Shot Plan) ── */
+.beat-overview{background:var(--blush-light);border:1px solid var(--blush);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
+.beat-overview-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);margin-bottom:6px;}
+.beat-overview-text{font-size:13px;color:var(--charcoal);line-height:1.65;font-weight:300;}
+.beat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.beat-card-header{background:var(--charcoal);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.beat-card-title{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#fff;}
+.beat-refine-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;color:rgba(255,255,255,0.6);background:none;border:1px solid rgba(255,255,255,0.25);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;}
+.beat-refine-btn:hover{color:#fff;border-color:rgba(255,255,255,0.6);}
+.beat-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.beat-field{}
+.beat-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-bottom:6px;}
+.beat-pill-script{background:#FFF3E0;color:#E65100;}
+.beat-pill-visual{background:#E8F5E9;color:#2E7D32;}
+.beat-pill-alt{background:#F3F4F6;color:#6B7280;}
+.beat-pill-overlay{background:#EDE7F6;color:#4527A0;}
+.beat-pill-notes{background:#E3F2FD;color:#1565C0;}
+.beat-text{font-size:13px;color:var(--charcoal);line-height:1.65;font-weight:300;}
+.beat-alt-text{font-size:13px;color:var(--mid);line-height:1.65;font-weight:300;font-style:italic;border-left:2px solid var(--border);padding-left:10px;margin-top:4px;}
+.beat-notes-toggle{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;transition:color 0.15s;}
+.beat-notes-toggle:hover{color:var(--rose);}
+.beat-notes-body{font-size:12px;color:var(--mid);line-height:1.6;padding:8px 12px;background:#F0F7FF;border-radius:8px;margin-top:6px;}
+.beat-notes-body ul{margin:4px 0 0 14px;}
+.beat-notes-body li{margin-bottom:3px;}
+.beat-divider{height:1px;background:var(--border);}
+.beat-actions{padding:10px 16px;display:flex;align-items:center;justify-content:flex-end;border-top:1px solid var(--border);background:var(--cream);}
+.beat-view-header{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.beat-view-empty{padding:40px 24px;text-align:center;color:var(--light);}
+.beat-view-loading{display:none;padding:40px 24px;text-align:center;}
+.beat-view-body{padding:0 16px 8px;}
+.beat-view-footer{border-top:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);}
+
+/* ── Category filter pills (brainstorm) ── */
+.cat-filter-wrap{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:4px;display:none;}
+.cat-filter-wrap.visible{display:block;}
+.cat-filter-label{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--light);margin-bottom:8px;}
+.cat-filter-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.cat-pill{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--mid);background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:5px 13px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.cat-pill:hover{border-color:var(--blush);color:var(--rose-dark);}
+.cat-pill.active{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500;}
+.cat-pill-pick{background:var(--teal-light);border-color:var(--teal-border);color:var(--teal);}
+.cat-pill-pick:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+/* ── Category pill on format cards ── */
+.format-category-pill{display:inline-flex;align-items:center;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-bottom:4px;}
+.fcat-education{background:#EEF2FF;color:#4F5FA6;}
+.fcat-storytelling{background:#FFF3E0;color:#B45309;}
+.fcat-skits{background:#F3E8FF;color:#7C3AED;}
+.fcat-waitforit{background:#ECFDF5;color:#065F46;}
+.fcat-challenges{background:#FFF0F0;color:#C0392B;}
+.fcat-timely{background:#E3F2FD;color:#1565C0;}
+.fcat-custom{background:#F3F4F6;color:#6B7280;}
+
+/* ── Save hook button ── */
+.save-hook-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+.save-hook-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.save-hook-btn.saved{background:#ECFDF5;color:#065F46;border-color:#A7F3D0;cursor:default;}
+
 /* ── Print / PDF export ── */
 @media print {
   body>*{visibility:hidden;display:none;}
@@ -1558,6 +1616,19 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
+    <!-- Category filter (shown after first brainstorm response) -->
+    <div class="cat-filter-wrap" id="catFilterWrap">
+      <div class="cat-filter-label">Filter by category</div>
+      <div class="cat-filter-pills">
+        <button class="cat-pill cat-pill-pick active" id="catPillAll" onclick="filterBrainstormCat('all',this)">✦ Pick for me</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('education',this)">Education</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('storytelling',this)">Storytelling</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('skits',this)">Skits &amp; Bits</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('waitforit',this)">Wait For It</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('challenges',this)">Challenges</button>
+        <button class="cat-pill" onclick="filterBrainstormCat('timely',this)">Timely / Trending</button>
+      </div>
+    </div>
     </div>
   </div>
 </div>
@@ -1819,7 +1890,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="detail-tab-btn" id="tabBtnTranscript" onclick="switchDetailTab('transcript')">Transcript</button>
       <button class="detail-tab-btn" id="tabBtnScript" onclick="switchDetailTab('script')">Script</button>
       <button class="detail-tab-btn" id="tabBtnCaption" onclick="switchDetailTab('caption')">Caption</button>
-      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Shot Plan</button>
+      <button class="detail-tab-btn" id="tabBtnFilming" onclick="switchDetailTab('filming')">Beat View</button>
     </div>
 
     <!-- Notes tab -->
@@ -1932,43 +2003,39 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       </div>
     </div>
 
-    <!-- Shot Plan tab -->
+    <!-- Beat View tab (integrated Script + Shot + Notes per beat) -->
     <div class="detail-tab-content" id="tabFilming" style="display:none;">
-      <div id="filmingLoading" style="display:none;padding:40px 24px;text-align:center;">
+      <div class="beat-view-loading" id="filmingLoading">
         <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:12px;">
           <div class="dot" style="background:var(--teal);"></div>
           <div class="dot" style="background:var(--teal);animation-delay:0.2s;"></div>
           <div class="dot" style="background:var(--teal);animation-delay:0.4s;"></div>
         </div>
-        <p style="font-size:13px;color:var(--mid);font-weight:300;">Building a shot-by-shot blueprint for your reel...</p>
+        <p style="font-size:13px;color:var(--mid);font-weight:300;">Building your beat-by-beat plan...</p>
         <p style="font-size:12px;color:var(--light);font-weight:300;margin-top:4px;">Please don't navigate away.</p>
       </div>
-      <div id="filmingEmpty" style="padding:40px 24px;text-align:center;color:var(--light);">
-        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the shot plan will be created automatically once your script is ready.</p>
+      <div class="beat-view-empty" id="filmingEmpty">
+        <p style="font-size:14px;font-weight:300;line-height:1.6;">Generate a script first — the beat view will be created automatically once your script is ready.</p>
       </div>
       <div id="filmingChecklist" style="display:none;">
-        <div style="padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+        <div class="beat-view-header">
           <div style="display:flex;align-items:center;gap:8px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
-            <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Shot Plan</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Beat View</span>
             <span id="shotPlanCount" style="font-size:12px;color:var(--light);"></span>
           </div>
-          <button onclick="copyShotPlan()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
+          <button onclick="copyBeatView()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy Shot Plan
+            Copy All
           </button>
         </div>
-        <p style="font-size:12px;color:var(--light);text-align:center;padding:10px 0 4px;display:flex;align-items:center;justify-content:center;gap:5px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Click on any text to edit
-        </p>
-        <div id="filmingChecklistBody" style="padding:0 16px 8px;"></div>
-        <div style="border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);">
-          <button id="shotPlanThumbUp" onclick="rateShotPlan('up')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Good shot plan">👍</button>
+        <div class="beat-view-body" id="filmingChecklistBody"></div>
+        <div class="beat-view-footer">
+          <button id="shotPlanThumbUp" onclick="rateShotPlan('up')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Good beat view">👍</button>
           <button id="shotPlanThumbDown" onclick="rateShotPlan('down')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;transition:border-color 0.15s;" title="Not great">👎</button>
           <button onclick="regenerateChecklist()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--charcoal);background:var(--white);border:1px solid var(--border);border-radius:8px;padding:7px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color 0.15s;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            Regenerate Shot Plan
+            Regenerate
           </button>
         </div>
       </div>
@@ -2927,8 +2994,60 @@ function renderMessages(){
     appendBubble('assistant',welcome);
   } else {
     history.forEach(m=>appendBubble(m.role,m.content));
+    // Show category filter if there are assistant messages
+    const hasAssistant=history.some(m=>m.role==='assistant');
+    if(hasAssistant)document.getElementById('catFilterWrap').classList.add('visible');
   }
   scrollBottom();
+}
+
+// OFF category → format name keywords mapping
+const OFF_CAT_KEYWORDS = {
+  education: ['common belief buster','how to','x you should know','i can\'t believe','sharing a life hack','tutorial','what i learned','run on','did you know','so that\'s how','i tested','how much','if you have','does x place'],
+  storytelling: ['knowledge gap story','fomo story','how i built','story of the best worst','great question','i just experienced','come with me','the why format'],
+  skits: ['dry parody','comparison skit','pov skit','hypothetical scenario','duet','stitch','personifying','comment section skit','self deprecating','how x expects','things in public','classic pranks'],
+  waitforit: ['classic wait for it','classic reaction','blind ranking','stranger reaction','doing x until','wholesome surprise','will they notice','bait and switch','timelapse build','will it x'],
+  challenges: ['classic challenge','doing x','increasing difficulty','comparison challenge','cash challenge','can you tell the difference','challenging a claim','x for every follower','choose the winner','i bet i can','quiz with consequences','throwing a dart','trying something i saw','trying the lowest rated'],
+  timely: ['timely','trending','trending moment','trending audio'],
+};
+
+let activeBrainstormCat = 'all';
+
+function filterBrainstormCat(cat, btn){
+  activeBrainstormCat = cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  // Re-render messages with filter applied
+  const container=document.getElementById('messages');
+  container.innerHTML='';
+  history.forEach(m=>appendBubble(m.role,m.content));
+  scrollBottom();
+}
+
+function formatMatchesCat(formatName, cat){
+  if(cat==='all')return true;
+  const name=(formatName||'').toLowerCase();
+  const keywords=OFF_CAT_KEYWORDS[cat]||[];
+  return keywords.some(k=>name.includes(k));
+}
+
+// Category label for a format name
+function getFormatCatLabel(formatName){
+  const name=(formatName||'').toLowerCase();
+  for(const [cat,keywords] of Object.entries(OFF_CAT_KEYWORDS)){
+    if(keywords.some(k=>name.includes(k))){
+      const labels={education:'Education',storytelling:'Storytelling',skits:'Skits & Bits',waitforit:'Wait For It',challenges:'Challenges',timely:'Timely/Trending'};
+      return {label:labels[cat]||cat,cls:'fcat-'+cat};
+    }
+  }
+  return null;
+}
+
+function saveHookFromBrainstorm(hook, format, btnEl){
+  if(!hook)return;
+  createIdea(hook, format||'', 'idea');
+  if(btnEl){btnEl.textContent='✓ Saved';btnEl.classList.add('saved');btnEl.disabled=true;}
+  showToast('Idea saved!');
 }
 
 function appendBubble(role,text){
@@ -2937,8 +3056,80 @@ function appendBubble(role,text){
   const label=document.createElement('div');label.className='msg-label';
   label.textContent=role==='user'?'You':'Format Finder';
   const bubble=document.createElement('div');bubble.className='bubble';
-  bubble.innerHTML=formatText(text);
+  bubble.innerHTML=formatTextWithHooks(text, role);
   div.appendChild(label);div.appendChild(bubble);container.appendChild(div);
+}
+
+function formatTextWithHooks(text, role){
+  // For assistant messages, inject save buttons next to hook lines and category pills next to format names
+  const base = formatText(text);
+  if(role !== 'assistant') return base;
+
+  // Post-process: wrap hook lines with save button
+  // A hook line is a strong/bolded line starting with a number or bullet that contains a hook suggestion
+  const el = document.createElement('div');
+  el.innerHTML = base;
+
+  // Look for format name patterns — bold lines containing known format keywords
+  // Inject category pill after format name bold tags
+  el.querySelectorAll('strong').forEach(s=>{
+    const txt = s.textContent.trim();
+    const catInfo = getFormatCatLabel(txt);
+    if(catInfo && txt.length > 5 && txt.length < 80){
+      // Check active filter
+      if(activeBrainstormCat !== 'all'){
+        const matches = formatMatchesCat(txt, activeBrainstormCat);
+        if(!matches){
+          // Dim the whole line
+          const parent = s.parentElement;
+          if(parent) parent.style.opacity = '0.35';
+        }
+      }
+      // Add category pill after the bold element
+      const pill = document.createElement('span');
+      pill.className = `format-category-pill ${catInfo.cls}`;
+      pill.textContent = catInfo.label;
+      pill.style.marginLeft = '8px';
+      pill.style.verticalAlign = 'middle';
+      s.parentNode.insertBefore(pill, s.nextSibling);
+    }
+  });
+
+  // Look for hook lines — lines that appear to be hook suggestions (quoted or numbered hooks)
+  // Strategy: find <li> items or numbered lines inside assistant bubbles that look like hooks
+  const hookPattern = /^[\d]+\.\s+[""]?(.{20,150})[""]?$/;
+  el.querySelectorAll('li').forEach(li=>{
+    const txt = li.textContent.trim();
+    if(txt.length > 20 && txt.length < 200 && !txt.startsWith('Link') && !txt.startsWith('http')){
+      // Wrap content and add save button
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;gap:10px;';
+      const textSpan = document.createElement('span');
+      textSpan.innerHTML = li.innerHTML;
+      const btn = document.createElement('button');
+      btn.className = 'save-hook-btn';
+      btn.textContent = '+ Save';
+      const hookText = txt;
+      // Try to find format from nearest preceding strong
+      btn.addEventListener('click', function(){
+        // Find nearest format name above this element
+        let format = '';
+        let el2 = li.previousElementSibling;
+        while(el2){
+          const s = el2.querySelector('strong');
+          if(s && getFormatCatLabel(s.textContent)){format=s.textContent.trim();break;}
+          el2=el2.previousElementSibling;
+        }
+        saveHookFromBrainstorm(hookText, format, btn);
+      });
+      wrap.appendChild(textSpan);
+      wrap.appendChild(btn);
+      li.innerHTML='';
+      li.appendChild(wrap);
+    }
+  });
+
+  return el.innerHTML;
 }
 
 function formatText(text){
@@ -2985,6 +3176,8 @@ async function sendMessage(){
       history.push({role:'assistant',content:reply});
       appendBubble('assistant',reply);
       autoSaveIfActive();
+      // Show category filter after first assistant response
+      document.getElementById('catFilterWrap').classList.add('visible');
     } else if(data.error){
       history.pop(); // remove the user message that failed
       appendBubble('assistant','API error ('+data.error.type+'): '+data.error.message);
@@ -3505,9 +3698,13 @@ async function initFilmingTab(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
-        system:`You generate detailed shot plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
-Format: {"shots":[{"type":"HERO","duration":"3 seconds","description":"...","cameraAngle":"medium close-up","audioType":"on-camera","onScreenText":"...","notes":"..."}],"bRollIdeas":["..."],"equipment":{"camera":"...","audio":"...","other":"..."},"filmingTips":["..."]}
-Types: HERO=main on-camera shots, B-ROLL=cutaway/detail, REVEAL=payoff/reveal, REACTION=reaction shots. Duration 2-5s per shot. Be specific to THIS script.`,
+        system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
+
+Format:
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+
+Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
+Keep notes array to 1-2 specific, actionable coaching tips per beat. Be specific to THIS script and niche.`,
         messages:[{role:'user',content:`Generate a shot plan.
 Idea: ${idea.hook}
 Format: ${idea.format||'not specified'}
@@ -3527,42 +3724,165 @@ ${scriptText.slice(0,3000)}`}]})
 }
 
 function renderShotPlan(plan){
+  // Delegate to new beat view renderer
+  renderBeatView(plan);
+}
+
+function renderBeatView(plan){
   const body=document.getElementById('filmingChecklistBody');
   body.innerHTML='';
-  const shots=plan.shots||[];
   const countEl=document.getElementById('shotPlanCount');
-  if(countEl)countEl.textContent=shots.length+' shot'+(shots.length!==1?'s':'');
   document.getElementById('shotPlanThumbUp').style.background='';document.getElementById('shotPlanThumbUp').style.borderColor='';
   document.getElementById('shotPlanThumbDown').style.background='';document.getElementById('shotPlanThumbDown').style.borderColor='';
-  const badgeClass={'HERO':'shot-badge-hero','B-ROLL':'shot-badge-broll','REVEAL':'shot-badge-reveal','REACTION':'shot-badge-reaction'};
-  shots.forEach((shot,i)=>{
-    const type=(shot.type||'SHOT').toUpperCase();
-    const cls=badgeClass[type]||'shot-badge-default';
-    const card=document.createElement('div');card.className='shot-card';
-    let metaHtml='';
-    if(shot.cameraAngle)metaHtml+=`<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>${escHtml(shot.cameraAngle)}</span>`;
-    if(shot.audioType)metaHtml+=`<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>${escHtml(shot.audioType)}</span>`;
-    if(shot.onScreenText)metaHtml+=`<span class="shot-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span class="shot-meta-text">Text: ${escHtml(shot.onScreenText)}</span></span>`;
-    card.innerHTML=`<div class="shot-card-header"><div class="shot-card-left"><span class="shot-type-badge ${cls}">${escHtml(type)}</span><span class="shot-number">Shot ${i+1}</span></div><span class="shot-duration">${escHtml(shot.duration||'')}</span></div><div class="shot-desc" contenteditable="true" style="outline:none;cursor:text;" onblur="saveShotEdit(${i},'description',this.textContent)">${escHtml(shot.description||'')}</div>${metaHtml?`<div class="shot-meta">${metaHtml}</div>`:''}${shot.notes?`<div class="shot-notes"><strong>Notes:</strong> <span contenteditable="true" style="outline:none;" onblur="saveShotEdit(${i},'notes',this.textContent)">${escHtml(shot.notes)}</span></div>`:''}`;
+
+  // Overview block
+  if(plan.overview){
+    const ov=document.createElement('div');ov.className='beat-overview';
+    ov.innerHTML=`<div class="beat-overview-label">Overview</div><div class="beat-overview-text">${escHtml(plan.overview)}</div>`;
+    body.appendChild(ov);
+  }
+
+  // Beat cards
+  const beats=plan.beats||[];
+  if(countEl)countEl.textContent=beats.length+' beat'+(beats.length!==1?'s':'');
+
+  beats.forEach((beat,i)=>{
+    const card=document.createElement('div');card.className='beat-card';
+
+    // Header
+    const header=document.createElement('div');header.className='beat-card-header';
+    header.innerHTML=`<span class="beat-card-title">${escHtml(beat.title||'Beat '+(i+1))}</span>
+      <button class="beat-refine-btn" onclick="refineBeat(${i})">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refine
+      </button>`;
+    card.appendChild(header);
+
+    // Body
+    const cardBody=document.createElement('div');cardBody.className='beat-card-body';
+
+    // SCRIPT
+    if(beat.script){
+      const sf=document.createElement('div');sf.className='beat-field';
+      sf.innerHTML=`<div class="beat-pill beat-pill-script">Script</div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'script',this.textContent)">${escHtml(beat.script)}</div>`;
+      cardBody.appendChild(sf);
+    }
+
+    // Divider
+    cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
+
+    // VISUAL
+    if(beat.visual){
+      const vf=document.createElement('div');vf.className='beat-field';
+      let visualHtml=`<div class="beat-pill beat-pill-visual">Visual</div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'visual',this.textContent)">${escHtml(beat.visual)}</div>`;
+      if(beat.alt){visualHtml+=`<div class="beat-alt-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'alt',this.textContent)"><strong style="font-style:normal;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--light);margin-right:6px;">Alt</strong>${escHtml(beat.alt)}</div>`;}
+      vf.innerHTML=visualHtml;
+      cardBody.appendChild(vf);
+    }
+
+    // TEXT OVERLAY
+    if(beat.textOverlay){
+      cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
+      const tf=document.createElement('div');tf.className='beat-field';
+      tf.innerHTML=`<div class="beat-pill beat-pill-overlay">Text Overlay <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;opacity:0.7;">(optional)</span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'textOverlay',this.textContent)">${escHtml(beat.textOverlay)}</div>`;
+      cardBody.appendChild(tf);
+    }
+
+    // NOTES (collapsible)
+    const notes=beat.notes||[];
+    if(notes.length){
+      cardBody.appendChild(Object.assign(document.createElement('div'),{className:'beat-divider'}));
+      const nf=document.createElement('div');nf.className='beat-field';
+      const notesId=`beatNotes${i}`;
+      const noteItems=notes.map(n=>`<li>${escHtml(n)}</li>`).join('');
+      nf.innerHTML=`<button class="beat-notes-toggle" onclick="toggleBeatNotes('${notesId}',this)">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="beat-pill beat-pill-notes" style="margin:0;">Notes (${notes.length})</span>
+      </button>
+      <div class="beat-notes-body" id="${notesId}" style="display:none;"><ul>${noteItems}</ul></div>`;
+      cardBody.appendChild(nf);
+    }
+
+    card.appendChild(cardBody);
     body.appendChild(card);
   });
-  if(plan.bRollIdeas&&plan.bRollIdeas.length){
-    const broll=document.createElement('div');broll.className='shotplan-broll';
-    broll.innerHTML=`<div class="shotplan-broll-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>B-Roll Ideas</div>`;
-    plan.bRollIdeas.forEach(idea=>{const item=document.createElement('div');item.className='shotplan-broll-item';item.innerHTML=`<span class="shotplan-broll-dot"></span><span>${escHtml(idea)}</span>`;broll.appendChild(item);});
-    body.appendChild(broll);
-  }
-  if(plan.equipment){
-    const eq=document.createElement('div');eq.className='shotplan-equipment';
-    eq.innerHTML=`<div class="shotplan-equipment-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>Equipment</div>${plan.equipment.camera?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Camera</div><div class="shotplan-equip-val">${escHtml(plan.equipment.camera)}</div></div>`:''}${plan.equipment.audio?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Audio</div><div class="shotplan-equip-val">${escHtml(plan.equipment.audio)}</div></div>`:''}${plan.equipment.other?`<div class="shotplan-equip-row"><div class="shotplan-equip-label">Other</div><div class="shotplan-equip-val">${escHtml(plan.equipment.other)}</div></div>`:''}`;
-    body.appendChild(eq);
-  }
+
+  // Filming tips
   if(plan.filmingTips&&plan.filmingTips.length){
     const tips=document.createElement('div');tips.className='shotplan-tips';
     tips.innerHTML=`<div class="shotplan-tips-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Filming Tips</div>`;
     plan.filmingTips.forEach(tip=>{const item=document.createElement('div');item.className='shotplan-tip-item';item.innerHTML=`<span class="shotplan-tip-dot"></span><span>${escHtml(tip)}</span>`;tips.appendChild(item);});
     body.appendChild(tips);
   }
+}
+
+function toggleBeatNotes(id,btn){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  const arrow=btn.querySelector('svg');
+  if(arrow)arrow.style.transform=open?'':'rotate(180deg)';
+}
+
+function saveBeatEdit(beatIndex,field,value){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();
+  if(!all[currentIdeaId]||!all[currentIdeaId].shotPlan)return;
+  const beats=all[currentIdeaId].shotPlan.beats;
+  if(beats&&beats[beatIndex]){beats[beatIndex][field]=value;all[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all);}
+}
+
+async function refineBeat(beatIndex){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();const idea=all[currentIdeaId];
+  if(!idea||!idea.shotPlan)return;
+  const beat=idea.shotPlan.beats[beatIndex];
+  if(!beat)return;
+  const prompt=window.prompt(`Refine the "${beat.title}" beat — describe the change you want:`);
+  if(!prompt)return;
+  showToast('Refining beat...');
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","textOverlay":"...","notes":["..."]}',
+        messages:[{role:'user',content:`Current beat:\n${JSON.stringify(beat)}\n\nRefinement request: ${prompt}\n\nReturn the updated beat JSON only.`}]})
+    });
+    const data=await resp.json();
+    if(data.content&&data.content[0]){
+      const updated=JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
+      const all2=getAllIdeas();
+      if(all2[currentIdeaId]&&all2[currentIdeaId].shotPlan&&all2[currentIdeaId].shotPlan.beats[beatIndex]){
+        all2[currentIdeaId].shotPlan.beats[beatIndex]=updated;
+        all2[currentIdeaId].updatedAt=Date.now();
+        saveAllIdeas(all2);
+        renderBeatView(all2[currentIdeaId].shotPlan);
+        showToast('Beat updated!');
+      }
+    }
+  }catch(e){showToast('Refine failed. Please try again.');}
+}
+
+function copyBeatView(){
+  if(!currentIdeaId)return;
+  const idea=getAllIdeas()[currentIdeaId];
+  if(!idea||!idea.shotPlan)return;
+  const plan=idea.shotPlan;
+  const lines=[];
+  if(plan.overview)lines.push('OVERVIEW\n'+plan.overview+'\n');
+  (plan.beats||[]).forEach((beat,i)=>{
+    lines.push((beat.title||'Beat '+(i+1)));
+    if(beat.script)lines.push('Script: '+beat.script);
+    if(beat.visual)lines.push('Visual: '+beat.visual);
+    if(beat.alt)lines.push('Alt: '+beat.alt);
+    if(beat.textOverlay)lines.push('Text Overlay: '+beat.textOverlay);
+    if(beat.notes&&beat.notes.length)lines.push('Notes: '+beat.notes.join(' | '));
+    lines.push('');
+  });
+  if(plan.filmingTips&&plan.filmingTips.length)lines.push('FILMING TIPS\n'+plan.filmingTips.join('\n'));
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>showToast('Beat view copied!')).catch(()=>showToast('Copy failed.'));
 }
 
 function saveShotEdit(shotIndex,field,value){
@@ -3593,9 +3913,13 @@ async function generateChecklistInBackground(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
-        system:`You generate detailed shot plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
-Format: {"shots":[{"type":"HERO","duration":"3 seconds","description":"...","cameraAngle":"medium close-up","audioType":"on-camera","onScreenText":"...","notes":"..."}],"bRollIdeas":["..."],"equipment":{"camera":"...","audio":"...","other":"..."},"filmingTips":["..."]}
-Types: HERO=main on-camera, B-ROLL=cutaway/detail, REVEAL=payoff, REACTION=reaction. Duration 2-5s per shot.`,
+        system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
+
+Format:
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+
+Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
+Keep notes array to 1-2 specific, actionable coaching tips per beat.`,
         messages:[{role:'user',content:`Shot plan for:
 Idea: ${idea.hook}
 Format: ${idea.format||'not specified'}
