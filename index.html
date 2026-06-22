@@ -5396,7 +5396,13 @@ On-Screen Text: [closing text]
 
 ---
 
-Generate 2-3 distinct concepts. Each should have a different angle or format.`;
+Generate 2-3 distinct concepts. Each should have a different angle or format.
+
+CRITICAL FORMATTING RULES:
+- Separate each concept with a line containing only: ---
+- Use ## for concept titles only (e.g. ## Concept 1: The Size Surprise)
+- Use plain bold **Hook options:** and **Script:** and **Editor notes:** for section headers — NOT ##
+- This prevents the parser from confusing section headers with concept breaks`;
 
   const userPrompt = 'Here is a fitting session transcript. Find the best before/after moments and generate reel concepts.\n\n' + truncated;
 
@@ -5444,9 +5450,12 @@ function renderFittingConcepts(text){
   const container = document.getElementById('fittingConceptsContainer');
   fittingConceptStore = []; // reset
 
-  // Split on --- separator first, then fall back to ## Concept headers
+  // Split ONLY on --- separators between concepts, or on ## Concept N: lines
+  // Never split on sub-headers like ## Hook options or ## Script
   let parsed = text.split(/\n---+\n/g).filter(c=>c.trim());
-  if(parsed.length <= 1) parsed = text.split(/(?=## Concept \d)/g).filter(c=>c.trim());
+  if(parsed.length <= 1) parsed = text.split(/(?=^## Concept \d)/gm).filter(c=>c.trim());
+  // If still only one block, try splitting on bold concept headers like **Concept 1:**
+  if(parsed.length <= 1) parsed = text.split(/(?=^\*\*Concept \d)/gm).filter(c=>c.trim());
 
   if(!parsed.length){
     container.innerHTML = '<div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:20px;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--charcoal);">' + escHtml(text) + '</div>';
@@ -5454,15 +5463,17 @@ function renderFittingConcepts(text){
   }
 
   container.innerHTML = parsed.map((concept, i) => {
-    const titleMatch = concept.match(/##\s*Concept\s*\d+[:\s]+(.+)/i) || concept.match(/^#{1,3}\s*(.+)/m);
+    // Only match actual Concept N titles — never sub-headers like Hook options or Script
+    const titleMatch = concept.match(/##\s*Concept\s*\d+[:\s]+(.+)/i)
+      || concept.match(/\*\*Concept\s*\d+[:\s]+(.+)\*\*/i);
     const title = titleMatch ? titleMatch[1].replace(/\*+/g,'').trim() : 'Concept ' + (i+1);
 
-    const hookSection = concept.match(/Hook options[^:]*:([\s\S]*?)(?=\*{0,2}Script|\n##\s|$)/i);
+    const hookSection = concept.match(/(?:##\s*)?Hook options[^:]*:([\s\S]*?)(?=(?:##\s*)?Script|$)/i);
     const hooks = hookSection
-      ? (hookSection[1].match(/^[\-\*•]\s*(.+)/gm)||[]).map(h=>h.replace(/^[\-\*•]\s*/,'').trim()).filter(Boolean)
+      ? (hookSection[1].match(/^[\-\*•]\s*(.+)/gm)||[]).map(h=>h.replace(/^[\-\*•]\s*/,'').trim()).filter(h=>h.length>1)
       : [];
 
-    const scriptMatch = concept.match(/\*{0,2}Script[:\*]{0,3}\s*\n([\s\S]*?)(?=\*{0,2}Editor\s*[Nn]otes|$)/i);
+    const scriptMatch = concept.match(/(?:##\s*)?\*{0,2}Script[:\*\s]{0,4}\n([\s\S]*?)(?=(?:##\s*)?\*{0,2}Editor\s*[Nn]otes|$)/i);
     const scriptText = scriptMatch ? scriptMatch[1].trim() : '';
 
     const notesMatch = concept.match(/\*{0,2}Editor\s*[Nn]otes[:\*]{0,3}\s*\n?([\s\S]*?)(?=---+|## Concept|$)/i);
