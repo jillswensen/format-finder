@@ -1562,11 +1562,11 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   <div class="page-main">
     <div id="fittingUploadZone" style="border:2px dashed var(--border);border-radius:14px;padding:32px 24px;text-align:center;background:var(--cream);margin-bottom:20px;transition:border-color 0.2s;" ondragover="event.preventDefault();this.style.borderColor='var(--rose)';" ondragleave="this.style.borderColor='var(--border)';" ondrop="handleFittingDrop(event)">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="1.5" style="margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      <p style="font-size:14px;font-weight:500;color:var(--charcoal);margin-bottom:6px;">Drop .txt transcript files here</p>
+      <p style="font-size:14px;font-weight:500;color:var(--charcoal);margin-bottom:6px;">Drop .txt or .vtt transcript files here</p>
       <p style="font-size:12px;color:var(--light);margin-bottom:16px;">Multiple files supported — combined in upload order</p>
       <label style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:10px 22px;cursor:pointer;display:inline-block;">
         Choose files
-        <input type="file" accept=".txt" multiple style="display:none;" onchange="handleFittingFiles(event)">
+        <input type="file" accept=".txt,.vtt" multiple style="display:none;" onchange="handleFittingFiles(event)">
       </label>
     </div>
     <div id="fittingFileList" style="display:none;margin-bottom:20px;">
@@ -5271,9 +5271,27 @@ function newFittingSession(){
 function handleFittingDrop(e){
   e.preventDefault();
   document.getElementById('fittingUploadZone').style.borderColor = 'var(--border)';
-  const files = Array.from(e.dataTransfer.files).filter(f=>f.name.endsWith('.txt'));
-  if(!files.length){ showToast('Please drop .txt files only.'); return; }
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.name.endsWith('.txt')||f.name.endsWith('.vtt'));
+  if(!files.length){ showToast('Please drop .txt or .vtt files only.'); return; }
   readFittingFiles(files);
+}
+
+function parseVTT(raw){
+  // Strip WEBVTT header, NOTE blocks, and timestamp lines; keep only spoken text
+  return raw
+    .split('\n')
+    .filter(line => {
+      const t = line.trim();
+      if(!t) return false;
+      if(t === 'WEBVTT') return false;
+      if(t.startsWith('NOTE')) return false;
+      if(/^\d+$/.test(t)) return false; // cue index numbers
+      if(/\d{2}:\d{2}[\d:,.]+\s*-->\s*\d{2}:\d{2}/.test(t)) return false; // timestamp lines
+      return true;
+    })
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function handleFittingFiles(e){
@@ -5288,7 +5306,9 @@ function readFittingFiles(files){
   files.forEach(file => {
     const reader = new FileReader();
     reader.onload = (ev) => {
-      fittingFiles.push({ name: file.name, content: ev.target.result });
+      const raw = ev.target.result;
+      const content = file.name.endsWith('.vtt') ? parseVTT(raw) : raw;
+      fittingFiles.push({ name: file.name, content });
       loaded++;
       if(loaded === files.length) renderFittingFileList();
     };
