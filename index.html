@@ -5498,21 +5498,26 @@ function renderFittingConcepts(text){
       || concept.match(/\*\*Concept\s*\d+[:\s]+(.+)\*\*/i);
     const title = titleMatch ? titleMatch[1].replace(/\*+/g,'').trim() : 'Concept ' + (i+1);
 
-    const hookSection = concept.match(/(?:##\s*)?Hook options[^:]*:([\s\S]*?)(?=(?:##\s*)?Script|$)/i);
+    // Hook options — everything between "Hook options:" and "Script:" (with or without ** or ##)
+    const hookSection = concept.match(/\*{0,2}Hook\s+options\*{0,2}\s*:?\s*\n([\s\S]*?)(?=\n\*{0,2}Script|\n##\s*Script|\n---)/i);
     const hooks = hookSection
-      ? (hookSection[1].match(/^[\-\*•]\s*(.+)/gm)||[]).map(h=>h.replace(/^[\-\*•]\s*/,'').trim()).filter(h=>h.length>1)
+      ? (hookSection[1].match(/^[\-\*•]\s*"?(.+?)"?\s*$/gm)||[]).map(h=>h.replace(/^[\-\*•]\s*/,'').replace(/^"|"$/g,'').trim()).filter(h=>h.length>1)
       : [];
 
-    const scriptMatch = concept.match(/(?:##\s*)?\*{0,2}Script[:\*\s]{0,4}\n([\s\S]*?)(?=(?:##\s*)?\*{0,2}Editor\s*[Nn]otes|$)/i);
+    // Script — everything between "Script:" and "Editor notes:" (handles **Script:** and ## Script)
+    const scriptMatch = concept.match(/\*{0,2}Script[:\*\s]{0,4}\n([\s\S]*?)(?=\n\*{0,2}Editor\s*[Nn]otes|\n##\s*Editor|$)/i);
     const scriptText = scriptMatch ? scriptMatch[1].trim() : '';
 
-    const notesMatch = concept.match(/\*{0,2}Editor\s*[Nn]otes[:\*]{0,3}\s*\n?([\s\S]*?)(?=---+|## Concept|$)/i);
+    // Editor notes — everything after "Editor notes:" to end of concept
+    const notesMatch = concept.match(/\*{0,2}Editor\s*[Nn]otes[:\*]{0,3}\s*\n?([\s\S]*?)$/i);
     const notes = notesMatch ? notesMatch[1].trim() : '';
 
     // Store full data in JS — never in HTML attributes
     fittingConceptStore[i] = { title, hooks, scriptText: scriptText || concept.trim(), notes };
 
-    const formattedScript = scriptText
+    const displayScript = scriptText || concept.replace(/##\s*Concept[^\n]*/i,'').replace(/\*{0,2}Hook options[\s\S]*?(?=\*{0,2}Script)/i,'').trim();
+
+    const formattedScript = displayScript
       .replace(/\*\*([^*\n]+)\*\*/g,'<strong style="color:var(--rose-dark);">$1</strong>')
       .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
       .replace(/\n/g,'<br>');
