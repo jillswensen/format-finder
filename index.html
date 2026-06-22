@@ -1481,6 +1481,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
       <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
       <button class="tab-btn active" onclick="goToStories()">Stories</button>
+      <button class="tab-btn" onclick="goToFitting()">Fitting</button>
     </div>
   </header>
 
@@ -1521,6 +1522,62 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     </div>
   </div>
 </div>
+
+
+<!-- ── SCREEN 7: Fitting ── -->
+<div class="screen" id="screen-fitting">
+  <header>
+    <div class="page-wordmark" id="fittingWordmark"></div>
+    <div class="tab-switcher">
+      <button class="tab-btn" onclick="goToChat()">Brainstorm</button>
+      <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
+      <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
+      <button class="tab-btn" onclick="goToStories()">Stories</button>
+      <button class="tab-btn active" onclick="goToFitting()">Fitting</button>
+    </div>
+  </header>
+  <div class="page-main" style="max-width:680px;margin:0 auto;padding:24px 16px 80px;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--charcoal);margin-bottom:4px;">Fitting <em>Scripts</em></h1>
+    <p style="font-size:14px;color:var(--mid);font-weight:300;margin-bottom:24px;">Upload transcript files from a fitting session — CFF will find the best moments and generate before/after reel concepts.</p>
+    <div id="fittingUploadZone" style="border:2px dashed var(--border);border-radius:14px;padding:32px 24px;text-align:center;background:var(--cream);margin-bottom:20px;transition:border-color 0.2s;" ondragover="event.preventDefault();this.style.borderColor='var(--rose)';" ondragleave="this.style.borderColor='var(--border)';" ondrop="handleFittingDrop(event)">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="1.5" style="margin-bottom:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      <p style="font-size:14px;font-weight:500;color:var(--charcoal);margin-bottom:6px;">Drop .txt transcript files here</p>
+      <p style="font-size:12px;color:var(--light);margin-bottom:16px;">Multiple files supported — combined in upload order</p>
+      <label style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:10px 22px;cursor:pointer;display:inline-block;">
+        Choose files
+        <input type="file" accept=".txt" multiple style="display:none;" onchange="handleFittingFiles(event)">
+      </label>
+    </div>
+    <div id="fittingFileList" style="display:none;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Files queued</span>
+        <button onclick="clearFittingFiles()" style="font-size:12px;color:var(--mid);background:none;border:none;cursor:pointer;padding:0;">Clear all</button>
+      </div>
+      <div id="fittingFileItems"></div>
+      <div style="margin-top:16px;">
+        <button onclick="runFittingAnalysis()" id="fittingGenerateBtn" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:10px;padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Reel Concepts
+        </button>
+      </div>
+    </div>
+    <div id="fittingProcessing" style="display:none;text-align:center;padding:40px 0;">
+      <div style="display:flex;gap:5px;align-items:center;justify-content:center;margin-bottom:16px;">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <p style="font-size:14px;color:var(--charcoal);font-weight:400;">Reading transcript...</p>
+      <p id="fittingProcessingDetail" style="font-size:12px;color:var(--light);font-weight:300;margin-top:4px;">Finding the best moments from your fitting session</p>
+    </div>
+    <div id="fittingResults" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <span style="font-size:14px;font-weight:500;color:var(--charcoal);">Reel concepts from this fitting</span>
+        <button onclick="clearFittingResults()" style="font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;">Start over</button>
+      </div>
+      <div id="fittingConceptsContainer"></div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Modal: Save stories conversation -->
 <div class="modal-bg" id="modalSaveStoriesConv">
@@ -1595,6 +1652,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
       <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
       <button class="tab-btn" onclick="goToStories()">Stories</button>
+      <button class="tab-btn" onclick="goToFitting()">Fitting</button>
     </div>
   </header>
 
@@ -1700,6 +1758,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="tab-btn active" onclick="goToAnalyze()">Analyze</button>
       <button class="tab-btn" onclick="goToIdeas()">Ideas</button>
       <button class="tab-btn" onclick="goToStories()">Stories</button>
+      <button class="tab-btn" onclick="goToFitting()">Fitting</button>
     </div>
   </header>
 
@@ -1839,6 +1898,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
       <button class="tab-btn" onclick="goToAnalyze()">Analyze</button>
       <button class="tab-btn active" onclick="goToIdeas()">Ideas</button>
       <button class="tab-btn" onclick="goToStories()">Stories</button>
+      <button class="tab-btn" onclick="goToFitting()">Fitting</button>
     </div>
   </header>
 
@@ -5029,6 +5089,265 @@ function sendTranscriptToScript(){
     }
   }, 150);
 }
+
+/* ════════════════════════════════════════════
+   FITTING TAB — BEFORE/AFTER REEL SCRIPT GENERATOR
+════════════════════════════════════════════ */
+
+let fittingFiles = [];
+
+function goToFitting(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-fitting').classList.add('active');
+  const wm = document.getElementById('fittingWordmark');
+  const src = document.getElementById('wordmark');
+  if(src && wm) wm.innerHTML = src.innerHTML;
+}
+
+function handleFittingDrop(e){
+  e.preventDefault();
+  document.getElementById('fittingUploadZone').style.borderColor = 'var(--border)';
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.name.endsWith('.txt'));
+  if(!files.length){ showToast('Please drop .txt files only.'); return; }
+  readFittingFiles(files);
+}
+
+function handleFittingFiles(e){
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  readFittingFiles(files);
+  e.target.value = '';
+}
+
+function readFittingFiles(files){
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      fittingFiles.push({ name: file.name, content: ev.target.result });
+      loaded++;
+      if(loaded === files.length) renderFittingFileList();
+    };
+    reader.readAsText(file);
+  });
+}
+
+function renderFittingFileList(){
+  const list = document.getElementById('fittingFileList');
+  const items = document.getElementById('fittingFileItems');
+  list.style.display = 'block';
+  items.innerHTML = fittingFiles.map((f,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span style="font-size:13px;color:var(--charcoal);flex:1;">${escHtml(f.name)}</span>
+      <span style="font-size:11px;color:var(--light);">${Math.round(f.content.length/1000)}k chars</span>
+      <button onclick="removeFittingFile(${i})" style="background:none;border:none;cursor:pointer;color:var(--mid);font-size:16px;line-height:1;padding:0;">&#x2715;</button>
+    </div>
+  `).join('');
+}
+
+function removeFittingFile(i){
+  fittingFiles.splice(i,1);
+  if(!fittingFiles.length){ clearFittingFiles(); return; }
+  renderFittingFileList();
+}
+
+function clearFittingFiles(){
+  fittingFiles = [];
+  document.getElementById('fittingFileList').style.display = 'none';
+  document.getElementById('fittingFileItems').innerHTML = '';
+}
+
+function clearFittingResults(){
+  document.getElementById('fittingResults').style.display = 'none';
+  document.getElementById('fittingConceptsContainer').innerHTML = '';
+  document.getElementById('fittingUploadZone').style.display = 'block';
+  clearFittingFiles();
+}
+
+function parseFittingTranscript(content){
+  return content
+    .replace(/\[inaudible\]/gi,'')
+    .replace(/\(indistinct chatter\)/gi,'')
+    .replace(/\(laughter\)/gi,'')
+    .replace(/\[INAUDIBLE\]/g,'')
+    .replace(/\[INTERPOSING VOICES\]/g,'')
+    .replace(/\(bell rings\)/gi,'')
+    .replace(/^\s*[\n\r]+/gm,'\n')
+    .trim();
+}
+
+async function runFittingAnalysis(){
+  if(!fittingFiles.length){ showToast('Upload at least one transcript file.'); return; }
+
+  const upload = document.getElementById('fittingUploadZone');
+  const fileList = document.getElementById('fittingFileList');
+  const processing = document.getElementById('fittingProcessing');
+  const results = document.getElementById('fittingResults');
+
+  upload.style.display = 'none';
+  fileList.style.display = 'none';
+  processing.style.display = 'block';
+  results.style.display = 'none';
+
+  const combined = fittingFiles.map(f => {
+    const clean = parseFittingTranscript(f.content);
+    return '===FILE: ' + f.name + '===\n' + clean;
+  }).join('\n\n');
+
+  const MAX_CHARS = 60000;
+  const truncated = combined.length > MAX_CHARS
+    ? combined.slice(0, MAX_CHARS) + '\n\n[transcript truncated for length]'
+    : combined;
+
+  const systemPrompt = `You are a social media script writer for Bra Fittings by Court (BFBC), a bra fitting boutique in Kaysville, UT. You write before/after fitting reel scripts for Instagram and TikTok.
+
+CRITICAL RULES:
+- Scripts must ONLY use footage already captured in the provided transcript. No additional filming, voiceover recording, or new shots required.
+- On-screen text overlays are the only thing you can add beyond existing footage.
+- Every clip reference must include the exact filename and timestamp, e.g. [B_A_Courtney_6_7.txt — 01:07].
+- Never use guilt, body shame, or negative language about bodies.
+- Tone is warm, real, and slightly cheeky. Let the customer's own words carry the story.
+- Flag inaudible or unclear sections so the editor knows to check manually.
+- Note if the after-reaction may be deeper in the video than what was captured clearly.
+
+OUTPUT FORMAT — use exactly this structure for each concept:
+
+## Concept [N]: [Title]
+**Format:** [format name e.g. Before/After, Common Belief Buster, The Feeling of Trust]
+**Hook options:**
+- [hook option 1]
+- [hook option 2]
+- [hook option 3]
+
+**Script:**
+**HOOK (0-4s)**
+On-Screen Text: [text]
+Clip: [filename — timestamp] "[exact quote from transcript]"
+
+**[SECTION NAME] ([time range e.g. 4-12s])**
+On-Screen Text: [text if needed]
+Clip: [filename — timestamp] "[exact quote]"
+
+**CLOSER**
+On-Screen Text: [closing text]
+
+**Editor notes:** [flags about inaudible sections, missing after-reaction, etc.]
+
+---
+
+Generate 2-3 distinct concepts. Each should have a different angle or format.`;
+
+  const userPrompt = 'Here is a fitting session transcript. Find the best before/after moments and generate reel concepts.\n\n' + truncated;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await resp.json();
+    if(data.error) throw new Error(data.error.message);
+
+    const text = data.content?.find(b=>b.type==='text')?.text || '';
+    processing.style.display = 'none';
+    results.style.display = 'block';
+    renderFittingConcepts(text);
+
+  } catch(err){
+    processing.style.display = 'none';
+    upload.style.display = 'block';
+    fileList.style.display = 'block';
+    showToast('Error: ' + err.message);
+  }
+}
+
+function renderFittingConcepts(text){
+  const container = document.getElementById('fittingConceptsContainer');
+  const concepts = text.split(/(?=## Concept)/g).filter(c=>c.trim());
+
+  if(!concepts.length){
+    container.innerHTML = '<div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:20px;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--charcoal);">' + escHtml(text) + '</div>';
+    return;
+  }
+
+  container.innerHTML = concepts.map((concept, i) => {
+    const titleMatch = concept.match(/## Concept \d+: (.+)/);
+    const title = titleMatch ? titleMatch[1].trim() : 'Concept ' + (i+1);
+
+    const hookSection = concept.match(/\*\*Hook options:\*\*([\s\S]*?)(?=\*\*Script:|$)/);
+    const hooks = hookSection
+      ? (hookSection[1].match(/^- (.+)/gm) || []).map(h=>h.replace(/^- /,'').trim())
+      : [];
+
+    const scriptMatch = concept.match(/\*\*Script:\*\*([\s\S]*?)(?=\*\*Editor notes:|---$|$)/m);
+    const scriptText = scriptMatch ? scriptMatch[1].trim() : '';
+
+    const formattedScript = scriptText
+      .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+      .replace(/\n/g,'<br>');
+
+    const notesMatch = concept.match(/\*\*Editor notes:\*\*([\s\S]*?)(?=---$|## Concept|$)/m);
+    const notes = notesMatch ? notesMatch[1].trim() : '';
+
+    const hookBtns = hooks.map(h => `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <p style="font-size:13px;color:var(--charcoal);flex:1;line-height:1.5;margin:0;">${escHtml(h)}</p>
+        <button onclick="saveFittingHook(this,'${h.replace(/'/g,"\\'")}',${JSON.stringify(title)})"
+          style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+          + Save to Ideas
+        </button>
+      </div>
+    `).join('');
+
+    return `
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;">
+        <div style="background:var(--cream);padding:14px 18px;border-bottom:1px solid var(--border);">
+          <p style="font-size:13px;font-weight:600;color:var(--charcoal);margin:0;">${escHtml(title)}</p>
+        </div>
+        ${hooks.length ? `
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);">
+          <p style="font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Hook options</p>
+          ${hookBtns}
+        </div>` : ''}
+        <div style="padding:14px 18px;">
+          <p style="font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Script</p>
+          <div style="font-size:13px;line-height:1.7;color:var(--charcoal);">${formattedScript}</div>
+        </div>
+        ${notes ? `
+        <div style="padding:12px 18px;background:#FFF8E7;border-top:1px solid #F5E4A0;">
+          <p style="font-size:11px;font-weight:600;color:#8B7500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Editor notes</p>
+          <p style="font-size:12px;color:#6B5900;line-height:1.5;margin:0;">${escHtml(notes)}</p>
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function saveFittingHook(btn, hook, format){
+  const ideas = getAllIdeas();
+  const id = 'idea_' + Date.now();
+  ideas[id] = {
+    id,
+    hook: hook,
+    format: 'Before/After — ' + format,
+    source: 'fitting',
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  saveAllIdeas(ideas);
+  btn.textContent = '✓ Saved';
+  btn.style.background = 'var(--teal)';
+  btn.disabled = true;
+  showToast('Saved to Ideas!');
+}
+
 
 </script>
 
