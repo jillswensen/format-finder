@@ -1608,8 +1608,8 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 <!-- Modal: Save fitting session -->
 <div class="modal-bg" id="modalSaveFittingSession">
   <div class="modal">
-    <h3>Save fitting session</h3>
-    <p>Give this session a name so you can find it later.</p>
+    <h3>Rename fitting session</h3>
+    <p>Edit the name for this session.</p>
     <input type="text" id="fittingSessionNameInput" placeholder="e.g. Hannah B&A 6/7, Jenna post-mastectomy..." maxlength="60" />
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal('modalSaveFittingSession')">Cancel</button>
@@ -3318,7 +3318,7 @@ async function sendMessage(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
         messages:history
@@ -3466,7 +3466,7 @@ Provide a thorough analysis grounded in this account's specific benchmark data.$
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:1500,
         system:ANALYZE_SYSTEM,
         messages:[{role:'user',content:messageContent}]
@@ -3585,7 +3585,7 @@ async function openSaveIdeaModal(){
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 80,
         system: 'You extract a single short hook from a content brainstorm conversation. Output ONLY the hook — one punchy sentence or phrase, maximum 10 words, no quotes, no explanation, no punctuation at the end. The hook should capture the core reel concept or angle discussed.',
         messages: [{role:'user', content: 'Extract a short hook from this brainstorm chat:\n\n' + _saveIdeaFullText.slice(0, 3000)}]
@@ -3852,7 +3852,7 @@ async function initFilmingTab(){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
@@ -3998,7 +3998,7 @@ async function refineBeat(beatIndex){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,
         system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","textOverlay":"...","notes":["..."]}',
         messages:[{role:'user',content:`Current beat:\n${JSON.stringify(beat)}\n\nRefinement request: ${prompt}\n\nReturn the updated beat JSON only.`}]})
     });
@@ -4064,7 +4064,7 @@ async function generateChecklistInBackground(){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
@@ -4107,9 +4107,10 @@ async function triggerScriptGenerate(){
   document.getElementById('scriptGeneratingState').style.display='block';
   const notesEl=document.getElementById('notesTextarea');
   const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
-  const notesBlock=notes?`
+  const notesTrunc=notes.length>3000?notes.slice(0,3000)+'\n[...script truncated for length]':notes;
+  const notesBlock=notesTrunc?`
 **Notes & context:**
-${notes}`:'';
+${notesTrunc}`:'';
   const context=`I want to write a full script for this reel. Target duration: **${selectedScriptDuration}**.
 
 **Hook:** ${idea.hook}
@@ -4212,7 +4213,8 @@ function initTabChat(tab){
   if(history.length===0){
     const notesEl=document.getElementById('notesTextarea');
     const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
-    const notesBlock=notes?`\n**Notes & context:**\n${notes}`:'';
+    const notesTrunc=notes.length>3000?notes.slice(0,3000)+'\n[...script truncated for length]':notes;
+    const notesBlock=notesTrunc?`\n**Notes & context:**\n${notesTrunc}`:'';
 
     let context;
     if(tab==='script'){
@@ -4261,7 +4263,7 @@ async function sendTabAuto(tab){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:4000,
         system:getTabSystemPrompt(),
         messages:history
@@ -4503,7 +4505,7 @@ async function sendStoriesMessage(){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         system:STORIES_SYSTEM+(getCurrentNiche()?'\n\nCURRENT NICHE:\n'+getCurrentNiche():''),
         messages:storiesHistory
@@ -5213,9 +5215,9 @@ function confirmFittingSave(){
   currentFittingSessionId = id;
   closeModal('modalSaveFittingSession');
   updateFittingSessionBadge(name);
-  document.getElementById('fittingSaveBtn').textContent = '✓ Saved';
-  setTimeout(()=>{ document.getElementById('fittingSaveBtn').textContent = 'Save session'; }, 2000);
-  showToast('Session saved!');
+  document.getElementById('fittingSaveBtn').textContent = '✓ Renamed';
+  setTimeout(()=>{ document.getElementById('fittingSaveBtn').textContent = 'Rename session'; }, 2000);
+  showToast('Session renamed!');
   renderFittingSidebar();
 }
 
@@ -5238,6 +5240,7 @@ function loadFittingSession(id){
   document.getElementById('fittingResults').style.display = 'block';
   renderFittingConcepts(session.rawText);
   updateFittingSessionBadge(session.name);
+  document.getElementById('fittingSaveBtn').textContent = 'Rename session';
   closeSidebar5();
 }
 
@@ -5370,6 +5373,7 @@ CRITICAL RULES:
 - Tone is warm, real, and slightly cheeky. Let the customer's own words carry the story.
 - Flag inaudible or unclear sections so the editor knows to check manually.
 - Note if the after-reaction may be deeper in the video than what was captured clearly.
+- Do not use any fitter's name in hooks or on-screen text. Always refer to the fitter generically (e.g. "our fitter", "we", "the shop").
 
 OUTPUT FORMAT — use exactly this structure for each concept:
 
@@ -5428,9 +5432,22 @@ CRITICAL FORMATTING RULES:
 
     const text = data.content?.find(b=>b.type==='text')?.text || '';
     currentFittingRawText = text;
-    currentFittingSessionId = null;
-    updateFittingSessionBadge('');
-    document.getElementById('fittingSaveBtn').textContent = 'Save session';
+
+    // Auto-save session using file names as default name
+    const autoName = fittingFiles.map(f=>f.name.replace('.txt','')).join(', ').slice(0,60) || 'Fitting ' + new Date().toLocaleDateString();
+    const autoId = genId();
+    const allSessions = ls(fittingSessionKey());
+    allSessions[autoId] = {
+      name: autoName,
+      rawText: text,
+      fileNames: fittingFiles.map(f=>f.name),
+      updatedAt: Date.now()
+    };
+    lsSave(fittingSessionKey(), allSessions);
+    currentFittingSessionId = autoId;
+    updateFittingSessionBadge(autoName);
+    document.getElementById('fittingSaveBtn').textContent = 'Rename session';
+
     processing.style.display = 'none';
     results.style.display = 'block';
     renderFittingConcepts(text);
