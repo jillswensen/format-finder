@@ -1526,7 +1526,26 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 
 <!-- ── SCREEN 7: Fitting ── -->
 <div class="screen" id="screen-fitting">
+  <div class="overlay" id="overlay5" onclick="closeSidebar5()"></div>
+  <div class="sidebar" id="sidebar5">
+    <div class="sidebar-header">
+      <div class="sidebar-header-row">
+        <div style="min-width:0;">
+          <div class="sidebar-biz-name" id="sidebarBizName5"></div>
+          <div class="sidebar-sub">Saved fitting sessions</div>
+        </div>
+        <button class="sidebar-close" onclick="closeSidebar5()">&#x2715;</button>
+      </div>
+    </div>
+    <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
+    <button class="sidebar-new" onclick="newFittingSession()">+ New session</button>
+    <div class="conversations-list" id="fittingSessionList"></div>
+  </div>
+
   <header class="page-header">
+    <button class="menu-btn" onclick="openSidebar5()">
+      <span></span><span></span><span></span>
+    </button>
     <div class="page-wordmark" id="fittingWordmark"></div>
     <h1>Fitting <em>Scripts</em></h1>
     <div class="page-subtitle">Turn fitting session transcripts into before/after reel concepts</div>
@@ -1571,14 +1590,33 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     </div>
     <div id="fittingResults" style="display:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-        <span style="font-size:14px;font-weight:500;color:var(--charcoal);">Reel concepts from this fitting</span>
-        <button onclick="clearFittingResults()" style="font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;">Start over</button>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;font-weight:500;color:var(--charcoal);">Reel concepts from this fitting</span>
+          <span id="fittingCurrentSessionName" style="font-size:12px;color:var(--mid);font-style:italic;"></span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="openFittingSaveModal()" id="fittingSaveBtn" style="font-size:12px;color:#fff;background:var(--rose);border:none;border-radius:8px;padding:5px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;">Save session</button>
+          <button onclick="clearFittingResults()" style="font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;">Start over</button>
+        </div>
       </div>
       <div id="fittingConceptsContainer"></div>
     </div>
   </div>
 </div>
 
+
+<!-- Modal: Save fitting session -->
+<div class="modal-bg" id="modalSaveFittingSession">
+  <div class="modal">
+    <h3>Save fitting session</h3>
+    <p>Give this session a name so you can find it later.</p>
+    <input type="text" id="fittingSessionNameInput" placeholder="e.g. Hannah B&A 6/7, Jenna post-mastectomy..." maxlength="60" />
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('modalSaveFittingSession')">Cancel</button>
+      <button class="modal-confirm" onclick="confirmFittingSave()">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal: Save stories conversation -->
 <div class="modal-bg" id="modalSaveStoriesConv">
@@ -4287,6 +4325,7 @@ function saveTabHistory(tab){
 ════════════════════════════════════════════ */
 
 const STORIES_CONV_KEY = (bizId) => 'ff3_stories_'+bizId;
+const FITTING_SESSION_KEY = (bizId) => 'ff3_fitting_'+bizId;
 
 const STORIES_SYSTEM = `You are a Story Planner for Bra Fittings by Court — a women's bra fitting boutique in Kaysville, Utah. Your job is to plan Instagram Stories sequences that nurture existing followers, build community, and drive action.
 
@@ -5096,6 +5135,10 @@ function sendTranscriptToScript(){
 ════════════════════════════════════════════ */
 
 let fittingFiles = [];
+let currentFittingSessionId = null;
+let currentFittingRawText = '';
+
+function fittingSessionKey(){ return FITTING_SESSION_KEY(activeBizId); }
 
 function goToFitting(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -5103,6 +5146,122 @@ function goToFitting(){
   const wm = document.getElementById('fittingWordmark');
   const src = document.getElementById('wordmark');
   if(src && wm) wm.innerHTML = src.innerHTML;
+  const biz5 = document.getElementById('sidebarBizName5');
+  if(biz5) biz5.textContent = activeBizName||'';
+}
+
+function openSidebar5(){
+  renderFittingSidebar();
+  document.getElementById('sidebar5').classList.add('open');
+  document.getElementById('overlay5').classList.add('open');
+}
+function closeSidebar5(){
+  document.getElementById('sidebar5').classList.remove('open');
+  document.getElementById('overlay5').classList.remove('open');
+}
+
+function renderFittingSidebar(){
+  const list = document.getElementById('fittingSessionList');
+  const all = ls(fittingSessionKey());
+  const ids = Object.keys(all).sort((a,b)=>all[b].updatedAt-all[a].updatedAt);
+  if(!ids.length){
+    list.innerHTML = '<div class="no-convs">No saved sessions yet.<br>Tap <strong>Save session</strong> after generating concepts.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="conv-group-label">Saved sessions</div>';
+  ids.forEach(id => {
+    const s = all[id];
+    const item = document.createElement('div');
+    item.className = 'conv-item' + (id===currentFittingSessionId?' active':'');
+    item.innerHTML = `
+      <div class="conv-info">
+        <div class="conv-name">${escHtml(s.name)}</div>
+        <div class="conv-date">${fmtDate(s.updatedAt)}</div>
+      </div>
+      <button class="conv-delete" title="Delete">&#x2715;</button>`;
+    item.querySelector('.conv-delete').addEventListener('click', e=>deleteFittingSession(e,id));
+    item.addEventListener('click', ()=>loadFittingSession(id));
+    list.appendChild(item);
+  });
+}
+
+function openFittingSaveModal(){
+  const input = document.getElementById('fittingSessionNameInput');
+  if(currentFittingSessionId){
+    const all = ls(fittingSessionKey());
+    input.value = all[currentFittingSessionId]?.name || '';
+  } else {
+    // Auto-suggest name from file names
+    input.value = fittingFiles.map(f=>f.name.replace('.txt','')).join(', ').slice(0,60);
+  }
+  openModal('modalSaveFittingSession');
+  setTimeout(()=>input.focus(), 80);
+}
+
+function confirmFittingSave(){
+  const name = document.getElementById('fittingSessionNameInput').value.trim();
+  if(!name){ document.getElementById('fittingSessionNameInput').focus(); return; }
+  const all = ls(fittingSessionKey());
+  const id = currentFittingSessionId || genId();
+  all[id] = {
+    name,
+    rawText: currentFittingRawText,
+    fileNames: fittingFiles.map(f=>f.name),
+    updatedAt: Date.now()
+  };
+  lsSave(fittingSessionKey(), all);
+  currentFittingSessionId = id;
+  closeModal('modalSaveFittingSession');
+  updateFittingSessionBadge(name);
+  document.getElementById('fittingSaveBtn').textContent = '✓ Saved';
+  setTimeout(()=>{ document.getElementById('fittingSaveBtn').textContent = 'Save session'; }, 2000);
+  showToast('Session saved!');
+  renderFittingSidebar();
+}
+
+function updateFittingSessionBadge(name){
+  const badge = document.getElementById('fittingCurrentSessionName');
+  if(badge){ badge.textContent = name ? '— ' + name : ''; }
+}
+
+function loadFittingSession(id){
+  const all = ls(fittingSessionKey());
+  const session = all[id];
+  if(!session) return;
+  currentFittingSessionId = id;
+  currentFittingRawText = session.rawText || '';
+
+  // Hide upload, show results
+  document.getElementById('fittingUploadZone').style.display = 'none';
+  document.getElementById('fittingFileList').style.display = 'none';
+  document.getElementById('fittingProcessing').style.display = 'none';
+  document.getElementById('fittingResults').style.display = 'block';
+  renderFittingConcepts(session.rawText);
+  updateFittingSessionBadge(session.name);
+  closeSidebar5();
+}
+
+function deleteFittingSession(e, id){
+  e.stopPropagation();
+  const all = ls(fittingSessionKey());
+  delete all[id];
+  lsSave(fittingSessionKey(), all);
+  if(currentFittingSessionId===id){
+    currentFittingSessionId = null;
+    currentFittingRawText = '';
+    clearFittingResults();
+    updateFittingSessionBadge('');
+  }
+  renderFittingSidebar();
+  showToast('Session deleted.');
+}
+
+function newFittingSession(){
+  currentFittingSessionId = null;
+  currentFittingRawText = '';
+  clearFittingResults();
+  updateFittingSessionBadge('');
+  closeSidebar5();
 }
 
 function handleFittingDrop(e){
@@ -5262,6 +5421,10 @@ Generate 2-3 distinct concepts. Each should have a different angle or format.`;
     if(data.error) throw new Error(data.error.message);
 
     const text = data.content?.find(b=>b.type==='text')?.text || '';
+    currentFittingRawText = text;
+    currentFittingSessionId = null;
+    updateFittingSessionBadge('');
+    document.getElementById('fittingSaveBtn').textContent = 'Save session';
     processing.style.display = 'none';
     results.style.display = 'block';
     renderFittingConcepts(text);
@@ -5274,9 +5437,12 @@ Generate 2-3 distinct concepts. Each should have a different angle or format.`;
   }
 }
 
+// In-memory store for concept data — avoids HTML attribute truncation
+let fittingConceptStore = [];
+
 function renderFittingConcepts(text){
   const container = document.getElementById('fittingConceptsContainer');
-  container.dataset.rawText = text;
+  fittingConceptStore = []; // reset
 
   // Split on --- separator first, then fall back to ## Concept headers
   let parsed = text.split(/\n---+\n/g).filter(c=>c.trim());
@@ -5299,13 +5465,16 @@ function renderFittingConcepts(text){
     const scriptMatch = concept.match(/\*{0,2}Script[:\*]{0,3}\s*\n([\s\S]*?)(?=\*{0,2}Editor\s*[Nn]otes|$)/i);
     const scriptText = scriptMatch ? scriptMatch[1].trim() : '';
 
+    const notesMatch = concept.match(/\*{0,2}Editor\s*[Nn]otes[:\*]{0,3}\s*\n?([\s\S]*?)(?=---+|## Concept|$)/i);
+    const notes = notesMatch ? notesMatch[1].trim() : '';
+
+    // Store full data in JS — never in HTML attributes
+    fittingConceptStore[i] = { title, hooks, scriptText: scriptText || concept.trim(), notes };
+
     const formattedScript = scriptText
       .replace(/\*\*([^*\n]+)\*\*/g,'<strong style="color:var(--rose-dark);">$1</strong>')
       .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
       .replace(/\n/g,'<br>');
-
-    const notesMatch = concept.match(/\*{0,2}Editor\s*[Nn]otes[:\*]{0,3}\s*\n?([\s\S]*?)(?=---+|## Concept|$)/i);
-    const notes = notesMatch ? notesMatch[1].trim() : '';
 
     const hookBtns = hooks.map((h, hi) => `
       <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
@@ -5318,11 +5487,7 @@ function renderFittingConcepts(text){
     `).join('');
 
     return `
-      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;"
-           data-concept-idx="${i}"
-           data-hooks='${JSON.stringify(hooks).replace(/'/g,"&#39;")}'
-           data-script='${encodeURIComponent(scriptText)}'
-           data-title='${encodeURIComponent(title)}'>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;">
         <div style="background:var(--cream);padding:14px 18px;border-bottom:1px solid var(--border);">
           <p style="font-size:13px;font-weight:600;color:var(--charcoal);margin:0;">${escHtml(title)}</p>
         </div>
@@ -5350,14 +5515,12 @@ function renderFittingConcepts(text){
 }
 
 function saveFittingHook(btn, conceptIdx, hookIdx){
-  const container = document.getElementById('fittingConceptsContainer');
-  const card = container.querySelector('[data-concept-idx="'+conceptIdx+'"]');
-  if(!card){ showToast('Could not find concept data.'); return; }
+  const concept = fittingConceptStore[conceptIdx];
+  if(!concept){ showToast('Could not find concept data.'); return; }
 
-  const hooks = JSON.parse(card.dataset.hooks.replace(/&#39;/g,"'"));
-  const hook = hooks[hookIdx] || '';
-  const scriptText = decodeURIComponent(card.dataset.script || '');
-  const title = decodeURIComponent(card.dataset.title || '');
+  const hook = concept.hooks[hookIdx] || '';
+  const scriptText = concept.scriptText || '';
+  const title = concept.title || '';
 
   const ideas = getAllIdeas();
   const id = 'idea_' + Date.now();
@@ -5365,7 +5528,7 @@ function saveFittingHook(btn, conceptIdx, hookIdx){
     id,
     hook: hook,
     format: 'Before/After — ' + title,
-    notes: scriptText ? '=== FITTING SCRIPT ===\n\n' + scriptText : '',
+    notes: '=== FITTING SCRIPT ===\n\n' + scriptText,
     source: 'fitting',
     createdAt: Date.now(),
     updatedAt: Date.now()
