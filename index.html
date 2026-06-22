@@ -5380,6 +5380,8 @@ OUTPUT FORMAT — use exactly this structure for each concept:
 
 ## Concept [N]: [Title]
 **Format:** [format name e.g. Before/After, Common Belief Buster, The Feeling of Trust]
+**Why this works:** [1 sentence — what angle this takes and who it will resonate with, e.g. "Targets viewers who've normalized discomfort; the 'I'm just used to it' moment is highly relatable and shareable."]
+**Audio mood:** [1 sentence — vibe/energy for the sound, e.g. "Trending sound with a slow build to a satisfying or uplifting payoff." or "Short, punchy audio with a comedic or surprising beat."]
 **Hook options:**
 - [hook option 1]
 - [hook option 2]
@@ -5498,6 +5500,12 @@ function renderFittingConcepts(text){
       || concept.match(/\*\*Concept\s*\d+[:\s]+(.+)\*\*/i);
     const title = titleMatch ? titleMatch[1].replace(/\*+/g,'').trim() : 'Concept ' + (i+1);
 
+    // Rationale and audio mood
+    const rationaleMatch = concept.match(/\*{0,2}Why this works\*{0,2}\s*:?\s*(.+)/i);
+    const rationale = rationaleMatch ? rationaleMatch[1].trim() : '';
+    const audioMatch = concept.match(/\*{0,2}Audio mood\*{0,2}\s*:?\s*(.+)/i);
+    const audioMood = audioMatch ? audioMatch[1].trim() : '';
+
     // Hook options — everything between "Hook options:" and "Script:" (with or without ** or ##)
     const hookSection = concept.match(/\*{0,2}Hook\s+options\*{0,2}\s*:?\s*\n([\s\S]*?)(?=\n\*{0,2}Script|\n##\s*Script|\n---)/i);
     const hooks = hookSection
@@ -5537,6 +5545,11 @@ function renderFittingConcepts(text){
         <div style="background:var(--cream);padding:14px 18px;border-bottom:1px solid var(--border);">
           <p style="font-size:13px;font-weight:600;color:var(--charcoal);margin:0;">${escHtml(title)}</p>
         </div>
+        ${(rationale || audioMood) ? `
+        <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px;">
+          ${rationale ? `<p style="font-size:12px;color:var(--charcoal);line-height:1.5;margin:0;"><span style="font-weight:600;color:var(--mid);">Why it works:</span> ${escHtml(rationale)}</p>` : ''}
+          ${audioMood ? `<p style="font-size:12px;color:var(--charcoal);line-height:1.5;margin:0;"><span style="font-weight:600;color:var(--mid);">🎵 Audio:</span> ${escHtml(audioMood)}</p>` : ''}
+        </div>` : ''}
         ${hooks.length ? `
         <div style="padding:14px 18px;border-bottom:1px solid var(--border);">
           <p style="font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Hook options</p>
