@@ -5550,15 +5550,24 @@ function renderFittingConcepts(text){
       .replace(/\*([^*\n]+)\*/g,'<em>$1</em>')
       .replace(/\n/g,'<br>');
 
-    const hookBtns = hooks.map((h, hi) => `
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
-        <p style="font-size:13px;color:var(--charcoal);flex:1;line-height:1.5;margin:0;">${escHtml(h)}</p>
-        <button onclick="saveFittingHook(this,${i},${hi})"
-          style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-          + Save to Ideas
-        </button>
+    const hookBtns = hooks.map((h, hi) => {
+      const usedKey = `hook_used_${currentFittingSessionId}_${i}_${hi}`;
+      const isUsed = localStorage.getItem(usedKey) === '1';
+      return `
+      <div id="hookrow_${i}_${hi}" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);${isUsed ? 'opacity:0.5;' : ''}">
+        <p style="font-size:13px;color:var(--charcoal);flex:1;line-height:1.5;margin:0;${isUsed ? 'text-decoration:line-through;' : ''}">${escHtml(h)}</p>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="toggleHookUsed(this,${i},${hi})"
+            style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:${isUsed ? 'var(--mid)' : 'var(--charcoal)'};background:${isUsed ? 'var(--border)' : 'var(--cream)'};border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap;">
+            ${isUsed ? '✓ Used' : 'Mark used'}
+          </button>
+          <button onclick="saveFittingHook(this,${i},${hi})"
+            style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#fff;background:var(--rose);border:none;border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap;">
+            + Save to Ideas
+          </button>
+        </div>
       </div>
-    `).join('');
+    `}).join('');
 
     return `
       <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;">
@@ -5591,6 +5600,26 @@ function renderFittingConcepts(text){
     <summary style="font-size:12px;color:var(--mid);cursor:pointer;padding:8px 0;">Show raw AI output</summary>
     <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:8px;white-space:pre-wrap;font-size:12px;line-height:1.7;color:var(--charcoal);">${escHtml(text)}</div>
   </details>`;
+}
+
+function toggleHookUsed(btn, conceptIdx, hookIdx){
+  const usedKey = `hook_used_${currentFittingSessionId}_${conceptIdx}_${hookIdx}`;
+  const isNowUsed = localStorage.getItem(usedKey) !== '1';
+  if(isNowUsed){
+    localStorage.setItem(usedKey, '1');
+  } else {
+    localStorage.removeItem(usedKey);
+  }
+  // Update the row visually
+  const row = document.getElementById(`hookrow_${conceptIdx}_${hookIdx}`);
+  if(row){
+    row.style.opacity = isNowUsed ? '0.5' : '1';
+    const textEl = row.querySelector('p');
+    if(textEl) textEl.style.textDecoration = isNowUsed ? 'line-through' : '';
+    btn.textContent = isNowUsed ? '✓ Used' : 'Mark used';
+    btn.style.color = isNowUsed ? 'var(--mid)' : 'var(--charcoal)';
+    btn.style.background = isNowUsed ? 'var(--border)' : 'var(--cream)';
+  }
 }
 
 function saveFittingHook(btn, conceptIdx, hookIdx){
