@@ -5467,19 +5467,31 @@ function renderFittingConcepts(text){
   const container = document.getElementById('fittingConceptsContainer');
   fittingConceptStore = []; // reset
 
+  // Strip any preamble before the first concept (e.g. EDITOR ALERT blocks)
+  const firstConceptIdx = text.search(/^## Concept \d/im);
+  const cleanText = firstConceptIdx > 0 ? text.slice(firstConceptIdx) : text;
+
   // Split ONLY on --- separators between concepts, or on ## Concept N: lines
   // Never split on sub-headers like ## Hook options or ## Script
-  let parsed = text.split(/\n---+\n/g).filter(c=>c.trim());
-  if(parsed.length <= 1) parsed = text.split(/(?=^## Concept \d)/gm).filter(c=>c.trim());
+  let parsed = cleanText.split(/\n---+\n/g).filter(c=>c.trim());
+  if(parsed.length <= 1) parsed = cleanText.split(/(?=^## Concept \d)/gim).filter(c=>c.trim());
   // If still only one block, try splitting on bold concept headers like **Concept 1:**
-  if(parsed.length <= 1) parsed = text.split(/(?=^\*\*Concept \d)/gm).filter(c=>c.trim());
+  if(parsed.length <= 1) parsed = cleanText.split(/(?=^\*\*Concept \d)/gm).filter(c=>c.trim());
 
   if(!parsed.length){
     container.innerHTML = '<div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:20px;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--charcoal);">' + escHtml(text) + '</div>';
     return;
   }
 
-  container.innerHTML = parsed.map((concept, i) => {
+  // If there was a preamble (editor alert etc), show it as a banner
+  const preamble = firstConceptIdx > 0 ? text.slice(0, firstConceptIdx).trim() : '';
+  const preambleBanner = preamble ? `
+    <div style="background:#FFF8E7;border:1px solid #F5E4A0;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+      <p style="font-size:11px;font-weight:600;color:#8B7500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">⚠️ Editor Alert</p>
+      <div style="font-size:12px;color:#6B5900;line-height:1.6;white-space:pre-wrap;">${escHtml(preamble.replace(/##\s*⚠️?\s*EDITOR ALERT[^\n]*/i,'').trim())}</div>
+    </div>` : '';
+
+  container.innerHTML = preambleBanner + parsed.map((concept, i) => {
     // Only match actual Concept N titles — never sub-headers like Hook options or Script
     const titleMatch = concept.match(/##\s*Concept\s*\d+[:\s]+(.+)/i)
       || concept.match(/\*\*Concept\s*\d+[:\s]+(.+)\*\*/i);
