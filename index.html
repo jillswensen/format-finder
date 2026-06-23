@@ -5277,21 +5277,44 @@ function handleFittingDrop(e){
 }
 
 function parseVTT(raw){
-  // Strip WEBVTT header, NOTE blocks, and timestamp lines; keep only spoken text
-  return raw
-    .split('\n')
-    .filter(line => {
-      const t = line.trim();
-      if(!t) return false;
-      if(t === 'WEBVTT') return false;
-      if(t.startsWith('NOTE')) return false;
-      if(/^\d+$/.test(t)) return false; // cue index numbers
-      if(/\d{2}:\d{2}[\d:,.]+\s*-->\s*\d{2}:\d{2}/.test(t)) return false; // timestamp lines
-      return true;
-    })
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  // Convert VTT into readable transcript with timestamps inline
+  // Output format: [MM:SS] spoken text
+  const lines = raw.split('\n');
+  const output = [];
+  let currentTimestamp = '';
+
+  for(let i = 0; i < lines.length; i++){
+    const t = lines[i].trim();
+    if(!t) continue;
+    if(t === 'WEBVTT') continue;
+    if(t.startsWith('NOTE')) continue;
+    if(/^\d+$/.test(t)) continue; // cue index numbers
+
+    // Timestamp line — extract start time only
+    const tsMatch = t.match(/(\d{1,2}:\d{2}(?::\d{2})?)[.,]\d+\s*-->/);
+    if(tsMatch){
+      // Normalize to MM:SS (strip hours if 00)
+      const parts = tsMatch[1].split(':');
+      if(parts.length === 3 && parts[0] === '00'){
+        currentTimestamp = `[${parts[1]}:${parts[2]}]`;
+      } else if(parts.length === 3){
+        currentTimestamp = `[${parts[0]}:${parts[1]}:${parts[2]}]`;
+      } else {
+        currentTimestamp = `[${tsMatch[1]}]`;
+      }
+      continue;
+    }
+
+    // Spoken text line — prepend the current timestamp
+    if(currentTimestamp){
+      output.push(`${currentTimestamp} ${t}`);
+      currentTimestamp = ''; // only label first line of each cue
+    } else {
+      output.push(t); // continuation line without timestamp
+    }
+  }
+
+  return output.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function handleFittingFiles(e){
