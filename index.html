@@ -2720,8 +2720,7 @@ Be specific, data-driven, and direct. Reference the account's actual benchmark d
    SUPABASE CLOUD SYNC
 ════════════════════════════════════════════ */
 
-const SUPABASE_URL = 'https://lokbwadszzmfsqcbrmrl.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxva2J3YWRzenptZnNxY2JybXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNzE0NDcsImV4cCI6MjA5NDc0NzQ0N30.InBfUDtqQFDKz11RvxOtF2cS9J96XYpyloZV0gcMcbk';
+const CF_WORKER_URL = 'https://royal-hill-9211.patient-lab-781b.workers.dev';
 const SYNC_USER_KEY = 'ff_sync_user_id';
 
 function getSyncUserId() {
@@ -2736,20 +2735,10 @@ function getSyncUserId() {
 async function syncPush(key, value) {
   try {
     const userId = getSyncUserId();
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/cff_sync`, {
+    const resp = await fetch(`${CF_WORKER_URL}?user_id=${encodeURIComponent(userId)}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        key: key,
-        value: value,
-        updated_at: new Date().toISOString()
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value })
     });
     return resp.ok;
   } catch(e) {
@@ -2761,15 +2750,7 @@ async function syncPush(key, value) {
 async function syncPull() {
   try {
     const userId = getSyncUserId();
-    const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/cff_sync?user_id=eq.${encodeURIComponent(userId)}`,
-      {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        }
-      }
-    );
+    const resp = await fetch(`${CF_WORKER_URL}?user_id=${encodeURIComponent(userId)}`);
     if (!resp.ok) return false;
     const rows = await resp.json();
     let updated = false;
@@ -2809,23 +2790,10 @@ async function manualSyncNow(){
   if(el){ el.style.display='block'; el.style.background='#F0F9FF'; el.style.color='#0369A1'; el.textContent='Syncing…'; }
   try {
     await syncPushAll();
-    const userId = getSyncUserId();
-    const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/cff_sync?user_id=eq.${encodeURIComponent(userId)}`,
-      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
-    );
-    const rows = await resp.json();
-    const keys = rows.map(r => r.key);
-    for(const row of rows){
-      localStorage.setItem(row.key, row.value);
-    }
+    await syncPull();
     try{ renderSelector(); } catch(e){}
     try{ renderFittingSidebar(); } catch(e){}
-    if(el){
-      el.style.background='#F0FDF4';
-      el.style.color='#166534';
-      el.textContent=`✓ Found ${rows.length} rows: ${keys.join(', ') || 'none'}`;
-    }
+    if(el){ el.style.background='#F0FDF4'; el.style.color='#166534'; el.textContent='✓ Sync successful — your data is backed up to the cloud.'; }
   } catch(e) {
     if(el){ el.style.background='#FEF2F2'; el.style.color='#991B1B'; el.textContent='✗ Sync failed: ' + e.message; }
   }
