@@ -202,7 +202,7 @@ body{
 }
 .sidebar-new:hover{background:var(--blush);}
 
-.conversations-list{flex:1;overflow-y:auto;padding:0 10px 20px;}
+.conversations-list{flex:1;overflow-y:auto;padding:0 10px 12px;min-height:0;}
 .conversations-list::-webkit-scrollbar{width:3px;}
 .conversations-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
@@ -1262,7 +1262,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 }
 
 .sidebar-settings-btn{
-  margin:auto 16px 16px;
+  margin:0 16px 16px;
   padding:9px 14px;
   background:var(--white);
   border:1px solid var(--border);
@@ -1468,6 +1468,10 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
     <button class="sidebar-new" onclick="newStoriesConversation()">+ New conversation</button>
     <div class="conversations-list" id="storiesConvList"></div>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+      Settings
+    </button>
   </div>
 
   <header class="page-header">
@@ -1542,6 +1546,10 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
     <button class="sidebar-new" onclick="newFittingSession()">+ New session</button>
     <div class="conversations-list" id="fittingSessionList"></div>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+      Settings
+    </button>
   </div>
 
   <header class="page-header">
@@ -1682,6 +1690,10 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
     <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
     <div class="conversations-list" id="convList"></div>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+      Settings
+    </button>
   </div>
 
   <header class="page-header">
@@ -1788,6 +1800,10 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
     <button class="sidebar-switch-btn" onclick="switchBusiness()">&#8592; Switch business</button>
     <button class="sidebar-new" onclick="newConversation()">+ New conversation</button>
     <div class="conversations-list" id="convList2"></div>
+    <button class="sidebar-settings-btn" onclick="openSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m2.12-2.12l4.24-4.24"/></svg>
+      Settings
+    </button>
   </div>
 
   <header class="page-header">
@@ -4812,20 +4828,18 @@ initWithSync();
 
 function openSettings(){
   const panel = document.getElementById('settingsPanel');
+  if(!panel) return;
+
   const keyInput = document.getElementById('openaiKeyInput');
   const existingKey = localStorage.getItem('ff_openai_key');
-  
-  if(existingKey){
-    keyInput.value = existingKey;
-    updateOpenAIStatus(true);
-  } else {
-    keyInput.value = '';
-    updateOpenAIStatus(false);
+  if(keyInput){
+    keyInput.value = existingKey || '';
+    try{ updateOpenAIStatus(!!existingKey); } catch(e){}
   }
-  
+
   const syncInput = document.getElementById('syncUserIdInput');
-if(syncInput) syncInput.value = getSyncUserId();
-  
+  if(syncInput) syncInput.value = getSyncUserId();
+
   panel.classList.add('open');
 }
 
