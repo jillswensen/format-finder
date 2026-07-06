@@ -2809,7 +2809,10 @@ async function manualSyncNow(){
   if(el){ el.style.display='block'; el.style.background='#F0F9FF'; el.style.color='#0369A1'; el.textContent='Syncing…'; }
   try {
     await syncPushAll();
-    const updated = await syncPull();
+    await syncPull();
+    // Re-render everything so newly pulled data appears immediately
+    try{ renderSelector(); } catch(e){}
+    try{ renderFittingSidebar(); } catch(e){}
     if(el){ el.style.background='#F0FDF4'; el.style.color='#166534'; el.textContent='✓ Sync successful — your data is backed up to the cloud.'; }
   } catch(e) {
     if(el){ el.style.background='#FEF2F2'; el.style.color='#991B1B'; el.textContent='✗ Sync failed — check your connection and try again.'; }
@@ -2860,6 +2863,7 @@ async function initWithSync() {
     showSyncStatus('✓ Up to date');
     setTimeout(() => showSyncStatus(''), 2500);
     renderSelector();
+    try{ renderFittingSidebar(); } catch(e){}
   } else {
     setTimeout(()=>document.getElementById('gateInput').focus(),100);
   }
