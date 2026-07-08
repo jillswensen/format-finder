@@ -3227,7 +3227,7 @@ function formatTextWithHooks(text, role){
 
   // Detect if this message contains format suggestions (has bold format names + numbered hooks)
   // Look for pattern: **Format Name** followed by numbered hook lines
-  const formatBlockRegex = /\*\*([^*]{5,80}(?:Format|format|Skit|Story|Challenge|Parody|Vlog|Buster|Tutorial|Hack|Ranking|Reaction|Reveal|Ad|Stitch|Duet)[^*]{0,40})\*\*/g;
+  const formatBlockRegex = /\*\*([^*]{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b)[^*]{0,40})\*\*/gi;
   const hasFormatCards = formatBlockRegex.test(text);
 
   if(!hasFormatCards) return formatText(text);
@@ -3241,7 +3241,7 @@ function formatTextWithHooks(text, role){
   let inPreCard = true;
 
   lines.forEach(line => {
-    const boldFormatMatch = line.match(/^\*\*(.{5,80}(?:Format|Skit|Story|Challenge|Parody|Vlog|Buster|Tutorial|Hack|Ranking|Reaction|Reveal|Ad|Stitch|Duet|Wait|Reel).{0,40})\*\*\s*$/i);
+    const boldFormatMatch = line.match(/^\*\*(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\*\*\s*$/i);
     const hookMatch = line.match(/^[\d]+[.)]\s+(.{15,})$/) || line.match(/^[-•]\s+(.{15,})$/);
 
     if(boldFormatMatch){
