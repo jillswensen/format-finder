@@ -2285,6 +2285,8 @@ CAPTION & HASHTAG RULES (non-negotiable):
 - Caption should drive a specific engagement action — a comment vote, a question for viewers to answer, or a reaction prompt. Not just a description of the video.
 - Hashtags: always exactly 5, always include #brafittingsbycourt, fill remaining 4 with intent-based niche-specific tags that target users actively searching for solutions — not broad reach tags
 - NEVER use local or geographic hashtags by default (#kaysville, #utah, #slc, #utahcheck, #utahbusiness, or any location-based tag) — only include a local tag if the video content is explicitly and specifically about the Utah location
+- Output ONLY the final caption and hashtags — do not include a self-check list, quality checklist, or verification bullets after the caption. Verify the rules internally before responding; show only the finished result.
+- Write the caption as plain text — do not wrap it in blockquote markers (">"), backticks, or code formatting of any kind.
 
 INSTAGRAM ALGORITHM UPDATE (current as of 2025):
 Instagram has re-ranked the metrics that drive Reel reach, in order of importance:
@@ -2304,8 +2306,8 @@ PRODUCT NAMING STRATEGY:
 - POST-PUBLISHING strategy: immediately after posting, add a comment from the account listing all products with a CTA to shop, then pin that comment. Example: "For everyone asking! Here are our picks: 👇 Courtney: [Product] | Jill: [Product] | Shop all at link in bio"
 - In the caption: direct viewers to the pinned comment or link in bio for product details
 
-CANVA COVER IMAGE SPECS:
-Cover images are created in Canva at 1080x1920px (9:16). All text must stay within the center square — covers are cropped to 1:1 for the grid. Always use authentic in-action footage as the background (never a graphic or logo-heavy overlay). Add a semi-transparent rectangle element over the background (70–80% transparency, black or brand color) for text contrast. Text styling: white, black drop shadow. Text placement: lower third of the frame, centered, within the safe center square.
+COVER IMAGE:
+Cover image behavior (whether a separate graphic is needed, and general styling philosophy) is defined in the CURRENT BUSINESS NICHE section below — follow that guidance. Do not include font, color, letter spacing, or Canva styling recommendations in your output — the user has their font and design workflow already figured out. Only provide the hook text options and shot selection described below.
 
 COVER IMAGE OUTPUT FORMAT — always generate all of the following:
 
@@ -2316,14 +2318,7 @@ COVER IMAGE OUTPUT FORMAT — always generate all of the following:
    - One- or two-line layout recommendation with reasoning (two lines = punchline effect, controls reader beat; one line = immediate statement)
    - Why this hook creates curiosity or stops the scroll for this specific video
 
-3. FONT & STYLE RECOMMENDATION: Match the font choice to the tone of the video:
-   - Parody / dry humor → elegant serif (Playfair Display or similar) — unearned seriousness amplifies the joke
-   - Emotional / transformation → bold but warm sans-serif (Montserrat ExtraBold)
-   - Educational / authoritative → condensed impact font (Anton, Bebas Neue, or League Spartan)
-   - High-energy / challenge → heavy display font (Anton or Montserrat Black)
-   For each recommendation: font name, color (almost always white), Canva effect to apply (Lift for subtle shadow, Background for a semi-transparent bar), and letter spacing note if relevant.
-
-4. FINAL RECOMMENDATION: Pick one text hook and one font/style as the clear winner, with a one-sentence reason.
+3. FINAL RECOMMENDATION: Pick one text hook option as the clear winner, with a one-sentence reason.
 
 
 CAPCUT EDITING NOTES (include in every script output):
@@ -2342,7 +2337,7 @@ GENERAL EDITING RULES:
 - Add one stylized transition maximum per reel — at the single most impactful moment only
 - White Flash is the go-to for before/after reveals on this account
 - Keep A-roll lines written conversationally — the way someone would actually say them, not how they'd write them
-- Always end with: run Auto-Captions, apply standard styling (System font, white, size 12, Black Shadow 60% opacity/30% blur, centered above bottom UI)
+- Always end with: run Auto-Captions after export
 
 RULES:
 - No guilt-inducing or manipulative messaging
@@ -2382,6 +2377,8 @@ CAPTION QUALITY RULES — apply these to every caption output:
 - Length: aim for 20-30 words, 35 absolute max. Every word earns its place.
 - Always offer both CTA paths: book an in-person fitting in Kaysville AND use the free size calculator online. Both links in bio.
 - Hashtags must be intent-based and niche-specific — target users actively searching for solutions (#boudoirprep, #bridallingerie, #brafitting) not broad reach tags (#bride, #fyp). Always include #brafittingsbycourt.
+- Output ONLY the final caption and hashtags — do not include a self-check list, quality checklist, or verification bullets (e.g. "Caption checks: ✓ Hook is under 125 characters") after the caption. Verify the rules internally before responding; show only the finished result.
+- Write the caption as plain text — do not wrap it in blockquote markers (">"), backticks, or code formatting of any kind.
 
 ══════════════════════════════════════════════
 AVAILABLE FORMATS — suggest the best fit for each idea
@@ -3341,14 +3338,59 @@ function formatTextWithHooks(text, role){
 }
 
 function formatText(text){
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  // 1. Extract triple-backtick fenced code blocks FIRST, replacing with placeholders,
+  // so their contents survive later table/list/bold/blockquote regex untouched.
+  const codeBlocks = [];
+  let working = text.replace(/```[a-zA-Z]*\n?([\s\S]*?)```/g, (match, inner) => {
+    const escapedInner = inner
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .trim();
+    const html = `<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin:8px 0;font-weight:700;white-space:pre-wrap;line-height:1.5;">${escapedInner.replace(/\n/g,'<br>')}</div>`;
+    codeBlocks.push(html);
+    return `@@CFFCODEBLOCK${codeBlocks.length - 1}@@`;
+  });
+
+  // 2. Strip markdown blockquote markers ("> text" -> "text"; bare ">" lines become blank
+  // lines). Do this on raw text BEFORE HTML-escaping, since escaping turns ">" into "&gt;"
+  // which then displays as a literal ">" character instead of being recognized as markup.
+  working = working.replace(/^>[ \t]?(.*)$/gm, '$1');
+
+  // 3. Escape HTML special characters
+  let escaped = working
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // 4. Strip single-backtick inline code spans (e.g. hashtags wrapped in `...`) —
+  // just remove the backticks, no special styling needed for this app's content.
+  escaped = escaped.replace(/`([^`\n]+)`/g, '$1');
+
+  // 5. Parse markdown tables (header row, separator row, 1+ data rows) into real HTML tables.
+  const tableBlockRegex = /^\|(.+)\|[ \t]*\r?\n\|[ \t:|-]+\|[ \t]*\r?\n((?:\|.*\|[ \t]*\r?\n?)+)/gm;
+  escaped = escaped.replace(tableBlockRegex, (match, headerLine, bodyLines) => {
+    const splitRow = row => row.split('|').map(c=>c.trim()).filter((c,i,arr)=> !(i===0&&c==='') && !(i===arr.length-1&&c===''));
+    const headers = splitRow(headerLine);
+    const rows = bodyLines.trim().split(/\r?\n/).map(r=>splitRow(r)).filter(r=>r.length);
+    let tableHtml = '<table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;">';
+    tableHtml += '<thead><tr>' + headers.map(h=>`<th style="text-align:left;padding:6px 10px;border-bottom:2px solid var(--border);color:var(--charcoal);font-weight:600;">${h}</th>`).join('') + '</tr></thead>';
+    tableHtml += '<tbody>' + rows.map(r=>'<tr>' + r.map(c=>`<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--charcoal);vertical-align:top;">${c}</td>`).join('') + '</tr>').join('') + '</tbody>';
+    tableHtml += '</table>';
+    return tableHtml;
+  });
+
+  let result = escaped
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
     .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
     .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
-    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')
+    .replace(/(<table[\s\S]*?<\/table>)/g, (m)=> m.replace(/<br\s*\/?>/g,''));
+
+  // 6. Restore fenced code block placeholders with their final rendered HTML
+  codeBlocks.forEach((html, i) => {
+    result = result.replace(`@@CFFCODEBLOCK${i}@@`, html);
+  });
+
+  return result;
 }
 
 function scrollBottom(){const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;}
@@ -4175,10 +4217,10 @@ Please generate the following four sections:
 A-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational. Scale length to fit approximately ${selectedScriptDuration}.
 
 **2. On-Screen Text**
-List each text overlay with: exact text, which clip it appears on, any font/animation notes.
+List each text overlay with: exact text, which clip it appears on.
 
 **3. Cover Image**
-Best shot to use, Canva text hook options, font recommendation, semi-transparent rectangle if needed.
+Best shot to use, on-screen text hook options (2-3, with reasoning), final pick.
 
 **4. CapCut Editing Notes**
 Clip order, transitions (Jump Cut default; White Flash for reveals; Pull In/Out for high energy), speed adjustments, music mood, Auto-Captions reminder.`;
@@ -4271,7 +4313,7 @@ function initTabChat(tab){
 
     let context;
     if(tab==='script'){
-      context=`I want to write a full script for this reel.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease generate the following four sections:\n\n**1. Script**\nA-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational — written the way someone would actually say it, not how they'd write it.\n\n**2. On-Screen Text**\nList each text overlay with: the exact text, which clip or moment it appears on, and any font or animation notes that differ from the account defaults (System font, white, size 12, Black Shadow 60%/30%, centered above bottom UI).\n\n**3. Cover Image**\nSuggest the ideal cover frame: which moment in the reel to use, what the Canva text overlay should say (short and punchy, as few words as possible), font choice (Montserrat ExtraBold, Anton, or League Spartan), and whether a semi-transparent rectangle background element is needed for readability. Remind that all text must stay within the center square and be placed in the lower third.\n\n**4. CapCut Editing Notes**\nConcise — assume all clips are already filmed on iPhone and the editor knows CapCut well. Include: clip order on the timeline, transition between each clip (default to Jump Cut; use White Flash at Transitions > Overlay for before/after reveals; use Pull In/Pull Out at Transitions > Movement for high-energy scene changes; note any Keyframe Zoom punch-ins needed; note any in-camera transitions that should have been filmed — Clap/Snap, Lens Cover, or Spin), any speed adjustments, music mood/tempo suggestion, and a final line reminding to run Auto-Captions with standard styling. Default to Jump Cuts for 90% of edits — only one stylized transition per reel maximum.`;
+      context=`I want to write a full script for this reel.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease generate the following four sections:\n\n**1. Script**\nA-roll lines (spoken to camera) and B-roll descriptions (what to film), in order. Keep A-roll conversational — written the way someone would actually say it, not how they'd write it.\n\n**2. On-Screen Text**\nList each text overlay with: the exact text, and which clip or moment it appears on.\n\n**3. Cover Image**\nSuggest the ideal cover frame: which moment in the reel to use, and 2-3 on-screen text hook options (short and punchy, as few words as possible) with reasoning for each, plus a final pick.\n\n**4. CapCut Editing Notes**\nConcise — assume all clips are already filmed on iPhone and the editor knows CapCut well. Include: clip order on the timeline, transition between each clip (default to Jump Cut; use White Flash at Transitions > Overlay for before/after reveals; use Pull In/Pull Out at Transitions > Movement for high-energy scene changes; note any Keyframe Zoom punch-ins needed; note any in-camera transitions that should have been filmed — Clap/Snap, Lens Cover, or Spin), any speed adjustments, music mood/tempo suggestion, and a final line reminding to run Auto-Captions. Default to Jump Cuts for 90% of edits — only one stylized transition per reel maximum.`;
     } else {
       const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
       const scriptExists=scriptHistory.length>0;
