@@ -1042,7 +1042,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 /* ── Print / PDF export ── */
 @media print {
   body>*{visibility:hidden;display:none;}
-  #pdf-print-area{display:block!important;visibility:visible;position:fixed;left:0;top:0;width:100%;padding:40px 48px;font-family:'DM Sans',sans-serif;color:#2C2420;}
+  #pdf-print-area{display:block!important;visibility:visible;position:static;width:100%;padding:40px 48px;font-family:'DM Sans',sans-serif;color:#2C2420;}
   #pdf-print-area *{visibility:visible;}
   .pdf-biz{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#7A6A65;margin-bottom:6px;}
   .pdf-hook{font-size:22px;font-weight:600;color:#2C2420;line-height:1.3;margin-bottom:8px;}
@@ -2099,6 +2099,11 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           Generate Full Script
         </button>
+        <div style="margin-top:14px;">
+          <button onclick="useNotesAsScript()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;cursor:pointer;transition:border-color 0.15s;">
+            Already have a finished script in Notes? Use it as-is →
+          </button>
+        </div>
       </div>
       <!-- Chat area (shown after generation) -->
       <div class="tab-chat-area" id="scriptChatArea" style="display:none;">
@@ -2300,12 +2305,6 @@ Hook quality directly controls distribution. Every script decision must prioriti
 
 REEL LENGTH RULE: Reels over 3 minutes are NOT recommended to new audiences. Keep all content under 3 minutes. For this account, target under 60 seconds whenever possible.
 
-PRODUCT NAMING STRATEGY:
-- Do NOT put product names on screen in reveal, transformation, or showcase formats — it kills pacing, pre-empts comment engagement, and may send traffic away from the account
-- The goal is to generate "What is she wearing?!" comments — those drive algorithm signals and create direct customer conversations
-- POST-PUBLISHING strategy: immediately after posting, add a comment from the account listing all products with a CTA to shop, then pin that comment. Example: "For everyone asking! Here are our picks: 👇 Courtney: [Product] | Jill: [Product] | Shop all at link in bio"
-- In the caption: direct viewers to the pinned comment or link in bio for product details
-
 COVER IMAGE:
 Cover image behavior (whether a separate graphic is needed, and general styling philosophy) is defined in the CURRENT BUSINESS NICHE section below — follow that guidance. Do not include font, color, letter spacing, or Canva styling recommendations in your output — the user has their font and design workflow already figured out. Only provide the hook text options and shot selection described below.
 
@@ -2338,6 +2337,8 @@ GENERAL EDITING RULES:
 - White Flash is the go-to for before/after reveals on this account
 - Keep A-roll lines written conversationally — the way someone would actually say them, not how they'd write them
 - Always end with: run Auto-Captions after export
+- Do NOT add a "Final Checklist" section, checkbox list, or export-spec summary (resolution, frame rate, etc.) at the end of the CapCut notes — the transitions, speed, and music guidance above is the complete output. Stop there.
+- Do NOT recommend a specific volume percentage for music (e.g. "15-20%" or "at low volume 5-10%") — just describe the mood/vibe. Volume level is a manual mixing decision made in the edit, not something to prescribe.
 
 RULES:
 - No guilt-inducing or manipulative messaging
@@ -2662,7 +2663,7 @@ CAPCUT DESKTOP EDITING NOTES:
 - For ticking clock tension: split the audio clip multiple times and delete small gaps to make ticking progressively faster
 - Screen recording overlay: place on track above main timeline → Video panel → Mask → Rectangle → adjust Corner Radius for phone screen look
 - Color grade: Adjustments panel per clip — problem scenes: lower Saturation + raise Contrast; solution/payoff scenes: raise Brightness + Saturation
-- Introduce soft uplifting music at low volume (5–10%) starting at the solution scene
+- Introduce soft uplifting music starting at the solution scene
 - Text: white, drop shadow, lower third. CTA text bold and specific.
 
 ORGANIC-FIRST TESTING STRATEGY — always recommend this workflow when scripting ads:
@@ -3414,7 +3415,7 @@ async function sendMessage(){
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:2000,
+        max_tokens:8000,
         system:CHAT_SYSTEM_PREFIX+getCurrentNiche(),
         messages:history
       })
@@ -3562,7 +3563,7 @@ Provide a thorough analysis grounded in this account's specific benchmark data.$
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:1500,
+        max_tokens:3000,
         system:ANALYZE_SYSTEM,
         messages:[{role:'user',content:messageContent}]
       })
@@ -3947,7 +3948,7 @@ async function initFilmingTab(){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
@@ -4159,7 +4160,7 @@ async function generateChecklistInBackground(){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
@@ -4193,6 +4194,34 @@ function selectScriptDuration(btn,dur){
 function syncDurationPills(){
   document.querySelectorAll('.script-dur-pill').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.script-dur-pill').forEach(p=>{if(p.textContent.trim()===selectedScriptDuration)p.classList.add('active');});
+}
+
+function useNotesAsScript(){
+  if(!currentIdeaId)return;
+  const all=getAllIdeas();const idea=all[currentIdeaId];if(!idea)return;
+  const notesEl=document.getElementById('notesTextarea');
+  const notes=(notesEl&&notesEl.value.trim())||(idea.notes&&idea.notes.trim())||'';
+  if(!notes){ showToast('Paste your finished script into Notes first.'); return; }
+
+  // Use the notes content directly as the "script" — no AI call, so nothing about
+  // it (including the caption) gets rewritten or reinterpreted.
+  tabChatHistory.script[currentIdeaId]=[
+    {role:'user',content:'(Using existing script from Notes — no changes requested.)'},
+    {role:'assistant',content:notes}
+  ];
+  saveTabHistory('script');
+
+  document.getElementById('scriptPreGenerate').style.display='none';
+  document.getElementById('scriptChatArea').style.display='flex';
+  document.getElementById('scriptMessages').innerHTML='';
+  appendTabBubble('script','user','(Using existing script from Notes — no changes requested.)');
+  appendTabBubble('script','assistant',notes);
+
+  // Generate the filming checklist in the background from this script, same as normal generation
+  if(!idea.shotPlan){
+    setTimeout(()=>generateChecklistInBackground(),500);
+  }
+  showToast('Using your Notes as the script ✓');
 }
 
 async function triggerScriptGenerate(){
@@ -4359,7 +4388,7 @@ async function sendTabAuto(tab){
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:4000,
+        max_tokens:8000,
         system:getTabSystemPrompt(),
         messages:history
       })
@@ -4601,7 +4630,7 @@ async function sendStoriesMessage(){
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:2000,
+        max_tokens:3000,
         system:STORIES_SYSTEM+(getCurrentNiche()?'\n\nCURRENT NICHE:\n'+getCurrentNiche():''),
         messages:storiesHistory
       })
@@ -4732,18 +4761,6 @@ function downloadScriptPDF(){
   const bizName=biz?biz.name:'Bra Fittings by Court';
   const dateStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 
-  function toHtml(text){
-    return text
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g,'<em>$1</em>')
-      .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
-      .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
-      .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
-      .replace(/\n\n/g,'<br><br>')
-      .replace(/\n/g,'<br>');
-  }
-
   const printArea=document.getElementById('pdf-print-area');
   printArea.innerHTML=`
     <div class="pdf-biz">${escHtml(bizName)}</div>
@@ -4757,7 +4774,7 @@ function downloadScriptPDF(){
       <div class="pdf-notes-body">${escHtml(notes)}</div>
     </div>`:''}
     <div class="pdf-script-label">Script</div>
-    <div class="pdf-script-body">${toHtml(scriptText)}</div>
+    <div class="pdf-script-body">${formatText(scriptText)}</div>
     <div class="pdf-footer">Generated by Format Finder &nbsp;·&nbsp; ${bizName} &nbsp;·&nbsp; ${dateStr}</div>
   `;
 
@@ -5564,7 +5581,7 @@ CRITICAL FORMATTING RULES:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 8000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
