@@ -3369,6 +3369,12 @@ function formatText(text){
     return tableHtml;
   });
 
+  // 5.5. Convert standalone "---" (3+ dashes) divider lines into real horizontal rules.
+  // Left as literal text, these dashes survive into the clipboard on copy/paste and get
+  // misread by Notion's paste parser as a bullet-list trigger — this is why "---" dividers
+  // were showing up as stray "• --" bullets when pasted into Notion.
+  escaped = escaped.replace(/^[ \t]*-{3,}[ \t]*$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">');
+
   let result = escaped
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
