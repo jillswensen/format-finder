@@ -5564,7 +5564,8 @@ CRITICAL FORMATTING RULES:
 - Separate each concept with a line containing only: ---
 - Use ## for concept titles only (e.g. ## Concept 1: The Size Surprise)
 - Use plain bold **Hook options:** and **Script:** and **Editor notes:** for section headers — NOT ##
-- This prevents the parser from confusing section headers with concept breaks`;
+- This prevents the parser from confusing section headers with concept breaks`
+  + (getCurrentNiche() ? '\n\nCURRENT BUSINESS NICHE (apply these account-specific rules — hook structure, video length, filming location, format definitions, etc. — on top of everything above):\n' + getCurrentNiche() : '');
 
   const userPrompt = 'Here is a fitting session transcript. Find the best before/after moments and generate reel concepts.\n\n' + truncated;
 
