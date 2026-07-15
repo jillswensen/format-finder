@@ -3248,11 +3248,15 @@ function formatTextWithHooks(text, role){
   lines.forEach(line => {
     const boldFormatMatch = line.match(/^\*\*(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\*\*\s*$/i);
     const hookMatch = line.match(/^[\d]+[.)]\s+(.{15,})$/) || line.match(/^[-•]\s+(.{15,})$/);
+    const isHookHeading = /^\*{0,2}hook\s*options?\s*:?\s*\*{0,2}$/i.test(line.trim());
 
     if(boldFormatMatch){
       inPreCard = false;
       if(currentCard) cards.push(currentCard);
       currentCard = {name: boldFormatMatch[1].trim(), hooks: [], extra: []};
+    } else if(isHookHeading){
+      // Skip bare "Hook options:" heading lines — they're structural labels for the
+      // hooks that follow, not part of the card's description/extra text.
     } else if(currentCard && hookMatch){
       currentCard.hooks.push(hookMatch[1].trim());
     } else if(currentCard){
@@ -3825,6 +3829,32 @@ function deleteIdeaFromMenu(){
 
 document.addEventListener('click',()=>closeIdeaMenu());
 
+function setFormatSelectFuzzy(selectId, savedFormat){
+  const select = document.getElementById(selectId);
+  if(!select) return;
+  if(!savedFormat){ select.value=''; return; }
+
+  // Try an exact match first (covers cases where the format was set via this same dropdown)
+  const exactOption = Array.from(select.options).find(o => o.value === savedFormat);
+  if(exactOption){ select.value = savedFormat; return; }
+
+  // Brainstorm card titles are often messier than the plain option text —
+  // e.g. "OPTION 1 — Common Belief Buster (Education)" vs. the option "Common Belief Buster".
+  // Find the option whose text appears as a substring of the saved format (case-insensitive),
+  // preferring the longest match to avoid a short format name matching too broadly.
+  const savedLower = savedFormat.toLowerCase();
+  let bestMatch = null;
+  Array.from(select.options).forEach(o => {
+    if(!o.value) return;
+    const optLower = o.value.toLowerCase();
+    if(savedLower.includes(optLower) && (!bestMatch || optLower.length > bestMatch.length)){
+      bestMatch = optLower;
+      select.value = o.value;
+    }
+  });
+  if(!bestMatch){ select.value=''; }
+}
+
 function openIdeaDetail(id){
   currentIdeaId=id;
   const all=getAllIdeas();
@@ -3836,7 +3866,7 @@ function openIdeaDetail(id){
 
   document.getElementById('detailHookText').textContent=idea.hook;
   document.getElementById('detailStatusSelect').value=idea.status||'idea';
-  document.getElementById('detailFormatSelect').value=idea.format||'';
+  setFormatSelectFuzzy('detailFormatSelect', idea.format||'');
   document.getElementById('detailMeta').textContent='Added '+fmtDate(idea.createdAt);
   const wm=document.getElementById('detailWordmark');
   if(wm){const bizAll=ls(BIZ_KEY);const biz=activeBizId?bizAll[activeBizId]:null;wm.textContent=biz?biz.name:'';}
