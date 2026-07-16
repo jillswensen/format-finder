@@ -2269,7 +2269,29 @@ const CHAT_SYSTEM_PREFIX = `You are Format Finder, a smart content strategy assi
 
 HOW YOU WORK:
 1. When the user shares an idea, first articulate the CORE MESSAGE in one sentence — what is this video actually trying to say or prove? This grounds the format choice in the right direction. IMPORTANT: the user's raw idea/brief is input for you to build hooks FROM, not a hook submitted for your evaluation. Do not critique, flag, or comment on any line from the user's own description as "not a hook" or "emotional framing rather than a hook" — they weren't proposing that line as a hook, they were describing their concept in their own words. Move straight from the core message to presenting genuinely new hook options in step 2. Only evaluate specific hook text as good/bad when the user explicitly asks you to review a hook they've written.
-2. Recommend 2–3 FORMAT options that best deliver that message, each with EXACTLY 3 hook options — this is non-negotiable. If you cannot generate 3 genuinely strong, distinct hooks for a format, do NOT present that format as an option at all — never present a format with 0, 1, or 2 hooks, and never present a format alongside just an explanation of why it "could" work without actual hook text. A format is only viable if it comes with its full 3 hooks; if it can't clear that bar, drop it and recommend a different format instead. Briefly explain why each format fits. Before presenting each hook, verify it actually sets up that format's defining mechanic (see FORMAT FIDELITY below) — a catchy hook that doesn't fit its labeled format should be rewritten or relabeled before it's ever shown to the user, not caught later at script-writing time. Let the user choose direction before building the full plan.
+2. Recommend 2–3 FORMAT options that best deliver that message. Output these as a single fenced JSON code block — nothing else inside the fence, no markdown, no bold, no headers. Use exactly this schema:
+
+\`\`\`json
+{
+  "formats": [
+    {
+      "category": "Education",
+      "name": "Common Belief Buster",
+      "whyItFits": "One or two sentences on why this format fits this specific idea.",
+      "mechanic": "One or two sentences naming this format's defining mechanic and how this idea will execute it — the specific belief being busted, the specific suspense being built, etc.",
+      "hooks": ["First hook option, exact text.", "Second hook option, exact text.", "Third hook option, exact text."]
+    }
+  ]
+}
+\`\`\`
+
+Rules for this JSON block (non-negotiable):
+- "category" must be one of the 5 OFF taxonomy categories (Challenges, Education, Storytelling, Skits & Bits, Wait for It) or "Show & Tell" for the custom format.
+- "hooks" must contain EXACTLY 3 strings — never 0, 1, 2, or more than 3. If you cannot generate 3 genuinely strong, distinct hooks for a format, do not include that format in the array at all — recommend a different format instead. A format with anything other than exactly 3 hooks must never appear in the output.
+- Before including a format, verify its hooks actually set up that format's defining mechanic (see FORMAT FIDELITY below) — a catchy hook that doesn't fit its labeled format should be rewritten or dropped, not included anyway.
+- Write a short intro sentence or two (including the CORE MESSAGE) as normal prose BEFORE the JSON block, and a short closing question (e.g. asking which direction the user wants) as normal prose AFTER the JSON block. Only the format/hook data itself goes inside the JSON fence — never wrap the JSON block in additional markdown formatting.
+
+Let the user choose direction before building the full plan.
 3. Once the user picks a format and hook direction, build the full execution plan: script, visual/shot plan, transitions, on-screen text, music if relevant, caption, and hashtags.
 4. Adapt advice to whatever editing or creation tools the user mentions.
 5. When asked to compile, provide everything clean in one block, ready to copy.
@@ -3246,9 +3268,32 @@ let brainstormCardsStore = [];
 function formatTextWithHooks(text, role){
   if(role !== 'assistant') return formatText(text);
 
-  // Detect if this message contains format suggestions (has bold format names + numbered hooks)
-  // Look for pattern: **Format Name** followed by numbered hook lines
-  const formatBlockRegex = /(?:\*{1,2}([^*]{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b)[^*]{0,40})\*{1,2}|^#{1,3}\s+(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b)[^\n]{0,40})$)/gim;
+  // ── PRIMARY PATH: structured JSON format block ──
+  // The system prompt asks for format/hook data as a single fenced ```json block.
+  // Parsing real JSON eliminates the whole class of markdown-guessing bugs (bold vs
+  // asterisk vs heading vs bare text, multi-line hook blocks, etc) since JSON either
+  // parses correctly or it doesn't — there's no ambiguous partial-match territory.
+  const jsonBlockMatch = text.match(/```json\s*([\s\S]*?)```/i);
+  if(jsonBlockMatch){
+    try{
+      const parsed = JSON.parse(jsonBlockMatch[1].trim());
+      if(parsed && Array.isArray(parsed.formats) && parsed.formats.length > 0){
+        const validFormats = parsed.formats.filter(f =>
+          f && typeof f.name === 'string' && Array.isArray(f.hooks) && f.hooks.length > 0
+        );
+        if(validFormats.length > 0){
+          return renderJsonFormatCards(validFormats, text, jsonBlockMatch);
+        }
+      }
+    } catch(e){
+      // Malformed JSON — fall through to legacy markdown parsing below as a safety net.
+    }
+  }
+
+  // ── FALLBACK PATH: legacy markdown parsing ──
+  // Kept for backward compatibility with older saved conversations, and as a safety
+  // net if a response doesn't include a valid JSON block for any reason.
+  const formatBlockRegex = /(?:\*{1,3}([^*]{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b)[^*]{0,40})\*{1,3}|^#{1,3}\s+(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b)[^\n]{0,40})$|^\*{0,3}(?:OPTION|FORMAT)\s*\d+\s*:\s*(.{3,80}?)\*{0,3}\s*$)/gim;
   const hasFormatCards = formatBlockRegex.test(text);
 
   if(!hasFormatCards) return formatText(text);
@@ -3282,8 +3327,9 @@ function formatTextWithHooks(text, role){
   }
 
   lines.forEach(line => {
-    const boldFormatMatch = line.match(/^\*{1,2}(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\*{1,2}\s*$/i)
-      || line.match(/^#{1,3}\s+(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\s*$/i);
+    const boldFormatMatch = line.match(/^\*{1,3}(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\*{1,3}\s*$/i)
+      || line.match(/^#{1,3}\s+(.{5,80}(?:\bFormat\b|\bSkit\b|\bStory\b|\bChallenge\b|\bParody\b|\bVlog\b|\bBuster\b|\bTutorial\b|\bHack\b|\bRanking\b|\bReaction\b|\bReveal\b|\bAd\b|\bStitch\b|\bDuet\b|\bWait\b|\bReel\b).{0,40})\s*$/i)
+      || line.match(/^\*{0,3}(?:OPTION|FORMAT)\s*\d+\s*:\s*(.{3,80}?)\*{0,3}\s*$/i);
     const hookMatch = line.match(/^[\d]+[.)]\s+(.{15,})$/) || line.match(/^[-•*]\s+(.{15,})$/);
     const isHookHeading = /^\*{0,2}hook\s*options?\s*:?\s*\*{0,2}$/i.test(line.trim());
     const hookLabelMatch = /^\*{0,2}Hook\s*[A-Za-z0-9]+\s*:?\*{0,2}\s*$/i.test(line.trim());
@@ -3294,7 +3340,7 @@ function formatTextWithHooks(text, role){
       flushPendingHook();
       inPreCard = false;
       if(currentCard) cards.push(currentCard);
-      currentCard = {name: boldFormatMatch[1].trim(), hooks: [], extra: []};
+      currentCard = {name: boldFormatMatch[1].trim().replace(/^\*+|\*+$/g, '').trim(), hooks: [], extra: []};
     } else if(isHookHeading){
       // Skip bare "Hook options:" heading lines — they're structural labels for the
       // hooks that follow, not part of the card's description/extra text.
@@ -3382,9 +3428,78 @@ function formatTextWithHooks(text, role){
 
   html += '</div>';
 
-  // Post-card text (if any after the last card)
   return html;
 }
+
+function renderJsonFormatCards(formats, fullText, jsonBlockMatch){
+  const storeOffset = brainstormCardsStore.length;
+  formats.forEach(f => brainstormCardsStore.push({name: f.name, hooks: f.hooks}));
+
+  let filteredFormats = formats;
+  if(activeBrainstormCat !== 'all'){
+    filteredFormats = formats.map(f => ({...f, _filtered: !formatMatchesCat(f.name, activeBrainstormCat)}));
+  }
+
+  const beforeText = fullText.slice(0, jsonBlockMatch.index).trim();
+  const afterText = fullText.slice(jsonBlockMatch.index + jsonBlockMatch[0].length).trim();
+
+  let html = '';
+  if(beforeText){
+    html += `<div style="margin-bottom:12px;">${formatText(beforeText)}</div>`;
+  }
+
+  html += '<div class="format-card-wrap">';
+
+  filteredFormats.forEach((format, cardIdx) => {
+    const storeIdx = storeOffset + cardIdx;
+    const catPill = format.category ? `<div class="format-card-cat-pill">${escHtml(format.category)}</div>` : '';
+    const opacity = format._filtered ? 'opacity:0.3;pointer-events:none;' : '';
+
+    let hooksHtml = '';
+    if(Array.isArray(format.hooks) && format.hooks.length){
+      hooksHtml = `<div class="format-card-hooks-label">Hooks for your niche</div>`;
+      format.hooks.forEach((hook, hi) => {
+        const btnId = `fhook_${Math.random().toString(36).slice(2,8)}`;
+        hooksHtml += `<div class="format-card-hook-row">
+          <span class="format-card-hook-dot"></span>
+          <span class="format-card-hook-text">${formatInline(hook)}</span>
+          <button class="format-card-save-btn" id="${btnId}" onclick="saveHookFromBrainstormIdx(${storeIdx},${hi},this)">+ Save</button>
+        </div>`;
+      });
+    }
+
+    const descParts = [];
+    if(format.whyItFits) descParts.push(`**Why it fits:** ${format.whyItFits}`);
+    if(format.mechanic) descParts.push(`**The mechanic:** ${format.mechanic}`);
+    const descText = descParts.join('\n\n');
+    const descHtml = descText
+      ? `<div class="format-card-desc hidden" style="font-size:13px;color:var(--mid);line-height:1.6;padding-top:10px;margin-top:10px;border-top:1px solid var(--border);">${formatText(descText)}</div>`
+      : '';
+
+    html += `<div class="format-card" style="${opacity}">
+      <div class="format-card-header">
+        ${catPill}
+        <div class="format-card-name">${escHtml(format.name)}</div>
+        <div class="format-card-btns">
+          ${descText ? `<button class="format-card-info-btn" onclick="this.closest('.format-card').querySelector('.format-card-desc')?.classList.toggle('hidden')">ⓘ More Info</button>` : ''}
+        </div>
+      </div>
+      <div class="format-card-body">
+        ${hooksHtml}
+        ${descHtml}
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+
+  if(afterText){
+    html += `<div style="margin-top:12px;">${formatText(afterText)}</div>`;
+  }
+
+  return html;
+}
+
 
 function formatText(text){
   // 1. Extract triple-backtick fenced code blocks FIRST, replacing with placeholders,
