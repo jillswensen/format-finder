@@ -4017,6 +4017,13 @@ CRITICAL — DO NOT REWRITE THE SCRIPT: the "script" field for each beat must be
 Format:
 {"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"The exact spoken line(s) for this beat, copied verbatim — no rewording","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
 
+system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
+
+CRITICAL — DO NOT REWRITE THE SCRIPT: the "script" field for each beat must be copied VERBATIM, word-for-word, from the script provided below. Your only job is deciding where one beat ends and the next begins — never paraphrase, tighten, smooth out, or reword a spoken line, even if a rewrite seems more natural. If a sentence seems to span two beats, either keep it whole in one beat or split it at the original wording — never regenerate it. Every word in every "script" field must be traceable back to the source script.
+
+Format:
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"The exact spoken line(s) for this beat, copied verbatim — no rewording","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+
 Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
 Keep notes array to 1-2 specific, actionable coaching tips per beat. Be specific to THIS script and niche.`,
         messages:[{role:'user',content:`Generate a shot plan.
