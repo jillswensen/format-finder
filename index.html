@@ -987,6 +987,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 .beat-view-body{padding:12px 14px 8px;}
 .beat-view-footer{border-top:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--cream);}
 .beat-divider{display:none;}/* no longer used — padding-based separation instead */
+.export-format-btn.active{background:var(--rose)!important;border-color:var(--rose)!important;color:#fff!important;font-weight:500;}
 
 /* ── OFF-style format cards in brainstorm ── */
 .format-card-wrap{display:flex;flex-direction:column;gap:10px;margin:4px 0;}
@@ -1629,6 +1630,24 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
   </div>
 </div>
 
+<!-- Modal: Export script for Notion -->
+<div class="modal-bg" id="modalExportScript">
+  <div class="modal" style="width:520px;max-width:calc(100vw - 32px);">
+    <h3>Export for Notion</h3>
+    <p>Pick a format, then copy into your production guide.</p>
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="export-format-btn active" id="exportBtn_full" onclick="switchExportFormat('full')" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;">Full Script</button>
+      <button class="export-format-btn" id="exportBtn_spoken" onclick="switchExportFormat('spoken')" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;">Spoken Only</button>
+      <button class="export-format-btn" id="exportBtn_onscreen" onclick="switchExportFormat('onscreen')" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;">On-Screen Only</button>
+    </div>
+    <div id="exportContent" style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--charcoal);white-space:pre-wrap;max-height:340px;overflow-y:auto;margin-bottom:14px;"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeExportModal()">Close</button>
+      <button class="modal-confirm" onclick="copyExportContent()">Copy</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Save stories conversation -->
 <div class="modal-bg" id="modalSaveStoriesConv">
   <div class="modal">
@@ -2179,6 +2198,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
             <span style="font-size:13px;font-weight:500;color:var(--charcoal);">Beat View</span>
             <span id="shotPlanCount" style="font-size:12px;color:var(--light);"></span>
           </div>
+          <button onclick="openExportModal()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--teal);background:var(--teal-light);border:1px solid var(--teal-border);border-radius:6px;padding:5px 12px;cursor:pointer;margin-right:8px;">Export for Notion</button>
           <button onclick="copyBeatView()" style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:border-color 0.15s;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             Copy All
@@ -4195,7 +4215,75 @@ function copyBeatView(){
   if(plan.filmingTips&&plan.filmingTips.length)lines.push('FILMING TIPS\n'+plan.filmingTips.join('\n'));
   navigator.clipboard.writeText(lines.join('\n')).then(()=>showToast('Beat view copied!')).catch(()=>showToast('Copy failed.'));
 }
+let activeExportFormat = 'full';
 
+function openExportModal(){
+  if(!currentIdeaId){ showToast('Open an idea first.'); return; }
+  const idea = getAllIdeas()[currentIdeaId];
+  if(!idea || !idea.shotPlan){ showToast('Generate the Beat View first — export needs it.'); return; }
+  switchExportFormat('full');
+  openModal('modalExportScript');
+}
+
+function closeExportModal(){ closeModal('modalExportScript'); }
+
+function switchExportFormat(fmt){
+  activeExportFormat = fmt;
+  document.querySelectorAll('.export-format-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('exportBtn_'+fmt);
+  if(btn) btn.classList.add('active');
+
+  const idea = currentIdeaId ? getAllIdeas()[currentIdeaId] : null;
+  const out = document.getElementById('exportContent');
+  if(!idea || !idea.shotPlan){ out.textContent=''; return; }
+
+  let text = '';
+  if(fmt === 'full') text = buildFullScriptExport(idea);
+  else if(fmt === 'spoken') text = buildSpokenOnlyExport(idea.shotPlan);
+  else if(fmt === 'onscreen') text = buildOnScreenOnlyExport(idea.shotPlan);
+
+  out.textContent = text || '(Nothing to show for this format on this idea.)';
+}
+
+function buildFullScriptExport(idea){
+  const scriptHistory = tabChatHistory.script[currentIdeaId] || idea.scriptHistory || [];
+  const assistantMsgs = scriptHistory.filter(m=>m.role==='assistant');
+  if(assistantMsgs.length===0) return '';
+  return assistantMsgs[assistantMsgs.length-1].content
+    .replace(/\*\*(.+?)\*\*/g,'$1')
+    .replace(/^#{1,3}\s*/gm,'')
+    .trim();
+}
+
+function buildSpokenOnlyExport(plan){
+  const beats = plan.beats||[];
+  const lines = [];
+  beats.forEach((beat,i)=>{
+    if(!beat.script) return;
+    lines.push(`Clip ${i+1} — ${beat.title||''}`);
+    lines.push(beat.script);
+    lines.push('');
+  });
+  return lines.join('\n').trim();
+}
+
+function buildOnScreenOnlyExport(plan){
+  const beats = plan.beats||[];
+  const lines = [];
+  beats.forEach((beat,i)=>{
+    if(!beat.textOverlay) return;
+    lines.push(`Clip ${i+1} — ${beat.title||''}`);
+    lines.push(beat.textOverlay);
+    lines.push('');
+  });
+  return lines.join('\n').trim();
+}
+
+function copyExportContent(){
+  const text = document.getElementById('exportContent').textContent;
+  if(!text || text.startsWith('(Nothing')){ showToast('Nothing to copy.'); return; }
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied ✓')).catch(()=>showToast('Copy failed.'));
+}
 function saveShotEdit(shotIndex,field,value){
   if(!currentIdeaId)return;
   const all=getAllIdeas();
