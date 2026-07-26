@@ -4060,7 +4060,7 @@ async function initFilmingTab(){
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:8000,
 system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 CRITICAL — DO NOT REWRITE THE SCRIPT: the "script" field for each beat must be copied VERBATIM, word-for-word, from the script provided below. Your only job is deciding where one beat ends and the next begins — never paraphrase, tighten, smooth out, or reword a spoken line, even if a rewrite seems more natural. If a sentence seems to span two beats, either keep it whole in one beat or split it at the original wording — never regenerate it. Every word in every "script" field must be traceable back to the source script.
@@ -4080,12 +4080,30 @@ ${scriptText.slice(0,8000)}`}]})
     const data=await resp.json();
     loading.style.display='none';
     if(data.content&&data.content[0]){
-      const parsed=JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
+      let parsed;
+      try{
+        parsed=JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
+      }catch(parseErr){
+        console.error('Beat View JSON parse failed. Raw response:',data.content[0].text);
+        empty.style.display='block';
+        empty.querySelector('p').textContent='Could not parse the generated shot plan (likely truncated or malformed JSON). Please try again — check the console for the raw response.';
+        return;
+      }
       const all2=getAllIdeas();
       if(all2[currentIdeaId]){all2[currentIdeaId].shotPlan=parsed;all2[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all2);}
       checklist.style.display='block';renderShotPlan(parsed);
-    } else {empty.style.display='block';empty.querySelector('p').textContent='Could not generate shot plan. Please try again.';}
-  }catch(err){loading.style.display='none';empty.style.display='block';empty.querySelector('p').textContent='Error generating shot plan. Please try again.';}
+    } else if(data.error){
+      console.error('Beat View API error:',data.error);
+      empty.style.display='block';
+      empty.querySelector('p').textContent='API error ('+data.error.type+'): '+data.error.message;
+    } else {
+      console.error('Beat View: unexpected response shape:',data);
+      empty.style.display='block';empty.querySelector('p').textContent='Could not generate shot plan. Please try again.';
+    }
+  }catch(err){
+    console.error('Beat View network/fetch error:',err);
+    loading.style.display='none';empty.style.display='block';empty.querySelector('p').textContent='Error generating shot plan: '+err.message;
+  }
 }
 
 function renderShotPlan(plan){
@@ -4428,7 +4446,7 @@ ${notesTrunc}`:'';
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:8000,
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
@@ -4450,8 +4468,10 @@ ${notesBlock}`}]})
       const parsed=JSON.parse(data.content[0].text.trim().replace(/```json|```/g,'').trim());
       const all2=getAllIdeas();
       if(all2[currentIdeaId]){all2[currentIdeaId].shotPlan=parsed;all2[currentIdeaId].updatedAt=Date.now();saveAllIdeas(all2);}
+    } else if(data.error){
+      console.error('Background Beat View API error:',data.error);
     }
-  }catch(e){}
+  }catch(e){console.error('Background Beat View generation failed:',e);}
 }
 
 function selectScriptDuration(btn,dur){
