@@ -1344,7 +1344,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 <div class="modal-bg" id="modalSaveIdea">
   <div class="modal">
     <h3>Save as idea</h3>
-    <p id="saveIdeaModalDesc">AI is extracting a short hook from your chat...</p>
+    <p id="saveIdeaModalDesc">AI is pulling the script, caption, and other details from your chat...</p>
 
     <!-- Loading state -->
     <div id="saveIdeaLoading" style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
@@ -1353,7 +1353,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
         <div class="dot" style="background:var(--rose);animation-delay:0.2s;"></div>
         <div class="dot" style="background:var(--rose);animation-delay:0.4s;"></div>
       </div>
-      <span style="font-size:12px;color:var(--light);">Extracting hook...</span>
+      <span style="font-size:12px;color:var(--light);">Extracting your plan...</span>
     </div>
 
     <!-- Hook field (shown after loading) -->
@@ -3707,6 +3707,7 @@ function createIdea(hook, format, status='idea'){
 }
 
 let _saveIdeaFullText = ''; // stores full chat text for notes
+let _saveIdeaExtracted = null; // stores structured extraction (script, caption, cover image, hashtags, etc.)
 
 async function openSaveIdeaModal(){
   // Grab full text from all chat messages
@@ -3719,37 +3720,45 @@ async function openSaveIdeaModal(){
     if(text) fullText += role + ':\n' + text + '\n\n';
   });
   _saveIdeaFullText = fullText.trim();
+  _saveIdeaExtracted = null;
 
   // Reset modal state
   document.getElementById('saveIdeaLoading').style.display = 'flex';
   document.getElementById('saveIdeaFields').style.display = 'none';
-  document.getElementById('saveIdeaModalDesc').textContent = 'AI is extracting a short hook from your chat...';
+  document.getElementById('saveIdeaModalDesc').textContent = 'AI is pulling the script, caption, and other details from your chat...';
   document.getElementById('saveIdeaHook').value = '';
   document.getElementById('saveIdeaFormat').value = '';
   document.getElementById('saveIdeaConfirmBtn').disabled = true;
   document.getElementById('saveIdeaConfirmBtn').style.opacity = '0.5';
   openModal('modalSaveIdea');
 
-  // Call AI to extract a short hook
+  // Call AI to extract the hook plus any script/caption/cover-image/hashtag content already nailed down in chat
   try {
+    const inputText = _saveIdeaFullText.length > 30000 ? _saveIdeaFullText.slice(-30000) : _saveIdeaFullText;
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 80,
-        system: 'You extract a single short hook from a content brainstorm conversation. Output ONLY the hook — one punchy sentence or phrase, maximum 10 words, no quotes, no explanation, no punctuation at the end. The hook should capture the core reel concept or angle discussed.',
-        messages: [{role:'user', content: 'Extract a short hook from this brainstorm chat:\n\n' + _saveIdeaFullText.slice(0, 3000)}]
+        max_tokens: 4000,
+        system: `You extract structured content from a content-brainstorm conversation for an Instagram Reel. Extract ONLY what was actually written in the conversation — never invent, rewrite, paraphrase, or improve anything. If a section was never discussed or finalized, return it empty ("" or []). Output ONLY valid JSON, no markdown, no backticks, no explanation.
+
+Format:
+{"hook":"A single short punchy hook, maximum 10 words, no quotes, no punctuation at the end","script":"The full spoken script (A-roll/B-roll) exactly as written in the chat, verbatim","onScreenText":"On-screen text overlays as discussed, verbatim","capcutNotes":"CapCut editing notes as discussed, verbatim","coverImage":{"bestShot":"...","hookOptions":["..."],"finalPick":"..."},"caption":"The final caption text, verbatim","hashtags":["#tag1","#tag2"]}`,
+        messages: [{role:'user', content: 'Extract structured content from this brainstorm chat:\n\n' + inputText}]
       })
     });
     const data = await resp.json();
-    const extracted = data.content?.[0]?.text?.trim() || '';
-    document.getElementById('saveIdeaHook').value = extracted;
+    const raw = data.content?.[0]?.text?.trim().replace(/```json|```/g,'').trim() || '';
+    const parsed = JSON.parse(raw);
+    _saveIdeaExtracted = parsed;
+    document.getElementById('saveIdeaHook').value = parsed.hook || '';
   } catch(e) {
-    // Fallback: use first 80 chars of last assistant message
+    // Fallback: use first 80 chars of last assistant message, leave extraction empty so nothing downstream changes
     const bubbles = msgs.querySelectorAll('.msg.assistant .bubble');
     const fallback = bubbles.length > 0 ? bubbles[bubbles.length-1].innerText.slice(0, 80) : '';
     document.getElementById('saveIdeaHook').value = fallback;
+    _saveIdeaExtracted = null;
   }
 
   // Show fields
@@ -3768,16 +3777,37 @@ function confirmSaveIdea(){
   // Create idea with full chat text pre-loaded into notes
   const all = getAllIdeas();
   const id = genId();
+  const ext = _saveIdeaExtracted || {};
+
+  // Carry the already-written script/on-screen text/CapCut notes forward as a pre-seeded Script tab reply
+  const scriptParts = [];
+  if(ext.script) scriptParts.push('**Script**\n' + ext.script);
+  if(ext.onScreenText) scriptParts.push('**On-Screen Text**\n' + ext.onScreenText);
+  if(ext.capcutNotes) scriptParts.push('**CapCut Editing Notes**\n' + ext.capcutNotes);
+  const scriptHistory = scriptParts.length ? [
+    {role:'user', content:'(Imported from brainstorm chat — no changes requested.)'},
+    {role:'assistant', content: scriptParts.join('\n\n')}
+  ] : [];
+
+  const captionHistory = ext.caption ? [
+    {role:'user', content:'(Imported from brainstorm chat — no changes requested.)'},
+    {role:'assistant', content: ext.caption}
+  ] : [];
+
   all[id] = {
     id, hook, format: format||'', status: 'idea',
     notes: _saveIdeaFullText,
+    coverImage: ext.coverImage || null,
+    caption: ext.caption || '',
+    hashtags: ext.hashtags || [],
     createdAt: Date.now(), updatedAt: Date.now(),
-    scriptHistory: [], captionHistory: []
+    scriptHistory, captionHistory
   };
   saveAllIdeas(all);
   _saveIdeaFullText = '';
+  _saveIdeaExtracted = null;
   closeModal('modalSaveIdea');
-  showToast('Idea saved! Full chat text is in Notes.');
+  showToast(scriptHistory.length ? 'Idea saved! Script and details carried over from your chat.' : 'Idea saved! Full chat text is in Notes.');
 }
 
 function openAddIdeaModal(){
@@ -4076,6 +4106,30 @@ function renderBeatView(plan){
     body.appendChild(ov);
   }
 
+  // Cover Image / Caption / Hashtags block (carried over from the brainstorm chat, if present)
+  const extrasIdea=getAllIdeas()[currentIdeaId];
+  if(extrasIdea){
+    const ci=extrasIdea.coverImage;
+    let extrasHtml='';
+    if(ci&&(ci.bestShot||ci.finalPick||(ci.hookOptions&&ci.hookOptions.length))){
+      extrasHtml+=`<div class="beat-overview-label">Cover Image</div>`;
+      if(ci.bestShot)extrasHtml+=`<div class="beat-overview-text">Best shot: ${escHtml(ci.bestShot)}</div>`;
+      if(ci.hookOptions&&ci.hookOptions.length)extrasHtml+=`<div class="beat-overview-text">Hook options: ${escHtml(ci.hookOptions.join(' | '))}</div>`;
+      if(ci.finalPick)extrasHtml+=`<div class="beat-overview-text">Final pick: ${escHtml(ci.finalPick)}</div>`;
+    }
+    if(extrasIdea.caption){
+      extrasHtml+=`<div class="beat-overview-label" style="margin-top:${extrasHtml?'10px':'0'};">Caption</div><div class="beat-overview-text">${escHtml(extrasIdea.caption)}</div>`;
+    }
+    if(extrasIdea.hashtags&&extrasIdea.hashtags.length){
+      extrasHtml+=`<div class="beat-overview-label" style="margin-top:10px;">Hashtags</div><div class="beat-overview-text">${escHtml(extrasIdea.hashtags.join(' '))}</div>`;
+    }
+    if(extrasHtml){
+      const extras=document.createElement('div');extras.className='beat-overview';
+      extras.innerHTML=extrasHtml;
+      body.appendChild(extras);
+    }
+  }
+
   // Beat cards
   const beats=plan.beats||[];
   if(countEl)countEl.textContent=beats.length+' beat'+(beats.length!==1?'s':'');
@@ -4213,6 +4267,8 @@ function copyBeatView(){
     lines.push('');
   });
   if(plan.filmingTips&&plan.filmingTips.length)lines.push('FILMING TIPS\n'+plan.filmingTips.join('\n'));
+  const extrasBlock=buildIdeaExtrasBlock(idea);
+  if(extrasBlock)lines.push(extrasBlock);
   navigator.clipboard.writeText(lines.join('\n')).then(()=>showToast('Beat view copied!')).catch(()=>showToast('Copy failed.'));
 }
 let activeExportFormat = 'full';
@@ -4242,6 +4298,9 @@ function switchExportFormat(fmt){
   else if(fmt === 'spoken') text = buildSpokenOnlyExport(idea.shotPlan);
   else if(fmt === 'onscreen') text = buildOnScreenOnlyExport(idea.shotPlan);
 
+  const extrasBlock = buildIdeaExtrasBlock(idea);
+  if(extrasBlock) text = (text ? text + '\n\n' : '') + extrasBlock;
+
   out.textContent = text || '(Nothing to show for this format on this idea.)';
 }
 
@@ -4253,6 +4312,30 @@ function buildFullScriptExport(idea){
     .replace(/\*\*(.+?)\*\*/g,'$1')
     .replace(/^#{1,3}\s*/gm,'')
     .trim();
+}
+
+function buildIdeaExtrasBlock(idea){
+  if(!idea) return '';
+  const lines = [];
+  const ci = idea.coverImage;
+  if(ci && (ci.bestShot || (ci.hookOptions&&ci.hookOptions.length) || ci.finalPick)){
+    lines.push('COVER IMAGE');
+    if(ci.bestShot) lines.push('Best shot: ' + ci.bestShot);
+    if(ci.hookOptions && ci.hookOptions.length) lines.push('Hook options: ' + ci.hookOptions.join(' | '));
+    if(ci.finalPick) lines.push('Final pick: ' + ci.finalPick);
+    lines.push('');
+  }
+  if(idea.caption){
+    lines.push('CAPTION');
+    lines.push(idea.caption);
+    lines.push('');
+  }
+  if(idea.hashtags && idea.hashtags.length){
+    lines.push('HASHTAGS');
+    lines.push(idea.hashtags.join(' '));
+    lines.push('');
+  }
+  return lines.join('\n').trim();
 }
 
 function buildSpokenOnlyExport(plan){
