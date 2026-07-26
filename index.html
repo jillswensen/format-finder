@@ -967,6 +967,7 @@ button.tab-send svg{width:16px;height:16px;fill:#fff;}
 .beat-pill-visual{background:#F5A623;color:#fff;}
 .beat-pill-alt{background:transparent;color:var(--light);border:1px solid var(--border);font-size:9px;}
 .beat-pill-overlay{background:#F5A623;color:#fff;}
+.beat-pill-props{background:#F5A623;color:#fff;}
 .beat-pill-overlay-opt{font-size:9px;font-weight:400;opacity:0.75;margin-left:5px;text-transform:none;letter-spacing:0;}
 .beat-pill-notes{background:transparent;color:var(--mid);border:1px solid var(--border);}
 
@@ -4167,6 +4168,13 @@ function renderBeatView(plan){
       cardBody.appendChild(vf);
     }
 
+    // PROPS field
+    if(beat.props){
+      const pf=document.createElement('div');pf.className='beat-field';
+      pf.innerHTML=`<div><span class="beat-pill beat-pill-props">Props</span></div><div class="beat-text" contenteditable="true" style="outline:none;cursor:text;" onblur="saveBeatEdit(${i},'props',this.textContent)">${escHtml(beat.props)}</div>`;
+      cardBody.appendChild(pf);
+    }
+
     // TEXT OVERLAY field
     if(beat.textOverlay){
       const tf=document.createElement('div');tf.className='beat-field';
@@ -4232,7 +4240,7 @@ async function refineBeat(beatIndex){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,
-        system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","textOverlay":"...","notes":["..."]}',
+        system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","textOverlay":"...","props":"...","notes":["..."]}',
         messages:[{role:'user',content:`Current beat:\n${JSON.stringify(beat)}\n\nRefinement request: ${prompt}\n\nReturn the updated beat JSON only.`}]})
     });
     const data=await resp.json();
@@ -4262,6 +4270,7 @@ function copyBeatView(){
     if(beat.script)lines.push('Script: '+beat.script);
     if(beat.visual)lines.push('Visual: '+beat.visual);
     if(beat.alt)lines.push('Alt: '+beat.alt);
+    if(beat.props)lines.push('Props: '+beat.props);
     if(beat.textOverlay)lines.push('Text Overlay: '+beat.textOverlay);
     if(beat.notes&&beat.notes.length)lines.push('Notes: '+beat.notes.join(' | '));
     lines.push('');
@@ -4342,9 +4351,11 @@ function buildSpokenOnlyExport(plan){
   const beats = plan.beats||[];
   const shotsLines = [];
   const linesLines = [];
+  const propsLines = [];
   beats.forEach((beat,i)=>{
     if(beat.visual) shotsLines.push(`Clip ${i+1} — ${beat.visual}`);
     if(beat.script) linesLines.push(`Clip ${i+1} — ${beat.script}`);
+    if(beat.props) propsLines.push(`Clip ${i+1} — ${beat.props}`);
   });
 
   return [
@@ -4355,7 +4366,7 @@ function buildSpokenOnlyExport(plan){
     '[Outfit and styling notes]',
     '',
     'Props:',
-    '[List any props and when to use them]',
+    ...(propsLines.length ? propsLines : ['[List any props and when to use them]']),
     '',
     'Your shots:',
     ...(shotsLines.length ? shotsLines : ['[No shot descriptions on this idea yet]']),
@@ -4408,6 +4419,11 @@ async function generateChecklistInBackground(){
   const assistantMsgs=scriptHistory.filter(m=>m.role==='assistant');
   if(assistantMsgs.length===0)return;
   const scriptText=assistantMsgs[assistantMsgs.length-1].content;
+  const notes=(idea.notes&&idea.notes.trim())||'';
+  const notesTrunc=notes.length>3000?notes.slice(0,3000)+'\n[...truncated for length]':notes;
+  const notesBlock=notesTrunc?`
+Brainstorm notes (may include specific camera angles, props, or physical actions planned for this reel — reuse these details verbatim in the relevant beat's visual/alt/props fields instead of inventing generic staging):
+${notesTrunc}`:'';
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -4416,16 +4432,18 @@ async function generateChecklistInBackground(){
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
-{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","props":"Any physical prop used in this beat and how (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
 
 Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
-Keep notes array to 1-2 specific, actionable coaching tips per beat.`,
+Keep notes array to 1-2 specific, actionable coaching tips per beat.
+If the brainstorm notes describe a specific camera angle, prop, or physical action for a beat, carry that detail into the beat's visual/alt/props fields verbatim rather than replacing it with a generic description.`,
         messages:[{role:'user',content:`Shot plan for:
 Idea: ${idea.hook}
 Format: ${idea.format||'not specified'}
 Duration: ${idea.scriptDuration||'~20s'}
 Script:
-${scriptText.slice(0,3000)}`}]})
+${scriptText.slice(0,3000)}
+${notesBlock}`}]})
     });
     const data=await resp.json();
     if(data.content&&data.content[0]){
