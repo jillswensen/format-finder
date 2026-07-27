@@ -4081,7 +4081,7 @@ system:`You generate beat-by-beat integrated plans for Instagram Reels. Output O
 CRITICAL — DO NOT REWRITE THE SCRIPT: the "script" field for each beat must be copied VERBATIM, word-for-word, from the script provided below. Your only job is deciding where one beat ends and the next begins — never paraphrase, tighten, smooth out, or reword a spoken line, even if a rewrite seems more natural. If a sentence seems to span two beats, either keep it whole in one beat or split it at the original wording — never regenerate it. Every word in every "script" field must be traceable back to the source script.
 
 Format:
-{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"The exact spoken line(s) for this beat, copied verbatim — no rewording","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"The exact spoken line(s) for this beat, copied verbatim — no rewording","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","talentAction":"One plain sentence: what the talent does/says in this clip. No camera angles, no cut/edit decisions, no B-roll fallback language — just the action, as if telling the talent what to do.","textOverlay":"Suggested on-screen text (empty string if none)","props":"Any physical prop used in this beat and how (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
 
 Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
 Keep notes array to 1-2 specific, actionable coaching tips per beat. Be specific to THIS script and niche.`,
@@ -4273,7 +4273,7 @@ async function refineBeat(beatIndex){
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,
-        system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","textOverlay":"...","props":"...","notes":["..."]}',
+        system:'You refine a single beat in an Instagram Reel beat plan. Output ONLY valid JSON for the single beat object, no markdown, no backticks. Format: {"title":"...","script":"...","visual":"...","alt":"...","talentAction":"...","textOverlay":"...","props":"...","notes":["..."]}',
         messages:[{role:'user',content:`Current beat:\n${JSON.stringify(beat)}\n\nRefinement request: ${prompt}\n\nReturn the updated beat JSON only.`}]})
     });
     const data=await resp.json();
@@ -4386,14 +4386,14 @@ function buildSpokenOnlyExport(plan){
   const linesLines = [];
   const propsLines = [];
   beats.forEach((beat,i)=>{
-    if(beat.visual) shotsLines.push(`Clip ${i+1} — ${beat.visual}`);
+    if(beat.talentAction||beat.visual) shotsLines.push(`Clip ${i+1} — ${beat.talentAction||beat.visual}`);
     if(beat.script) linesLines.push(`Clip ${i+1} — ${beat.script}`);
     if(beat.props) propsLines.push(`Clip ${i+1} — ${beat.props}`);
   });
 
   return [
     'Your role:',
-    '[Describe character, energy, tone]',
+    'Bra fitter (if this reel has you playing a character instead, replace this with a quick breakdown of who they are and their tone)',
     '',
     "What you're wearing:",
     '[Outfit and styling notes]',
@@ -4464,7 +4464,7 @@ ${notesTrunc}`:'';
         system:`You generate beat-by-beat integrated plans for Instagram Reels. Output ONLY valid JSON, no markdown, no backticks.
 
 Format:
-{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","textOverlay":"Suggested on-screen text (empty string if none)","props":"Any physical prop used in this beat and how (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
+{"overview":"One sentence describing what this video does and why it works","beats":[{"title":"THE HOOK","script":"Exact spoken line(s) for this beat","visual":"Shot description — angle, action, what to show","alt":"Alternative shot option if primary isn't possible","talentAction":"One plain sentence: what the talent does/says in this clip. No camera angles, no cut/edit decisions, no B-roll fallback language — just the action, as if telling the talent what to do.","textOverlay":"Suggested on-screen text (empty string if none)","props":"Any physical prop used in this beat and how (empty string if none)","notes":["Performance/tone tip 1","Tip 2"]}],"filmingTips":["General tip 1","Tip 2"]}
 
 Beat title examples: THE HOOK, ACKNOWLEDGING THE PROBLEM, THE REVEAL, PRESENTING THE SOLUTION, THE PAYOFF, TRANSITION, CLOSING CTA
 Keep notes array to 1-2 specific, actionable coaching tips per beat.
