@@ -4038,6 +4038,18 @@ function switchDetailTab(tab){
   }
 }
 
+function looksLikeFullScript(text){
+  return !!text && text.length > 200 && /on-screen text/i.test(text);
+}
+function getLatestScriptText(scriptHistory){
+  if(!scriptHistory) return '';
+  for(let i=scriptHistory.length-1;i>=0;i--){
+    const m=scriptHistory[i];
+    if(m.role==='assistant' && (m.isScript || looksLikeFullScript(m.content))) return m.content;
+  }
+  return '';
+}
+
 async function initFilmingTab(){
   const all=getAllIdeas();
   const idea=all[currentIdeaId];
@@ -4050,11 +4062,14 @@ async function initFilmingTab(){
     renderShotPlan(idea.shotPlan);return;
   }
   const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
-  const assistantMsgs=scriptHistory.filter(m=>m.role==='assistant');
-  if(assistantMsgs.length===0){
-    empty.style.display='block';loading.style.display='none';checklist.style.display='none';return;
+  const scriptText=getLatestScriptText(scriptHistory);
+  if(!scriptText){
+    empty.style.display='block';loading.style.display='none';checklist.style.display='none';
+    empty.querySelector('p').textContent=scriptHistory.length===0
+      ? 'Generate a script first, then come back here.'
+      : 'This conversation hasn\'t produced a complete script yet — finish it in the Script tab first.';
+    return;
   }
-  const scriptText=assistantMsgs[assistantMsgs.length-1].content;
   empty.style.display='none';checklist.style.display='none';loading.style.display='block';
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
@@ -4333,9 +4348,9 @@ function switchExportFormat(fmt){
 
 function buildFullScriptExport(idea){
   const scriptHistory = tabChatHistory.script[currentIdeaId] || idea.scriptHistory || [];
-  const assistantMsgs = scriptHistory.filter(m=>m.role==='assistant');
-  if(assistantMsgs.length===0) return '';
-  return assistantMsgs[assistantMsgs.length-1].content
+  const scriptText = getLatestScriptText(scriptHistory);
+  if(!scriptText) return '';
+  return scriptText
     .replace(/\*\*(.+?)\*\*/g,'$1')
     .replace(/^#{1,3}\s*/gm,'')
     .trim();
@@ -4434,9 +4449,8 @@ async function generateChecklistInBackground(){
   const all=getAllIdeas();const idea=all[currentIdeaId];
   if(!idea||idea.shotPlan)return;
   const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
-  const assistantMsgs=scriptHistory.filter(m=>m.role==='assistant');
-  if(assistantMsgs.length===0)return;
-  const scriptText=assistantMsgs[assistantMsgs.length-1].content;
+  const scriptText=getLatestScriptText(scriptHistory);
+  if(!scriptText)return;
   const notes=(idea.notes&&idea.notes.trim())||'';
   const notesTrunc=notes.length>3000?notes.slice(0,3000)+'\n[...truncated for length]':notes;
   const notesBlock=notesTrunc?`
@@ -4497,7 +4511,7 @@ function useNotesAsScript(){
   // it (including the caption) gets rewritten or reinterpreted.
   tabChatHistory.script[currentIdeaId]=[
     {role:'user',content:'(Using existing script from Notes — no changes requested.)'},
-    {role:'assistant',content:notes}
+    {role:'assistant',content:notes,isScript:true}
   ];
   saveTabHistory('script');
 
@@ -4638,8 +4652,7 @@ function initTabChat(tab){
       const scriptExists=scriptHistory.length>0;
 
       if(scriptExists){
-        const scriptMsgs=scriptHistory.filter(m=>m.role==='assistant');
-        const lastScript=scriptMsgs.length>0?scriptMsgs[scriptMsgs.length-1].content:'';
+        const lastScript=getLatestScriptText(scriptHistory);
         context=`We already have a script for this reel. Now I need caption options.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\n**Script (for reference):**\n${lastScript}\n\nBased on the script above, please give me 3 caption variations. All three should follow the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C. Then add a 4th option labeled "If filming went differently" — a standalone caption that works even if the final reel diverged from the script.`;
       } else {
         context=`I need caption options for this reel. No script has been written yet.\n\n**Hook:** ${idea.hook}\n**Format:** ${idea.format||'to be determined'}${notesBlock}\n\nPlease write 3 caption options following the brand caption format exactly: no more than 50 words, hook-first, conversational Instagram-native voice, no bullet points or lists, one clear CTA (book a fitting or shop online), exactly 5 hashtags always including #brafittingsbycourt. Label them Option A, Option B, Option C.`;
@@ -4693,7 +4706,7 @@ async function sendTabAuto(tab){
       // Auto-generate filming checklist after first script response
       if(tab==='script'){
         const all=getAllIdeas();
-        if(all[currentIdeaId]&&!all[currentIdeaId].shotPlan){
+        if(all[currentIdeaId]&&!all[currentIdeaId].shotPlan&&looksLikeFullScript(reply)){
           // Generate in background — don't wait, don't block
           setTimeout(()=>generateChecklistInBackground(),500);
         }
@@ -5041,10 +5054,9 @@ function downloadScriptPDF(){
   if(!idea){showToast('Idea not found.');return;}
 
   const scriptHistory=tabChatHistory.script[currentIdeaId]||idea.scriptHistory||[];
-  const assistantMsgs=scriptHistory.filter(m=>m.role==='assistant');
-  if(assistantMsgs.length===0){showToast('No script generated yet — run the Script tab first.');return;}
+  const scriptText=getLatestScriptText(scriptHistory);
+  if(!scriptText){showToast('No completed script found — finish the Script tab conversation first.');return;}
 
-  const scriptText=assistantMsgs[assistantMsgs.length-1].content;
   const notes=idea.notes||'';
   const bizAll=ls(BIZ_KEY);
   const biz=activeBizId?bizAll[activeBizId]:null;
