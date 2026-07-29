@@ -30,13 +30,6 @@
   .container { max-width: 700px; margin: 0 auto; padding: 26px 20px 80px; }
 
   /* ── Shared ── */
-  .perf-strip { background: white; border: 1px solid var(--slate-light); border-radius: 10px; padding: 11px 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .perf-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); font-weight: 600; margin-right: 4px; }
-  .pill { font-size: 0.7rem; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
-  .pill.green { background: #d4edda; color: #2d6a4a; }
-  .pill.yellow { background: #fff3cd; color: #856404; }
-  .pill.red { background: #fde8e8; color: #8b3030; }
-
   .card { background: white; border: 1px solid var(--slate-light); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
   .card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--slate-dark); margin-bottom: 16px; }
   .section-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mid); font-weight: 600; margin-bottom: 9px; }
@@ -163,52 +156,6 @@
   .reupload-btn { font-size: 0.73rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--mid); background: white; border: 1.5px solid #dde6ec; border-radius: 20px; padding: 4px 12px; cursor: pointer; margin-top: 10px; transition: all 0.15s; }
   .reupload-btn:hover { border-color: var(--slate); color: var(--slate); }
 
-  /* ── Campaign Log ── */
-  .log-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
-  .log-tab { padding: 6px 16px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); }
-  .log-tab.active { background: var(--slate); border-color: var(--slate); color: white; }
-  .log-subpanel { display: none; }
-  .log-subpanel.active { display: block; }
-
-  /* manual entry */
-  .add-btn { padding: 10px 18px; background: var(--slate); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-  .add-btn:hover { background: var(--slate-dark); }
-
-  /* CSV paste */
-  .csv-hint { font-size: 0.78rem; color: var(--mid); margin-bottom: 10px; line-height: 1.55; }
-  .csv-hint code { background: #eee; border-radius: 4px; padding: 1px 5px; font-size: 0.75rem; }
-  .import-btn { padding: 10px 18px; background: var(--slate); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
-  .import-btn:hover { background: var(--slate-dark); }
-  .import-success { font-size: 0.78rem; color: var(--success); margin-top: 8px; display: none; font-weight: 500; }
-  .import-success.show { display: block; }
-
-  /* Campaign table */
-  .campaign-table-wrap { overflow-x: auto; margin-top: 6px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-  th { text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid); font-weight: 600; padding: 8px 10px; border-bottom: 2px solid var(--slate-light); white-space: nowrap; }
-  td { padding: 9px 10px; border-bottom: 1px solid #eef2f5; vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #f7fbfd; }
-  .del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1rem; padding: 0 4px; transition: color 0.15s; line-height: 1; }
-  .del-btn:hover { color: var(--danger); }
-  .empty-state { text-align: center; padding: 30px 20px; color: var(--mid); font-size: 0.83rem; }
-  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 8px; }
-
-  /* Perf breakdown */
-  .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 18px; }
-  .breakdown-card { background: white; border: 1px solid var(--slate-light); border-radius: 10px; padding: 12px 14px; }
-  .breakdown-style { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; color: var(--mid); margin-bottom: 4px; }
-  .breakdown-open { font-size: 1.4rem; font-weight: 700; color: var(--slate-dark); line-height: 1; margin-bottom: 2px; }
-  .breakdown-sub { font-size: 0.68rem; color: var(--mid); }
-  .breakdown-bar-wrap { margin-top: 8px; background: var(--slate-light); border-radius: 4px; height: 5px; }
-  .breakdown-bar { height: 5px; border-radius: 4px; background: var(--slate); transition: width 0.4s; }
-
-  .top-insight { background: var(--slate-light); border-left: 3px solid var(--slate); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.78rem; color: var(--slate-dark); line-height: 1.5; margin-bottom: 18px; }
-  .top-insight strong { font-weight: 600; }
-
-  .clear-log-btn { font-size: 0.72rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: #bbb; background: none; border: 1.5px solid #e0e0e0; border-radius: 20px; padding: 4px 12px; cursor: pointer; transition: all 0.15s; }
-  .clear-log-btn:hover { border-color: var(--danger); color: var(--danger); }
-
   /* ── Password gate ── */
   #passwordGate { position: fixed; inset: 0; background: var(--slate); display: flex; align-items: center; justify-content: center; z-index: 1000; }
   #passwordGate.hidden { display: none; }
@@ -245,7 +192,6 @@
 <!-- Tab bar -->
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="generate" onclick="switchTab('generate')">✦ Generate</button>
-  <button class="tab-btn" data-tab="log" onclick="switchTab('log')">📊 Campaign Log</button>
   <button class="tab-btn" data-tab="sms" onclick="switchTab('sms')">💬 Text Message</button>
 </div>
 
@@ -258,14 +204,6 @@
   <div class="mode-toggle">
     <button class="mode-btn" data-mode="newsletter" onclick="switchMode('newsletter')">📰 Newsletter</button>
     <button class="mode-btn active" data-mode="campaign" onclick="switchMode('campaign')">📣 Campaign</button>
-  </div>
-
-  <div class="perf-strip" id="perfStrip">
-    <span class="perf-label">Benchmarks →</span>
-    <span class="pill green">58% open — mid-sale urgency</span>
-    <span class="pill yellow">22% open — sale launch / last day</span>
-    <span class="pill yellow">21% open — curiosity question</span>
-    <span class="pill red">1–2% click — all campaigns</span>
   </div>
 
   <!-- Campaign fields -->
@@ -390,114 +328,7 @@
 
 
 <!-- ══════════════════════════════════════
-     TAB 2 — CAMPAIGN LOG
-══════════════════════════════════════ -->
-<div class="tab-panel" id="tab-log">
-<div class="container">
-
-  <!-- Sub-tabs -->
-  <div class="log-tabs">
-    <button class="log-tab active" onclick="switchLogTab('add', this)">+ Add Campaign</button>
-    <button class="log-tab" onclick="switchLogTab('paste', this)">Paste / Import</button>
-    <button class="log-tab" onclick="switchLogTab('breakdown', this)">Performance</button>
-    <button class="log-tab" onclick="switchLogTab('history', this)">History</button>
-  </div>
-
-  <!-- ADD MANUALLY -->
-  <div class="log-subpanel active" id="logpanel-add">
-    <div class="card">
-      <div class="card-title">Log a Sent Campaign</div>
-      <div class="form-grid">
-        <div class="field"><label>Entry name</label><input type="text" id="log-name" placeholder="e.g. Valentine Sale 2" /></div>
-        <div class="field"><label>Campaign grouping</label><input type="text" id="log-campaign" placeholder="e.g. Valentine's Sale" /></div>
-      </div>
-      <div class="form-grid">
-        <div class="field span2"><label>Subject line used</label><input type="text" id="log-subject" placeholder="e.g. New arrivals just dropped 🌸" /></div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Subject line style</label>
-          <select id="log-style">
-            <option value="bold">Bold</option>
-            <option value="curious">Curious / Question</option>
-            <option value="direct">Direct</option>
-            <option value="urgency">Urgency</option>
-            <option value="unknown">Unknown</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Email type</label>
-          <select id="log-type">
-            <option value="newsletter">Newsletter</option>
-            <option value="flash-sale">Flash Sale</option>
-            <option value="multi-send-sale">Multi-send Sale</option>
-            <option value="event">Event</option>
-            <option value="promo">Promo</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Open rate (%)</label><input type="number" id="log-open" placeholder="e.g. 28" min="0" max="100" step="0.1" /></div>
-        <div class="field"><label>CTR (%)</label><input type="number" id="log-click" placeholder="e.g. 2.4" min="0" max="100" step="0.1" /></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Orders</label><input type="number" id="log-orders" placeholder="e.g. 3" min="0" step="1" /></div>
-        <div class="field"><label>Revenue ($)</label><input type="number" id="log-revenue" placeholder="e.g. 450.00" min="0" step="0.01" /></div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Week of (date sent)</label><input type="date" id="log-date" /></div>
-        <div class="field"></div>
-      </div>
-      <div class="error" id="log-error"></div>
-      <button class="add-btn" onclick="addCampaign()" style="margin-top:4px;">Save Campaign →</button>
-      <div id="log-success" style="font-size:0.78rem;color:var(--success);margin-top:8px;display:none;font-weight:500;">✓ Campaign saved!</div>
-    </div>
-  </div>
-
-  <!-- PASTE / IMPORT -->
-  <div class="log-subpanel" id="logpanel-paste">
-    <div class="card">
-      <div class="card-title">Paste Bulk Data</div>
-      <p class="csv-hint">Paste rows from AiTrillion or a spreadsheet. One campaign per line, columns separated by commas or tabs.<br><br>
-      Expected column order: <code>Name</code>, <code>Campaign</code>, <code>Subject</code>, <code>Style</code>, <code>Type</code>, <code>Open%</code>, <code>CTR%</code>, <code>Orders</code>, <code>Revenue</code>, <code>Date</code><br><br>
-      Style options: <code>bold</code>, <code>curious</code>, <code>direct</code>, <code>urgency</code>, <code>unknown</code><br>
-      Type options: <code>newsletter</code>, <code>flash-sale</code>, <code>multi-send-sale</code>, <code>event</code>, <code>promo</code>, <code>other</code><br><br>
-      Example row:<br><code>Valentine Sale 2, Valentine's Sale, Still time to shop 💕, urgency, flash-sale, 58, 2, 2, 254.98, 2026-02-08</code></p>
-      <textarea id="csvPaste" style="min-height:140px;font-family:'Courier New',monospace;font-size:0.78rem;" placeholder="Paste your rows here…"></textarea>
-      <div class="import-success" id="importSuccess"></div>
-      <div class="error" id="importError"></div>
-      <button class="import-btn" onclick="importCSV()">Import Rows →</button>
-    </div>
-  </div>
-
-  <!-- PERFORMANCE BREAKDOWN -->
-  <div class="log-subpanel" id="logpanel-breakdown">
-    <div id="breakdownContent">
-      <div class="empty-state"><div class="empty-icon">📊</div>No campaigns logged yet.<br>Add campaigns to see performance by subject line style.</div>
-    </div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="log-subpanel" id="logpanel-history">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div class="section-label" style="margin-bottom:0;">All campaigns</div>
-      <div style="display:flex;gap:8px;">
-        <button class="clear-log-btn" onclick="exportCSV()" style="color:var(--slate);border-color:var(--slate-light);">↓ Export CSV</button>
-        <button class="clear-log-btn" onclick="clearLog()">Clear all</button>
-      </div>
-    </div>
-    <div id="historyContent">
-      <div class="empty-state"><div class="empty-icon">📭</div>No campaigns logged yet.</div>
-    </div>
-  </div>
-
-</div>
-</div><!-- /tab-log -->
-
-
-<!-- ══════════════════════════════════════
-     TAB 3 — TEXT MESSAGE (SMS)
+     TAB 2 — TEXT MESSAGE (SMS)
 ══════════════════════════════════════ -->
 <div class="tab-panel" id="tab-sms">
 <div class="container">
@@ -541,34 +372,12 @@
 
 
 <script>
-// ══ STORAGE ══════════════════════════════════════
-const STORAGE_KEY = 'bfc_campaigns_v1';
-
-function loadCampaigns() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
-}
-
-function saveCampaigns(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
 // ══ TABS ════════════════════════════════════════
 function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
-  if (name === 'log') refreshLogViews();
-}
-
-function switchLogTab(name, btn) {
-  document.querySelectorAll('.log-subpanel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.log-tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('logpanel-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (name === 'breakdown') renderBreakdown();
-  if (name === 'history') renderHistory();
 }
 
 // ══ GENERATE TAB ════════════════════════════════
@@ -602,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function() {
       selectedReason = btn.dataset.reason;
     });
   });
-  updatePerfStrip();
 });
 
 function switchMode(mode) {
@@ -628,40 +436,6 @@ function selectCampaignSubject(blockIdx, subjIdx) {
 function selectNlSubject(subjIdx) {
   nlSubjectIdx = subjIdx;
   document.querySelectorAll('.subject-card[data-block="nl"]').forEach((c, i) => c.classList.toggle('selected', i === subjIdx));
-}
-
-function buildPerfContext() {
-  const campaigns = loadCampaigns();
-  if (campaigns.length === 0) return null;
-
-  // Build style summary
-  const byStyle = {};
-  campaigns.forEach(c => {
-    if (!byStyle[c.style]) byStyle[c.style] = { opens: [], clicks: [], revenue: 0, orders: 0, count: 0 };
-    byStyle[c.style].opens.push(c.open);
-    byStyle[c.style].clicks.push(c.click);
-    byStyle[c.style].revenue += (c.revenue || 0);
-    byStyle[c.style].orders += (c.orders || 0);
-    byStyle[c.style].count++;
-  });
-
-  const lines = Object.entries(byStyle).map(([style, d]) => {
-    const avgOpen = (d.opens.reduce((a,b) => a+b, 0) / d.opens.length).toFixed(1);
-    const avgClick = (d.clicks.reduce((a,b) => a+b, 0) / d.clicks.length).toFixed(1);
-    const totalOrders = d.orders || 0;
-    return `- ${style}: avg ${avgOpen}% open, ${avgClick}% CTR (${d.count} campaign${d.count>1?'s':''}, ${totalOrders} orders, $${d.revenue.toFixed(0)} revenue)`;
-  });
-
-  // Top 3 by open rate
-  const top = [...campaigns].sort((a,b) => b.open - a.open).slice(0, 3);
-  const topLines = top.map(c => `- "${c.subject}" → ${c.open}% open, ${c.click}% click ($${(c.revenue||0).toFixed(0)})`);
-
-  return `YOUR ACTUAL CAMPAIGN DATA (${campaigns.length} campaigns logged):
-Performance by subject line style:
-${lines.join('\n')}
-
-Top performers:
-${topLines.join('\n')}`;
 }
 
 async function generate() {
@@ -719,8 +493,6 @@ async function generateCampaign() {
 
   beginGenerating();
 
-  const perfContext = buildPerfContext();
-
   const system = `You write email copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
 
 CONTEXT: Emails are image-heavy, designed in Canva. Template header, footer, and CTA blocks (Book a Fitting, Shop, Bra Size Calculator, SMS signup) are FIXED. You only write text sections: subject line, opening hook, and 2–3 sentence body — for each email in the campaign.
@@ -736,14 +508,6 @@ BRAND RULES:
 - Never use the literal words "guilt," "shame," or phrases like "no guessing/no guilt" as reassurance language — the goal is to never raise the concept, not to name and deny it.
 - Match urgency language to the Urgency field. If Urgency is "none/evergreen," do not imply a countdown, deadline, or expiring window (e.g. "before it's gone," "doesn't wait," "while it lasts"). Save that phrasing for when Urgency indicates an actual sale or deadline.
 - Avoid forced personification of abstract concepts or things that aren't actors (e.g. "support doesn't take a vacation," "chlorine doesn't wait," "summer's not done with you yet"). If a phrase gives human agency, intent, or a lifespan to something abstract, cut it — even when it fits a punchy "X doesn't do Y" template.
-
-BASELINE BENCHMARKS:
-- 58% open: "Still time to shop our Valentines Sale" — mid-sale urgency
-- 22% open: sale launch / last-day deadline subject lines
-- 21% open: curiosity/question hooks
-- 1–2% click across the board
-
-${perfContext ? perfContext + '\n\nUse the actual campaign data above to inform which subject line styles and approaches are performing best for this specific audience.' : 'No custom campaign data logged yet — use the baseline benchmarks above.'}
 
 ${numEmails > 1 ? `This campaign sends ${numEmails} separate emails in sequence. Write ${numEmails} distinct drafts, each with a "label" describing its role in the sequence (e.g. Announce, Reminder, Last Chance) and a different angle/hook from the others — don't just reword the same email. If this is a sale, escalate urgency across the sequence (soft mention → reminder → final hours).` : 'This campaign sends a single email — return exactly one item in "emails".'}
 
@@ -761,7 +525,7 @@ RETURN only valid JSON, no markdown or backticks:
       "body": "2–3 sentences.",
       "cta_primary": "Fitting CTA text",
       "cta_secondary": "Calculator CTA text",
-      "insight": "One sentence on why this approach should perform based on the data."
+      "insight": "One sentence on why this approach should perform well for this audience."
     }
   ]
 }
@@ -800,7 +564,6 @@ async function generateNewsletter() {
 
   beginGenerating();
 
-  const perfContext = buildPerfContext();
   const ctaList = [
     wantFitting && 'fitting (Book a Fitting)',
     wantCalculator && 'calculator (Bra Size Calculator)',
@@ -832,13 +595,6 @@ ${featuredProducts ? '- Featured Products copy: a short blurb spotlighting the g
 ${customerStory ? '- Customer Story/Spotlight copy: a short, tasteful blurb from the given story/testimonial notes — do not invent details not implied by the notes' : '- Do not include a customer_story_copy key — no story was given.'}
 ${ctaList.length ? `- CTA copy ONLY for these selected CTAs: ${ctaList.join(', ')}. Do not write CTA copy for anything not listed.` : '- No CTAs were selected — do not include a "ctas" key at all.'}
 
-BASELINE BENCHMARKS:
-- 58% open: mid-sale urgency subject lines (less relevant for a newsletter, but scannability still matters)
-- 21% open: curiosity/question hooks
-- 1–2% click across the board
-
-${perfContext ? perfContext + '\n\nUse the actual campaign data above to inform which subject line styles are performing best for this audience.' : 'No custom campaign data logged yet — use the baseline benchmarks above.'}
-
 RETURN only valid JSON, no markdown or backticks:
 {
   "subjects": [
@@ -847,7 +603,7 @@ RETURN only valid JSON, no markdown or backticks:
   ],
   "header_hook": "...",
   "key_messages_copy": "..."${featuredProducts ? ',\n  "featured_products_copy": "..."' : ''}${customerStory ? ',\n  "customer_story_copy": "..."' : ''}${ctaList.length ? ',\n  "ctas": { ' + ctaKeysJson + ' }' : ''},
-  "insight": "One sentence on why this approach should perform based on the data."
+  "insight": "One sentence on why this approach should perform well for this audience."
 }
 Only include the featured_products_copy / customer_story_copy / ctas keys exactly as instructed above — omit any that don't apply. Style must be exactly one of: bold, curious, direct, urgency`;
 
@@ -1260,302 +1016,6 @@ function resetPalette() {
   document.getElementById('uploadZone').classList.remove('has-image');
   document.getElementById('paletteResult').classList.remove('show');
   document.getElementById('paletteSwatches').innerHTML = '';
-}
-
-// ══ CAMPAIGN LOG ═════════════════════════════════
-function addCampaign() {
-  const name     = document.getElementById('log-name').value.trim();
-  const campaign = document.getElementById('log-campaign').value.trim();
-  const subject  = document.getElementById('log-subject').value.trim();
-  const style    = document.getElementById('log-style').value;
-  const type     = document.getElementById('log-type').value;
-  const open     = parseFloat(document.getElementById('log-open').value);
-  const click    = parseFloat(document.getElementById('log-click').value);
-  const orders   = parseInt(document.getElementById('log-orders').value) || 0;
-  const revenue  = parseFloat(document.getElementById('log-revenue').value) || 0;
-  const date     = document.getElementById('log-date').value;
-
-  const errEl = document.getElementById('log-error');
-  if (!name || !subject || isNaN(open) || isNaN(click)) {
-    errEl.textContent = 'Please fill in entry name, subject, open rate, and CTR.';
-    errEl.classList.add('show'); return;
-  }
-  errEl.classList.remove('show');
-
-  const campaigns = loadCampaigns();
-  campaigns.push({ id: Date.now(), name, campaign, subject, style, type, open, click, orders, revenue, date });
-  saveCampaigns(campaigns);
-
-  ['log-name','log-campaign','log-subject','log-open','log-click','log-orders','log-revenue','log-date'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('log-style').value = 'bold';
-  document.getElementById('log-type').value = 'flash-sale';
-
-  const suc = document.getElementById('log-success');
-  suc.style.display = 'block';
-  setTimeout(() => suc.style.display = 'none', 2200);
-  updatePerfStrip();
-}
-
-function importCSV() {
-  const raw = document.getElementById('csvPaste').value.trim();
-  const errEl = document.getElementById('importError');
-  const sucEl = document.getElementById('importSuccess');
-  errEl.classList.remove('show'); sucEl.classList.remove('show');
-
-  if (!raw) { errEl.textContent = 'Nothing to import.'; errEl.classList.add('show'); return; }
-
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-  const campaigns = loadCampaigns();
-  let count = 0, errors = 0;
-
-  lines.forEach((line, i) => {
-    const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-    const clean = parts.map(p => p.trim().replace(/^"|"$/g, ''));
-    if (clean.length < 7) { errors++; return; }
-    const [name, campaign, subject, style, type, openStr, clickStr, ordersStr, revenueStr, date] = clean;
-    const open = parseFloat(openStr), click = parseFloat(clickStr);
-    const orders = parseInt(ordersStr) || 0;
-    const revenue = parseFloat(revenueStr) || 0;
-    if (!name || !subject || isNaN(open) || isNaN(click)) { errors++; return; }
-    const validStyles = ['bold','curious','direct','urgency','unknown'];
-    const validTypes = ['newsletter','flash-sale','multi-send-sale','event','promo','other'];
-    campaigns.push({
-      id: Date.now() + i,
-      name, campaign: campaign || '',
-      subject,
-      style: validStyles.includes(style) ? style : 'unknown',
-      type: validTypes.includes(type) ? type : 'flash-sale',
-      open, click, orders, revenue,
-      date: date || ''
-    });
-    count++;
-  });
-
-  saveCampaigns(campaigns);
-  document.getElementById('csvPaste').value = '';
-
-  if (count > 0) {
-    sucEl.textContent = `✓ ${count} campaign${count>1?'s':''} imported${errors>0?` (${errors} row${errors>1?'s':''} skipped)`:''}.`;
-    sucEl.classList.add('show');
-    updatePerfStrip();
-  } else {
-    errEl.textContent = `No valid rows found. Check the format and try again.`;
-    errEl.classList.add('show');
-  }
-}
-
-function deleteCampaign(id) {
-  const campaigns = loadCampaigns().filter(c => c.id !== id);
-  saveCampaigns(campaigns);
-  renderHistory();
-  renderBreakdown();
-  updatePerfStrip();
-}
-
-function clearLog() {
-  if (!confirm('Clear all logged campaigns? This cannot be undone.')) return;
-  saveCampaigns([]);
-  renderHistory(); renderBreakdown(); updatePerfStrip();
-}
-
-function refreshLogViews() {
-  const activePanel = document.querySelector('.log-subpanel.active');
-  if (!activePanel) return;
-  if (activePanel.id === 'logpanel-breakdown') renderBreakdown();
-  if (activePanel.id === 'logpanel-history') renderHistory();
-}
-
-function renderBreakdown() {
-  const campaigns = loadCampaigns();
-  const el = document.getElementById('breakdownContent');
-  if (!campaigns.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div>No campaigns logged yet.<br>Add campaigns to see performance by style.</div>';
-    return;
-  }
-
-  const byStyle = {};
-  campaigns.forEach(c => {
-    if (!byStyle[c.style]) byStyle[c.style] = { opens:[], clicks:[], revenue:0, orders:0, count:0 };
-    byStyle[c.style].opens.push(c.open);
-    byStyle[c.style].clicks.push(c.click);
-    byStyle[c.style].revenue += (c.revenue||0);
-    byStyle[c.style].orders += (c.orders||0);
-    byStyle[c.style].count++;
-  });
-
-  const styleData = Object.entries(byStyle).map(([style, d]) => ({
-    style,
-    avgOpen: d.opens.reduce((a,b)=>a+b,0)/d.opens.length,
-    avgClick: d.clicks.reduce((a,b)=>a+b,0)/d.clicks.length,
-    revenue: d.revenue,
-    orders: d.orders,
-    count: d.count
-  })).sort((a,b) => b.avgOpen - a.avgOpen);
-
-  const maxOpen = Math.max(...styleData.map(s => s.avgOpen));
-  const best = styleData[0];
-
-  const allOpens = campaigns.map(c=>c.open);
-  const allClicks = campaigns.map(c=>c.click);
-  const totalOrders = campaigns.reduce((s,c)=>s+(c.orders||0),0);
-  const totalRevenue = campaigns.reduce((s,c)=>s+(c.revenue||0),0);
-  const avgOpen = (allOpens.reduce((a,b)=>a+b,0)/allOpens.length);
-  const avgClick = (allClicks.reduce((a,b)=>a+b,0)/allClicks.length);
-  // Best performer = highest combined score: open rate + (CTR × 10)
-  // CTR multiplied so a 2% CTR adds 20pts — meaningful but open rate still anchors it
-  const scored = [...campaigns].map(c => ({ ...c, score: c.open + (c.click * 10) }));
-  const bestCampaign = scored.sort((a,b) => b.score - a.score)[0];
-
-  // Benchmarks
-  const BENCH_OPEN = 22;
-  const BENCH_CTR  = 1.5;
-  const openDiff   = avgOpen - BENCH_OPEN;
-  const clickDiff  = avgClick - BENCH_CTR;
-  const openColor  = openDiff >= 0 ? 'var(--success)' : '#c0392b';
-  const clickColor = clickDiff >= 0 ? 'var(--success)' : '#c0392b';
-  const openArrow  = openDiff >= 0 ? '↑' : '↓';
-  const clickArrow = clickDiff >= 0 ? '↑' : '↓';
-
-  // Best campaign vs benchmark
-  const bestVsBench = bestCampaign.open - BENCH_OPEN;
-  const bestColor   = bestVsBench >= 0 ? 'var(--success)' : '#c0392b';
-
-  el.innerHTML = `
-    <div class="top-insight"><strong>✦ Your top style:</strong> <em>${best.style}</em> averages ${best.avgOpen.toFixed(1)}% open across ${best.count} campaign${best.count>1?'s':''} — use this more. ${best.avgClick < 2 ? 'Click rates still low — try more specific CTAs.' : 'Click rate is healthy.'}</div>
-
-    <div class="section-label" style="margin-bottom:12px;">How you're measuring up</div>
-    <div class="card" style="margin-bottom:18px;padding:16px 18px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Avg open rate</div>
-          <div style="display:flex;align-items:flex-end;gap:6px;">
-            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${avgOpen.toFixed(1)}%</div>
-            <div style="font-size:0.75rem;font-weight:600;color:${openColor};padding-bottom:2px;">${openArrow} ${Math.abs(openDiff).toFixed(1)}%</div>
-          </div>
-          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">Benchmark: ~${BENCH_OPEN}%</div>
-          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${openColor};width:${Math.min(avgOpen/50*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
-        </div>
-        <div>
-          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Avg CTR</div>
-          <div style="display:flex;align-items:flex-end;gap:6px;">
-            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${avgClick.toFixed(1)}%</div>
-            <div style="font-size:0.75rem;font-weight:600;color:${clickColor};padding-bottom:2px;">${clickArrow} ${Math.abs(clickDiff).toFixed(1)}%</div>
-          </div>
-          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">Benchmark: ~${BENCH_CTR}%</div>
-          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${clickColor};width:${Math.min(avgClick/5*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
-        </div>
-        <div>
-          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.09em;font-weight:600;color:var(--mid);margin-bottom:6px;">Best campaign</div>
-          <div style="display:flex;align-items:flex-end;gap:6px;">
-            <div style="font-size:1.5rem;font-weight:700;color:var(--slate-dark);line-height:1;">${bestCampaign.open}%</div>
-            <div style="font-size:0.75rem;font-weight:600;color:${bestColor};padding-bottom:2px;">${bestVsBench >= 0 ? '↑' : '↓'} ${Math.abs(bestVsBench).toFixed(1)}%</div>
-          </div>
-          <div style="font-size:0.68rem;color:var(--mid);margin-top:3px;">vs ${BENCH_OPEN}% benchmark</div>
-          <div style="margin-top:8px;background:var(--slate-light);border-radius:4px;height:6px;"><div style="height:6px;border-radius:4px;background:${bestColor};width:${Math.min(bestCampaign.open/80*100,100).toFixed(0)}%;transition:width 0.4s;"></div></div>
-        </div>
-      </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--slate-light);font-size:0.72rem;color:var(--mid);line-height:1.5;">
-        <strong style="color:var(--charcoal);">Benchmarks based on your historical AiTrillion data:</strong> ~22% avg open for sale/seasonal sends, ~58% peak for mid-sale urgency, ~1–2% CTR across all types.
-      </div>
-    </div>
-
-    <div class="section-label" style="margin-bottom:12px;">By subject line style</div>
-    <div class="breakdown-grid">${styleData.map(s => `
-      <div class="breakdown-card">
-        <div class="breakdown-style">${s.style}</div>
-        <div class="breakdown-open">${s.avgOpen.toFixed(1)}%</div>
-        <div class="breakdown-sub">avg open · ${s.count} email${s.count>1?'s':''}</div>
-        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${(s.avgOpen/Math.max(maxOpen,1)*100).toFixed(0)}%"></div></div>
-        <div class="breakdown-sub" style="margin-top:6px;">${s.avgClick.toFixed(1)}% CTR · ${s.orders} orders · $${s.revenue.toFixed(0)}</div>
-      </div>`).join('')}
-    </div>
-
-    <div class="section-label" style="margin-bottom:12px;">Overall (${campaigns.length} campaigns)</div>
-    <div class="breakdown-grid">
-      <div class="breakdown-card"><div class="breakdown-style">Avg open rate</div><div class="breakdown-open">${avgOpen.toFixed(1)}%</div></div>
-      <div class="breakdown-card"><div class="breakdown-style">Avg CTR</div><div class="breakdown-open">${avgClick.toFixed(1)}%</div></div>
-      <div class="breakdown-card"><div class="breakdown-style">Total orders</div><div class="breakdown-open">${totalOrders}</div></div>
-      <div class="breakdown-card"><div class="breakdown-style">Total revenue</div><div class="breakdown-open">$${totalRevenue.toFixed(0)}</div></div>
-    </div>
-
-    <div class="section-label" style="margin-bottom:8px;">Best performer</div>
-    <div class="card" style="margin-bottom:0;padding:14px 16px;">
-      <div style="font-size:0.88rem;font-weight:500;margin-bottom:6px;">"${bestCampaign.subject}"</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px;">
-        <div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.open}%</strong> <span style="color:var(--mid);">open rate</span></div>
-        <div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.click}%</strong> <span style="color:var(--mid);">CTR</span></div>
-        ${bestCampaign.orders ? `<div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">${bestCampaign.orders}</strong> <span style="color:var(--mid);">orders</span></div>` : ''}
-        ${bestCampaign.revenue ? `<div style="font-size:0.82rem;"><strong style="color:var(--slate-dark);">$${(bestCampaign.revenue).toFixed(0)}</strong> <span style="color:var(--mid);">revenue</span></div>` : ''}
-      </div>
-      <div style="font-size:0.7rem;color:var(--mid);">${bestCampaign.name}${bestCampaign.campaign?' · '+bestCampaign.campaign:''} · Ranked by open rate + CTR combined</div>
-    </div>`;
-}
-
-function renderHistory() {
-  const campaigns = loadCampaigns();
-  const el = document.getElementById('historyContent');
-  if (!campaigns.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No campaigns logged yet.</div>';
-    return;
-  }
-  const sorted = [...campaigns].sort((a,b) => new Date(b.date||0) - new Date(a.date||0));
-  el.innerHTML = `<div class="campaign-table-wrap"><table>
-    <thead><tr><th>Entry Name</th><th>Campaign</th><th>Subject</th><th>Style</th><th>Open</th><th>CTR</th><th>Orders</th><th>Revenue</th><th></th></tr></thead>
-    <tbody>${sorted.map(c => `<tr>
-      <td><strong>${c.name}</strong>${c.date?`<br><span style="font-size:0.7rem;color:var(--mid);">${c.date}</span>`:''}</td>
-      <td style="font-size:0.78rem;color:var(--mid);">${c.campaign||'—'}</td>
-      <td style="max-width:160px;word-break:break-word;font-size:0.78rem;">${c.subject}</td>
-      <td><span class="style-badge ${c.style}">${c.style}</span></td>
-      <td><strong>${c.open}%</strong></td>
-      <td>${c.click}%</td>
-      <td>${c.orders||0}</td>
-      <td>$${(c.revenue||0).toFixed(0)}</td>
-      <td><button class="del-btn" onclick="deleteCampaign(${c.id})" title="Delete">×</button></td>
-    </tr>`).join('')}
-    </tbody></table></div>`;
-}
-
-function updatePerfStrip() {
-  const campaigns = loadCampaigns();
-  const strip = document.getElementById('perfStrip');
-  if (!campaigns.length) {
-    strip.innerHTML = `<span class="perf-label">Benchmarks →</span>
-      <span class="pill green">58% open — mid-sale urgency</span>
-      <span class="pill yellow">22% open — sale launch / last day</span>
-      <span class="pill yellow">21% open — curiosity question</span>
-      <span class="pill red">1–2% click — all campaigns</span>`;
-    return;
-  }
-  const allOpens = campaigns.map(c=>c.open);
-  const avg = (allOpens.reduce((a,b)=>a+b,0)/allOpens.length).toFixed(1);
-  const best = [...campaigns].map(c => ({ ...c, score: c.open + (c.click * 10) })).sort((a,b) => b.score - a.score)[0];
-  const totalRev = campaigns.reduce((s,c)=>s+(c.revenue||0),0);
-  const vsB = parseFloat((avg - 22).toFixed(1));
-  const vsColor = vsB >= 0 ? 'green' : 'red';
-  strip.innerHTML = `<span class="perf-label">Your data →</span>
-    <span class="pill green">${best.open}% open — best campaign</span>
-    <span class="pill ${vsColor}">${avg}% avg open (${vsB >= 0 ? '+' : ''}${vsB}% vs 22% benchmark)</span>
-    <span class="pill yellow">$${totalRev.toFixed(0)} revenue · ${campaigns.length} campaigns</span>`;
-}
-
-function exportCSV() {
-  const campaigns = loadCampaigns();
-  if (!campaigns.length) { alert('No campaigns to export yet.'); return; }
-
-  const header = ['Entry Name','Campaign','Subject','Style','Type','Open %','CTR %','Orders','Revenue','Week Of'];
-  const rows = campaigns.map(c => [
-    c.name, c.campaign||'', c.subject, c.style, c.type,
-    c.open, c.click, c.orders||0, (c.revenue||0).toFixed(2), c.date||''
-  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
-
-  const csv = [header.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `bfc-campaigns-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 // ── Password gate ──────────────────────────────
