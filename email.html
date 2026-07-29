@@ -659,23 +659,104 @@ function endGenerating() {
 }
 
 async function callClaude(system, user, opts = {}) {
+  const body = { model: 'claude-sonnet-5', max_tokens: opts.maxTokens || 1600, system, messages: [{ role: 'user', content: user }] };
+  if (opts.schema) body.output_config = { format: { type: 'json_schema', schema: opts.schema } };
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: (function(){
       var k = localStorage.getItem('ff_api_key')||'';
       return {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
     })(),
-    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: opts.maxTokens || 1600, system, messages: [{ role: 'user', content: user }] })
+    body: JSON.stringify(body)
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
     throw new Error(`API ${res.status}: ${errBody?.error?.message || res.statusText}`);
   }
   const data = await res.json();
-  let raw = data.content.map(b => b.text || '').join('');
+  const raw = data.content.map(b => b.text || '').join('');
   if (opts.raw) return raw.trim();
-  raw = raw.replace(/```json|```/g, '').trim();
-  return JSON.parse(raw);
+  return JSON.parse(raw.trim());
+}
+
+const SUBJECT_ITEM_SCHEMA = {
+  type: 'object',
+  properties: {
+    text: { type: 'string' },
+    style: { type: 'string', enum: ['bold', 'curious', 'direct', 'urgency'] },
+    note: { type: 'string' }
+  },
+  required: ['text', 'style', 'note'],
+  additionalProperties: false
+};
+
+const CAMPAIGN_EMAIL_SCHEMA = {
+  type: 'object',
+  properties: {
+    emails: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          label: { type: 'string' },
+          subjects: { type: 'array', items: SUBJECT_ITEM_SCHEMA },
+          hook: { type: 'string' },
+          body: { type: 'string' },
+          cta_primary: { type: 'string' },
+          cta_secondary: { type: 'string' },
+          insight: { type: 'string' }
+        },
+        required: ['label', 'subjects', 'hook', 'body', 'cta_primary', 'cta_secondary', 'insight'],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ['emails'],
+  additionalProperties: false
+};
+
+const SMS_TEXT_SCHEMA = {
+  type: 'object',
+  properties: {
+    texts: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { label: { type: 'string' }, message: { type: 'string' } },
+        required: ['label', 'message'],
+        additionalProperties: false
+      }
+    },
+    insight: { type: 'string' }
+  },
+  required: ['texts', 'insight'],
+  additionalProperties: false
+};
+
+function buildNewsletterSchema(featuredProducts, customerStory, ctaList) {
+  const properties = {
+    subjects: { type: 'array', items: SUBJECT_ITEM_SCHEMA },
+    header_hook: { type: 'string' },
+    key_messages_copy: { type: 'string' }
+  };
+  const required = ['subjects', 'header_hook', 'key_messages_copy'];
+
+  if (featuredProducts) { properties.featured_products_copy = { type: 'string' }; required.push('featured_products_copy'); }
+  if (customerStory) { properties.customer_story_copy = { type: 'string' }; required.push('customer_story_copy'); }
+  if (ctaList.length) {
+    const ctaProps = {};
+    const ctaRequired = [];
+    if (ctaList.some(c => c.startsWith('fitting'))) { ctaProps.fitting = { type: 'string' }; ctaRequired.push('fitting'); }
+    if (ctaList.some(c => c.startsWith('calculator'))) { ctaProps.calculator = { type: 'string' }; ctaRequired.push('calculator'); }
+    if (ctaList.some(c => c.startsWith('vip'))) { ctaProps.vip = { type: 'string' }; ctaRequired.push('vip'); }
+    properties.ctas = { type: 'object', properties: ctaProps, required: ctaRequired, additionalProperties: false };
+    required.push('ctas');
+  }
+
+  properties.insight = { type: 'string' };
+  required.push('insight');
+
+  return { type: 'object', properties, required, additionalProperties: false };
 }
 
 async function generateCampaign() {
@@ -768,7 +849,7 @@ Return exactly ${numEmails} item${numEmails > 1 ? 's' : ''} in "emails". Style m
   const user = `Type: ${selectedType}\nCampaign name: ${campaignName || '(not specified)'}\nCampaign date(s): ${campaignDates || 'not specified'}\nGoal/Purpose: ${goalPurpose || 'not specified'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nNumber of emails: ${numEmails}\nTone: ${tone}\n${userTail}`;
 
   try {
-    const data = await callClaude(system, user, { maxTokens: Math.min(4000, 900 + numEmails * 550) });
+    const data = await callClaude(system, user, { schema: CAMPAIGN_EMAIL_SCHEMA, maxTokens: Math.min(6000, 1200 + numEmails * 700) });
     generatedData = { mode: 'campaign', emails: data.emails, perEmails };
     campaignSubjectIdx = generatedData.emails.map(() => 0);
     renderCampaignResults(generatedData.emails, generatedData.perEmails);
@@ -844,7 +925,7 @@ Only include the featured_products_copy / customer_story_copy / ctas keys exactl
   const user = `Month/Date: ${month || '(not specified)'}\nKey Messages: ${keyMessages}\nFeatured Products: ${featuredProducts || 'none'}\nCustomer Story/Spotlight: ${customerStory || 'none'}\nAudience: ${audience || 'all subscribers'}\nTone: ${tone}\nSelected CTAs: ${ctaList.length ? ctaList.join(', ') : 'none'}`;
 
   try {
-    const data = await callClaude(system, user);
+    const data = await callClaude(system, user, { schema: buildNewsletterSchema(featuredProducts, customerStory, ctaList), maxTokens: 2500 });
     generatedData = { mode: 'newsletter', ...data };
     nlSubjectIdx = 0;
     renderNewsletterResults(generatedData);
@@ -1148,7 +1229,7 @@ Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "mess
   const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}\n${userTail}`;
 
   try {
-    const data = await callClaude(system, user);
+    const data = await callClaude(system, user, { schema: SMS_TEXT_SCHEMA });
     generatedSmsData = { texts: data.texts, insight: data.insight, perTexts };
     renderSmsResults(generatedSmsData);
   } catch (err) {
