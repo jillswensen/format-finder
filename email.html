@@ -245,6 +245,7 @@
     </div>
     <div id="perEmailSection" style="display:none;">
       <div class="section-label" style="margin-top:2px;">Per-Email Details</div>
+      <p class="palette-note" style="margin-top:-4px;margin-bottom:14px;">For a multi-week sale, 5-6 emails works well: teaser, launch, 1-2 mid-sale spotlights (different product each time), final-week nudge, last day. Send teaser/mid-sale/final-week to your engaged segment (e.g. 90-day openers); reserve full-list sends for launch day and last day.</p>
       <div id="perEmailContainer"></div>
     </div>
     <div class="form-grid">
@@ -495,10 +496,10 @@ function perEmailBlockHtml(i) {
         </div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Segment / Audience (optional)</label><input type="text" id="peSegment-${i}" placeholder="defaults to campaign audience" /></div>
+        <div class="field"><label>Segment / Audience (optional)</label><input type="text" id="peSegment-${i}" placeholder="e.g. full list, or your 90-day engaged segment" /></div>
       </div>
       <div class="form-grid">
-        <div class="field span2"><label>Focus for this email (optional)</label><textarea id="peFocus-${i}" placeholder="e.g. remind about free shipping cutoff"></textarea></div>
+        <div class="field span2"><label>Focus for this email (optional)</label><textarea id="peFocus-${i}" placeholder="e.g. spotlight the new swim collection"></textarea></div>
       </div>
     </div>`;
 }
@@ -698,9 +699,9 @@ async function generateCampaign() {
 
   if (numEmails > 1) {
     const timingRole = {
-      start: 'announce — introduce the news/offer fresh',
-      mid: "re-trigger for people who haven't acted yet — don't just repeat the announcement, add a reason to look again",
-      end: 'final urgency — closing push'
+      start: 'announce — introduce the news/offer fresh. On a longer sequence this may be a pre-launch teaser rather than the launch itself (sale not live yet, building anticipation) — read that off its Focus/Audience rather than assuming the sale is already live.',
+      mid: "re-trigger for people who haven't acted yet — don't just repeat the announcement. If there is more than one Mid-timing email, each one must spotlight a different product, collection, or angle (use its Focus when given) rather than functioning as a repeat of the same generic reminder — that variety is what keeps email tolerable at a cadence SMS can't sustain.",
+      end: 'final urgency — closing push. Re-introduce urgency clearly, especially if earlier emails let it lapse — the hook/subject line should carry an explicit deadline (e.g. "ends tonight"), not a vague "last day."'
     };
     perEmails = [];
     for (let i = 0; i < numEmails; i++) {
@@ -716,7 +717,9 @@ async function generateCampaign() {
     multiSection = `This campaign sends ${numEmails} separate emails in sequence, each with an explicit brief below — use it, don't invent your own roles:
 ${perEmailGuidance}
 
-For each email: let its Timing set its role in the arc (start=announce, mid=re-trigger non-responders, end=final urgency) and let its own Urgency value set how much deadline/countdown pressure to use — same rule as above (no countdown language for none/soft). Narrow the message toward the given Audience when it differs from the default. When a Focus is given, make it that email's specific angle. Vary phrasing across every email — no repeated CTA text or hook structure — and where the arc supports it, let an earlier email reference the sequence continuing (e.g. "last chance coming up") when a higher-urgency email follows it. Give each "label" a short name reflecting its timing role (e.g. "Announce", "Reminder", "Last Chance").`;
+For each email: let its Timing set its role in the arc (start=announce/teaser, mid=re-trigger non-responders with fresh product content, end=final urgency) and let its own Urgency value set how much deadline/countdown pressure to use — same rule as above (no countdown language for none/soft). Narrow the message toward the given Audience when it differs from the default. When a Focus is given, make it that email's specific angle. Vary phrasing across every email — no repeated CTA text or hook structure — and where the arc supports it, let an earlier email reference the sequence continuing (e.g. "last chance coming up") when a higher-urgency email follows it. Give each "label" a short name reflecting its timing role (e.g. "Announce", "Reminder", "Last Chance").
+
+Let each email's Audience also guide tone: when it reads as broad/full-list (vs. a narrower named segment like "VIP" or an engaged-subscriber segment), don't assume recent engagement — restate the value clearly rather than leaning on familiarity, since some recipients may be more lapsed. When Audience is a narrower engaged/VIP segment, copy can be warmer and assume more familiarity.`;
     userTail = `Per-email details:\n${perEmails.map((e,i) => `Email ${i+1} — Timing: ${TIMING_LABELS[e.timing]} | Urgency: ${e.urgency} | Audience: ${e.audience}${e.focus ? ' | Focus: ' + e.focus : ''}`).join('\n')}`;
   } else {
     const urgency = document.getElementById('urgency').value;
