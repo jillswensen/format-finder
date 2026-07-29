@@ -51,9 +51,25 @@
   textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
 
   .type-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-  .type-btn { padding: 6px 14px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); }
+  .type-btn { padding: 6px 14px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); appearance: none; -webkit-appearance: none; outline: none; }
   .type-btn:hover { border-color: var(--slate); }
   .type-btn.active { background: var(--slate); border-color: var(--slate); color: white; }
+
+  /* ── Mode toggle ── */
+  .mode-toggle { display: flex; gap: 8px; margin-bottom: 18px; }
+  .mode-btn { flex: 1 1 50%; padding: 12px; border: 1.5px solid var(--slate-light); border-radius: 12px; background: white; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s; color: var(--mid); appearance: none; -webkit-appearance: none; outline: none; }
+  .mode-btn:hover { border-color: var(--slate); color: var(--slate-dark); }
+  .mode-btn.active { background: var(--slate); border-color: var(--slate); color: white; }
+
+  /* ── Checkbox rows (Newsletter "Don't Forget") ── */
+  .checkbox-row { display: flex; flex-direction: column; gap: 9px; margin-bottom: 4px; }
+  .checkbox-item { display: flex; align-items: center; gap: 9px; font-size: 0.85rem; color: var(--charcoal); cursor: pointer; }
+  .checkbox-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--slate); cursor: pointer; }
+
+  /* ── Multi-email / sectioned result blocks ── */
+  .email-block { margin-bottom: 20px; padding-top: 16px; }
+  .email-block:not(:first-child) { border-top: 1.5px dashed var(--slate-light); }
+  .email-block-label { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.92rem; color: var(--slate-dark); margin-bottom: 10px; }
 
   .gen-btn { width: 100%; padding: 13px; background: var(--slate); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background 0.2s, transform 0.1s; }
   .gen-btn:hover { background: var(--slate-dark); }
@@ -227,6 +243,11 @@
 <div class="tab-panel active" id="tab-generate">
 <div class="container">
 
+  <div class="mode-toggle">
+    <button class="mode-btn" data-mode="newsletter" onclick="switchMode('newsletter')">📰 Newsletter</button>
+    <button class="mode-btn active" data-mode="campaign" onclick="switchMode('campaign')">📣 Campaign</button>
+  </div>
+
   <div class="perf-strip" id="perfStrip">
     <span class="perf-label">Benchmarks →</span>
     <span class="pill green">58% open — mid-sale urgency</span>
@@ -235,24 +256,33 @@
     <span class="pill red">1–2% click — all campaigns</span>
   </div>
 
-  <div class="card">
+  <!-- Campaign fields -->
+  <div class="card" id="campaignFields">
     <div class="card-title">Campaign Details</div>
-    <div class="section-label" style="margin-bottom:9px;">Email type</div>
+    <div class="section-label" style="margin-bottom:9px;">Type</div>
     <div class="type-row">
-      <button class="type-btn active" data-type="sale">Sale</button>
-      <button class="type-btn" data-type="new-arrivals">New Arrivals</button>
-      <button class="type-btn" data-type="education">Education</button>
-      <button class="type-btn" data-type="last-chance">Last Chance</button>
-      <button class="type-btn" data-type="seasonal">Seasonal</button>
+      <button class="type-btn active" data-type="flash-sale">Flash Sale</button>
+      <button class="type-btn" data-type="multi-send-sale">Multi-send Sale</button>
+      <button class="type-btn" data-type="event">Event</button>
+      <button class="type-btn" data-type="promo">Promo</button>
+      <button class="type-btn" data-type="other">Other</button>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Campaign / Theme</label><input type="text" id="campaignName" placeholder="e.g. Spring Sale, Summer Drop…" /></div>
-      <div class="field"><label>Offer detail (if any)</label><input type="text" id="offerDetail" placeholder="e.g. 15% off, free shipping…" /></div>
+      <div class="field"><label>Campaign Name</label><input type="text" id="campaignName" placeholder="e.g. Summer Flash Sale 2026" /></div>
+      <div class="field"><label>Campaign Date(s)</label><input type="text" id="campaignDates" placeholder="e.g. Aug 4–8" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Goal / Purpose</label><textarea id="goalPurpose" placeholder="e.g. Drive fitting bookings during slow back-to-school week…"></textarea></div>
     </div>
     <div class="form-grid">
       <div class="field span2"><label>Key message — what should readers know or do?</label><textarea id="keyMessage" placeholder="e.g. New summer colors just dropped. Elomi and Freya back in stock…"></textarea></div>
     </div>
     <div class="form-grid">
+      <div class="field"><label>Offer detail (if any)</label><input type="text" id="offerDetail" placeholder="e.g. 15% off, free shipping…" /></div>
+      <div class="field"><label>Number of Emails to Send</label><input type="number" id="numEmails" value="1" min="1" step="1" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Audience</label><input type="text" id="audience" placeholder="all subscribers / segment / VIP only…" /></div>
       <div class="field">
         <label>Urgency</label>
         <select id="urgency">
@@ -262,6 +292,8 @@
           <option value="high">High — last day / hours left</option>
         </select>
       </div>
+    </div>
+    <div class="form-grid">
       <div class="field">
         <label>Tone</label>
         <select id="tone">
@@ -270,10 +302,48 @@
           <option value="direct-punchy">Direct + punchy</option>
         </select>
       </div>
+      <div class="field"></div>
     </div>
-    <button class="gen-btn" id="genBtn" onclick="generate()">Generate Email Copy →</button>
-    <div class="error" id="errorMsg"></div>
   </div>
+
+  <!-- Newsletter fields -->
+  <div class="card" id="newsletterFields" style="display:none;">
+    <div class="card-title">Newsletter Details</div>
+    <div class="form-grid">
+      <div class="field"><label>Month/Date</label><input type="text" id="nlMonth" placeholder="e.g. August 2026" /></div>
+      <div class="field"><label>Audience</label><input type="text" id="nlAudience" placeholder="all subscribers / segment…" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Key Messages — what should this newsletter cover?</label><textarea id="nlKeyMessages" placeholder="e.g. New elastic-free bralettes in stock, fall fitting event Sept 12…"></textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Featured Products <span style="text-transform:none;font-weight:400;">(optional)</span></label><textarea id="nlFeaturedProducts" placeholder="e.g. Elomi Charley bra, Freya Deco swim…"></textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Customer Story/Spotlight <span style="text-transform:none;font-weight:400;">(optional — any testimonials or staff picks?)</span></label><textarea id="nlCustomerStory" placeholder="e.g. Client found her first properly-fitting bra after years of guessing…"></textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Don't Forget…</label>
+        <div class="checkbox-row">
+          <label class="checkbox-item"><input type="checkbox" id="nlCtaFitting" /> Book a Fitting CTA</label>
+          <label class="checkbox-item"><input type="checkbox" id="nlCtaCalculator" /> Size Calculator link</label>
+          <label class="checkbox-item"><input type="checkbox" id="nlCtaVip" /> VIP Referral reminder</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <select id="nlTone">
+          <option value="warm-cheeky">Warm + cheeky (default)</option>
+          <option value="warm-sincere">Warm + sincere</option>
+          <option value="direct-punchy">Direct + punchy</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()" style="margin-bottom:18px;">Generate Email Copy →</button>
+  <div class="error" id="errorMsg" style="margin-bottom:18px;"></div>
 
   <!-- Color Palette Card -->
   <div class="card">
@@ -300,24 +370,7 @@
       <h2>Generated Copy</h2>
       <button class="regen-btn" onclick="generate()">↺ Regenerate</button>
     </div>
-    <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
-    <div id="subjectLines" style="margin-bottom:20px;"></div>
-    <div class="section-label" style="margin-bottom:9px;">Email body copy</div>
-    <div class="body-preview">
-      <div class="preview-bar"><div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div><span>Paste into AiTrillion text block</span></div>
-      <div class="preview-body">
-        <div class="preview-hook" id="previewHook"></div>
-        <div class="preview-text" id="previewBody"></div>
-        <div class="preview-ctas"><div class="cta-tag primary" id="ctaPrimary"></div><div class="cta-tag secondary" id="ctaSecondary"></div></div>
-        <div class="preview-sign">xoxo, Court ✦ Links in bio</div>
-      </div>
-    </div>
-    <div class="copy-row">
-      <button class="copy-btn" id="copyBodyBtn" onclick="copyBody()">Copy body text</button>
-      <button class="copy-btn" id="copySubjBtn" onclick="copySubject()">Copy selected subject</button>
-      <button class="copy-btn" id="copyAllBtn" onclick="copyAll()">Copy all</button>
-    </div>
-    <div class="insight" id="insight"></div>
+    <div id="resultsBody"></div>
   </div>
 
 </div>
@@ -363,11 +416,12 @@
         <div class="field">
           <label>Email type</label>
           <select id="log-type">
-            <option value="sale">Sale</option>
-            <option value="new-arrivals">New Arrivals</option>
-            <option value="education">Education</option>
-            <option value="last-chance">Last Chance</option>
-            <option value="seasonal">Seasonal</option>
+            <option value="newsletter">Newsletter</option>
+            <option value="flash-sale">Flash Sale</option>
+            <option value="multi-send-sale">Multi-send Sale</option>
+            <option value="event">Event</option>
+            <option value="promo">Promo</option>
+            <option value="other">Other</option>
           </select>
         </div>
       </div>
@@ -396,8 +450,8 @@
       <p class="csv-hint">Paste rows from AiTrillion or a spreadsheet. One campaign per line, columns separated by commas or tabs.<br><br>
       Expected column order: <code>Name</code>, <code>Campaign</code>, <code>Subject</code>, <code>Style</code>, <code>Type</code>, <code>Open%</code>, <code>CTR%</code>, <code>Orders</code>, <code>Revenue</code>, <code>Date</code><br><br>
       Style options: <code>bold</code>, <code>curious</code>, <code>direct</code>, <code>urgency</code>, <code>unknown</code><br>
-      Type options: <code>sale</code>, <code>new-arrivals</code>, <code>education</code>, <code>last-chance</code>, <code>seasonal</code><br><br>
-      Example row:<br><code>Valentine Sale 2, Valentine's Sale, Still time to shop 💕, urgency, sale, 58, 2, 2, 254.98, 2026-02-08</code></p>
+      Type options: <code>newsletter</code>, <code>flash-sale</code>, <code>multi-send-sale</code>, <code>event</code>, <code>promo</code>, <code>other</code><br><br>
+      Example row:<br><code>Valentine Sale 2, Valentine's Sale, Still time to shop 💕, urgency, flash-sale, 58, 2, 2, 254.98, 2026-02-08</code></p>
       <textarea id="csvPaste" style="min-height:140px;font-family:'Courier New',monospace;font-size:0.78rem;" placeholder="Paste your rows here…"></textarea>
       <div class="import-success" id="importSuccess"></div>
       <div class="error" id="importError"></div>
@@ -462,8 +516,10 @@ function switchLogTab(name, btn) {
 }
 
 // ══ GENERATE TAB ════════════════════════════════
-let selectedType = 'sale';
-let selectedSubjectIdx = 0;
+let currentMode = 'campaign';
+let selectedType = 'flash-sale';
+let campaignSubjectIdx = [];
+let nlSubjectIdx = 0;
 let generatedData = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -484,9 +540,29 @@ document.addEventListener('DOMContentLoaded', function() {
   updatePerfStrip();
 });
 
-function selectSubject(idx) {
-  selectedSubjectIdx = idx;
-  document.querySelectorAll('.subject-card').forEach((c, i) => c.classList.toggle('selected', i === idx));
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('campaignFields').style.display = mode === 'campaign' ? '' : 'none';
+  document.getElementById('newsletterFields').style.display = mode === 'newsletter' ? '' : 'none';
+  document.getElementById('genBtn').textContent = mode === 'newsletter' ? 'Generate Newsletter Copy →' : 'Generate Email Copy →';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('errorMsg').classList.remove('show');
+  generatedData = null;
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function selectCampaignSubject(blockIdx, subjIdx) {
+  campaignSubjectIdx[blockIdx] = subjIdx;
+  document.querySelectorAll(`.subject-card[data-block="${blockIdx}"]`).forEach((c, i) => c.classList.toggle('selected', i === subjIdx));
+}
+
+function selectNlSubject(subjIdx) {
+  nlSubjectIdx = subjIdx;
+  document.querySelectorAll('.subject-card[data-block="nl"]').forEach((c, i) => c.classList.toggle('selected', i === subjIdx));
 }
 
 function buildPerfContext() {
@@ -524,27 +600,64 @@ ${topLines.join('\n')}`;
 }
 
 async function generate() {
-  const campaignName = document.getElementById('campaignName').value.trim();
-  const offerDetail  = document.getElementById('offerDetail').value.trim();
-  const keyMessage   = document.getElementById('keyMessage').value.trim();
-  const urgency      = document.getElementById('urgency').value;
-  const tone         = document.getElementById('tone').value;
+  if (currentMode === 'newsletter') return generateNewsletter();
+  return generateCampaign();
+}
 
-  if (!campaignName && !keyMessage) {
-    showError('Add a campaign name or key message to get started.');
-    return;
-  }
-
+function beginGenerating() {
   document.getElementById('genBtn').disabled = true;
   document.getElementById('results').classList.remove('show');
   document.getElementById('loading').classList.add('show');
   document.getElementById('errorMsg').classList.remove('show');
+}
+
+function endGenerating() {
+  document.getElementById('genBtn').disabled = false;
+  document.getElementById('loading').classList.remove('show');
+}
+
+async function callClaude(system, user) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: (function(){
+      var k = localStorage.getItem('ff_api_key')||'';
+      return {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+    })(),
+    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1600, system, messages: [{ role: 'user', content: user }] })
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(`API ${res.status}: ${errBody?.error?.message || res.statusText}`);
+  }
+  const data = await res.json();
+  let raw = data.content.map(b => b.text || '').join('');
+  raw = raw.replace(/```json|```/g, '').trim();
+  return JSON.parse(raw);
+}
+
+async function generateCampaign() {
+  const campaignName  = document.getElementById('campaignName').value.trim();
+  const campaignDates = document.getElementById('campaignDates').value.trim();
+  const goalPurpose   = document.getElementById('goalPurpose').value.trim();
+  const offerDetail   = document.getElementById('offerDetail').value.trim();
+  const keyMessage    = document.getElementById('keyMessage').value.trim();
+  const numEmails     = Math.max(1, parseInt(document.getElementById('numEmails').value, 10) || 1);
+  const audience      = document.getElementById('audience').value.trim();
+  const urgency       = document.getElementById('urgency').value;
+  const tone          = document.getElementById('tone').value;
+
+  if (!campaignName && !goalPurpose && !keyMessage) {
+    showError('Add a campaign name, goal/purpose, or key message to get started.');
+    return;
+  }
+
+  beginGenerating();
 
   const perfContext = buildPerfContext();
 
   const system = `You write email copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
 
-CONTEXT: Emails are image-heavy, designed in Canva. Template header, footer, and CTA blocks (Book a Fitting, Shop, Bra Size Calculator, SMS signup) are FIXED. You only write text sections: subject line, opening hook, and 2–3 sentence body.
+CONTEXT: Emails are image-heavy, designed in Canva. Template header, footer, and CTA blocks (Book a Fitting, Shop, Bra Size Calculator, SMS signup) are FIXED. You only write text sections: subject line, opening hook, and 2–3 sentence body — for each email in the campaign.
 
 BRAND RULES:
 - Zero guilt. Zero body shame. Zero emotional manipulation.
@@ -553,7 +666,7 @@ BRAND RULES:
 - Voice: warm, slightly cheeky, like a knowledgeable friend.
 - CTA button text: short, action-forward. One for fitting, one for calculator.
 - No sign-off — "xoxo, Court" is already in the template.
-- Anchor the body copy to the user's Key Message — it is the core idea. Offer and Campaign details support it, they don't replace it.
+- Anchor the body copy to the user's Key Message and Goal/Purpose — they are the core idea. Offer and Campaign details support it, they don't replace it.
 - Never use the literal words "guilt," "shame," or phrases like "no guessing/no guilt" as reassurance language — the goal is to never raise the concept, not to name and deny it.
 - Match urgency language to the Urgency field. If Urgency is "none/evergreen," do not imply a countdown, deadline, or expiring window (e.g. "before it's gone," "doesn't wait," "while it lasts"). Save that phrasing for when Urgency indicates an actual sale or deadline.
 - Avoid forced personification of abstract concepts or things that aren't actors (e.g. "support doesn't take a vacation," "chlorine doesn't wait," "summer's not done with you yet"). If a phrase gives human agency, intent, or a lifespan to something abstract, cut it — even when it fits a punchy "X doesn't do Y" template.
@@ -566,66 +679,228 @@ BASELINE BENCHMARKS:
 
 ${perfContext ? perfContext + '\n\nUse the actual campaign data above to inform which subject line styles and approaches are performing best for this specific audience.' : 'No custom campaign data logged yet — use the baseline benchmarks above.'}
 
+${numEmails > 1 ? `This campaign sends ${numEmails} separate emails in sequence. Write ${numEmails} distinct drafts, each with a "label" describing its role in the sequence (e.g. Announce, Reminder, Last Chance) and a different angle/hook from the others — don't just reword the same email. If this is a sale, escalate urgency across the sequence (soft mention → reminder → final hours).` : 'This campaign sends a single email — return exactly one item in "emails".'}
+
 RETURN only valid JSON, no markdown or backticks:
 {
-  "subjects": [
-    {"text": "...", "style": "bold", "note": "..."},
-    {"text": "...", "style": "curious", "note": "..."},
-    {"text": "...", "style": "direct", "note": "..."}
-  ],
-  "hook": "Opening line — different angle from subject",
-  "body": "2–3 sentences.",
-  "cta_primary": "Fitting CTA text",
-  "cta_secondary": "Calculator CTA text",
-  "insight": "One sentence on why this approach should perform based on the data."
+  "emails": [
+    {
+      "label": "${numEmails > 1 ? 'Announce' : 'Email'}",
+      "subjects": [
+        {"text": "...", "style": "bold", "note": "..."},
+        {"text": "...", "style": "curious", "note": "..."},
+        {"text": "...", "style": "direct", "note": "..."}
+      ],
+      "hook": "Opening line — different angle from subject",
+      "body": "2–3 sentences.",
+      "cta_primary": "Fitting CTA text",
+      "cta_secondary": "Calculator CTA text",
+      "insight": "One sentence on why this approach should perform based on the data."
+    }
+  ]
 }
-Style must be exactly one of: bold, curious, direct, urgency`;
+Return exactly ${numEmails} item${numEmails > 1 ? 's' : ''} in "emails". Style must be exactly one of: bold, curious, direct, urgency`;
 
-  const user = `Type: ${selectedType}\nCampaign: ${campaignName || '(not specified)'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nUrgency: ${urgency}\nTone: ${tone}`;
+  const user = `Type: ${selectedType}\nCampaign name: ${campaignName || '(not specified)'}\nCampaign date(s): ${campaignDates || 'not specified'}\nGoal/Purpose: ${goalPurpose || 'not specified'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nNumber of emails: ${numEmails}\nAudience: ${audience || 'all subscribers'}\nUrgency: ${urgency}\nTone: ${tone}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: (function(){
-        var k = localStorage.getItem('ff_api_key')||'';
-        return {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
-      })(),
-      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1000, system, messages: [{ role: 'user', content: user }] })
-    });
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      throw new Error(`API ${res.status}: ${errBody?.error?.message || res.statusText}`);
-    }
-    const data = await res.json();
-    let raw = data.content.map(b => b.text || '').join('');
-    raw = raw.replace(/```json|```/g, '').trim();
-    generatedData = JSON.parse(raw);
-    renderResults(generatedData);
+    const data = await callClaude(system, user);
+    generatedData = { mode: 'campaign', emails: data.emails };
+    campaignSubjectIdx = generatedData.emails.map(() => 0);
+    renderCampaignResults(generatedData.emails);
   } catch (err) {
     showError(`Error: ${err.message}`);
     console.error(err);
   } finally {
-    document.getElementById('genBtn').disabled = false;
-    document.getElementById('loading').classList.remove('show');
+    endGenerating();
   }
 }
 
-function renderResults(d) {
-  const container = document.getElementById('subjectLines');
-  container.innerHTML = '';
-  selectedSubjectIdx = 0;
-  d.subjects.forEach((s, i) => {
-    const card = document.createElement('div');
-    card.className = 'subject-card' + (i === 0 ? ' selected' : '');
-    card.onclick = () => selectSubject(i);
-    card.innerHTML = `<div class="subj-radio"><div class="subj-radio-dot"></div></div><div class="subj-content"><div class="subj-text">${s.text}</div><div class="subj-meta"><span class="style-badge ${s.style}">${s.style}</span><span class="subj-note">${s.note}</span></div></div>`;
-    container.appendChild(card);
-  });
-  document.getElementById('previewHook').textContent = d.hook;
-  document.getElementById('previewBody').textContent = d.body;
-  document.getElementById('ctaPrimary').textContent = d.cta_primary;
-  document.getElementById('ctaSecondary').textContent = d.cta_secondary;
-  document.getElementById('insight').innerHTML = `<strong>✦ Performance note:</strong> ${d.insight}`;
+async function generateNewsletter() {
+  const month            = document.getElementById('nlMonth').value.trim();
+  const keyMessages      = document.getElementById('nlKeyMessages').value.trim();
+  const featuredProducts = document.getElementById('nlFeaturedProducts').value.trim();
+  const customerStory    = document.getElementById('nlCustomerStory').value.trim();
+  const audience         = document.getElementById('nlAudience').value.trim();
+  const tone             = document.getElementById('nlTone').value;
+  const wantFitting      = document.getElementById('nlCtaFitting').checked;
+  const wantCalculator   = document.getElementById('nlCtaCalculator').checked;
+  const wantVip          = document.getElementById('nlCtaVip').checked;
+
+  if (!keyMessages) {
+    showError('Add Key Messages to get started.');
+    return;
+  }
+
+  beginGenerating();
+
+  const perfContext = buildPerfContext();
+  const ctaList = [
+    wantFitting && 'fitting (Book a Fitting)',
+    wantCalculator && 'calculator (Bra Size Calculator)',
+    wantVip && 'vip (VIP Referral reminder)'
+  ].filter(Boolean);
+  const ctaKeysJson = [
+    wantFitting && '"fitting": "..."',
+    wantCalculator && '"calculator": "..."',
+    wantVip && '"vip": "..."'
+  ].filter(Boolean).join(', ');
+
+  const system = `You write the monthly email newsletter for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
+
+CONTEXT: The newsletter is image-heavy, designed in Canva, sent once a month. Template header, footer, and standard nav/CTA blocks are FIXED. You only write the text sections below.
+
+BRAND RULES:
+- Zero guilt. Zero body shame. Zero emotional manipulation.
+- Voice: warm, slightly cheeky, like a knowledgeable friend.
+- No sign-off — "xoxo, Court" is already in the template.
+- No fitter/talent names anywhere.
+- No local/geographic hashtags or references unless the content is explicitly about the Kaysville location.
+- Never use the literal words "guilt," "shame," or phrases like "no guessing/no guilt" as reassurance language.
+
+SECTIONS TO WRITE:
+- Subject lines (2–3 options)
+- Header Hook: one warm opening line for the top of the newsletter
+- Key Messages copy: a short, scannable paragraph turning the raw key messages into reader-facing copy
+${featuredProducts ? '- Featured Products copy: a short blurb spotlighting the given products' : '- Do not include a featured_products_copy key — no products were given.'}
+${customerStory ? '- Customer Story/Spotlight copy: a short, tasteful blurb from the given story/testimonial notes — do not invent details not implied by the notes' : '- Do not include a customer_story_copy key — no story was given.'}
+${ctaList.length ? `- CTA copy ONLY for these selected CTAs: ${ctaList.join(', ')}. Do not write CTA copy for anything not listed.` : '- No CTAs were selected — do not include a "ctas" key at all.'}
+
+BASELINE BENCHMARKS:
+- 58% open: mid-sale urgency subject lines (less relevant for a newsletter, but scannability still matters)
+- 21% open: curiosity/question hooks
+- 1–2% click across the board
+
+${perfContext ? perfContext + '\n\nUse the actual campaign data above to inform which subject line styles are performing best for this audience.' : 'No custom campaign data logged yet — use the baseline benchmarks above.'}
+
+RETURN only valid JSON, no markdown or backticks:
+{
+  "subjects": [
+    {"text": "...", "style": "bold", "note": "..."},
+    {"text": "...", "style": "curious", "note": "..."}
+  ],
+  "header_hook": "...",
+  "key_messages_copy": "..."${featuredProducts ? ',\n  "featured_products_copy": "..."' : ''}${customerStory ? ',\n  "customer_story_copy": "..."' : ''}${ctaList.length ? ',\n  "ctas": { ' + ctaKeysJson + ' }' : ''},
+  "insight": "One sentence on why this approach should perform based on the data."
+}
+Only include the featured_products_copy / customer_story_copy / ctas keys exactly as instructed above — omit any that don't apply. Style must be exactly one of: bold, curious, direct, urgency`;
+
+  const user = `Month/Date: ${month || '(not specified)'}\nKey Messages: ${keyMessages}\nFeatured Products: ${featuredProducts || 'none'}\nCustomer Story/Spotlight: ${customerStory || 'none'}\nAudience: ${audience || 'all subscribers'}\nTone: ${tone}\nSelected CTAs: ${ctaList.length ? ctaList.join(', ') : 'none'}`;
+
+  try {
+    const data = await callClaude(system, user);
+    generatedData = { mode: 'newsletter', ...data };
+    nlSubjectIdx = 0;
+    renderNewsletterResults(generatedData);
+  } catch (err) {
+    showError(`Error: ${err.message}`);
+    console.error(err);
+  } finally {
+    endGenerating();
+  }
+}
+
+function renderCampaignResults(emails) {
+  const body = document.getElementById('resultsBody');
+  const multi = emails.length > 1;
+  body.innerHTML = emails.map((d, i) => `
+    <div class="email-block">
+      ${multi ? `<div class="email-block-label">Email ${i+1} of ${emails.length}${d.label ? ' — ' + escapeHtml(d.label) : ''}</div>` : ''}
+      <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
+      <div style="margin-bottom:20px;">
+        ${d.subjects.map((s, si) => `
+          <div class="subject-card${si===0?' selected':''}" data-block="${i}" onclick="selectCampaignSubject(${i}, ${si})">
+            <div class="subj-radio"><div class="subj-radio-dot"></div></div>
+            <div class="subj-content">
+              <div class="subj-text">${escapeHtml(s.text)}</div>
+              <div class="subj-meta"><span class="style-badge ${s.style}">${s.style}</span><span class="subj-note">${escapeHtml(s.note)}</span></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="section-label" style="margin-bottom:9px;">Email body copy</div>
+      <div class="body-preview">
+        <div class="preview-bar"><div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div><span>Paste into AiTrillion text block</span></div>
+        <div class="preview-body">
+          <div class="preview-hook">${escapeHtml(d.hook)}</div>
+          <div class="preview-text">${escapeHtml(d.body)}</div>
+          <div class="preview-ctas"><div class="cta-tag primary">${escapeHtml(d.cta_primary)}</div><div class="cta-tag secondary">${escapeHtml(d.cta_secondary)}</div></div>
+          <div class="preview-sign">xoxo, Court ✦ Links in bio</div>
+        </div>
+      </div>
+      <div class="copy-row">
+        <button class="copy-btn" id="copyBodyBtn-${i}" onclick="copyCampaignBody(${i})">Copy body text</button>
+        <button class="copy-btn" id="copySubjBtn-${i}" onclick="copyCampaignSubject(${i})">Copy selected subject</button>
+        <button class="copy-btn" id="copyAllBtn-${i}" onclick="copyCampaignAll(${i})">Copy all</button>
+      </div>
+      <div class="insight"><strong>✦ Performance note:</strong> ${escapeHtml(d.insight)}</div>
+    </div>`).join('') + (multi ? `<button class="copy-btn" id="copySequenceBtn" onclick="copyCampaignSequence()" style="width:100%;">Copy entire sequence</button>` : '');
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderNewsletterResults(d) {
+  const body = document.getElementById('resultsBody');
+  let html = `
+    <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
+    <div style="margin-bottom:20px;">
+      ${d.subjects.map((s, si) => `
+        <div class="subject-card${si===0?' selected':''}" data-block="nl" onclick="selectNlSubject(${si})">
+          <div class="subj-radio"><div class="subj-radio-dot"></div></div>
+          <div class="subj-content">
+            <div class="subj-text">${escapeHtml(s.text)}</div>
+            <div class="subj-meta"><span class="style-badge ${s.style}">${s.style}</span><span class="subj-note">${escapeHtml(s.note)}</span></div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="email-block">
+      <div class="section-label" style="margin-bottom:9px;">Header Hook</div>
+      <div class="body-preview"><div class="preview-body"><div class="preview-hook" style="margin-bottom:0;">${escapeHtml(d.header_hook)}</div></div></div>
+      <div class="copy-row"><button class="copy-btn" id="copyHookBtn" onclick="copyNlSection('header_hook','copyHookBtn')">Copy header hook</button></div>
+    </div>
+    <div class="email-block">
+      <div class="section-label" style="margin-bottom:9px;">Key Messages copy</div>
+      <div class="body-preview"><div class="preview-body"><div class="preview-text" style="margin-bottom:0;">${escapeHtml(d.key_messages_copy)}</div></div></div>
+      <div class="copy-row"><button class="copy-btn" id="copyKeyBtn" onclick="copyNlSection('key_messages_copy','copyKeyBtn')">Copy key messages</button></div>
+    </div>`;
+
+  if (d.featured_products_copy) {
+    html += `
+    <div class="email-block">
+      <div class="section-label" style="margin-bottom:9px;">Featured Products copy</div>
+      <div class="body-preview"><div class="preview-body"><div class="preview-text" style="margin-bottom:0;">${escapeHtml(d.featured_products_copy)}</div></div></div>
+      <div class="copy-row"><button class="copy-btn" id="copyFeaturedBtn" onclick="copyNlSection('featured_products_copy','copyFeaturedBtn')">Copy featured products</button></div>
+    </div>`;
+  }
+
+  if (d.customer_story_copy) {
+    html += `
+    <div class="email-block">
+      <div class="section-label" style="margin-bottom:9px;">Customer Story/Spotlight copy</div>
+      <div class="body-preview"><div class="preview-body"><div class="preview-text" style="margin-bottom:0;">${escapeHtml(d.customer_story_copy)}</div></div></div>
+      <div class="copy-row"><button class="copy-btn" id="copyStoryBtn" onclick="copyNlSection('customer_story_copy','copyStoryBtn')">Copy customer story</button></div>
+    </div>`;
+  }
+
+  if (d.ctas && Object.keys(d.ctas).length) {
+    const ctaLabels = { fitting: 'Book a Fitting', calculator: 'Size Calculator', vip: 'VIP Referral' };
+    html += `
+    <div class="email-block">
+      <div class="section-label" style="margin-bottom:9px;">CTAs</div>
+      <div class="preview-ctas" style="margin-bottom:0;">
+        ${Object.entries(d.ctas).map(([k,v]) => `<div class="cta-tag primary" title="${escapeHtml(ctaLabels[k]||k)}">${escapeHtml(v)}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += `
+    <div class="copy-row">
+      <button class="copy-btn" id="copyNlSubjBtn" onclick="copyNlSubject()">Copy selected subject</button>
+      <button class="copy-btn" id="copyNlAllBtn" onclick="copyNlAll()">Copy entire newsletter</button>
+    </div>
+    <div class="insight"><strong>✦ Performance note:</strong> ${escapeHtml(d.insight)}</div>`;
+
+  body.innerHTML = html;
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -637,16 +912,56 @@ function showError(msg) {
   document.getElementById('loading').classList.remove('show');
 }
 
-function copyBody() { if (!generatedData) return; copyToClipboard(`${generatedData.hook}\n\n${generatedData.body}`, 'copyBodyBtn'); }
-function copySubject() { if (!generatedData) return; copyToClipboard(generatedData.subjects[selectedSubjectIdx].text, 'copySubjBtn'); }
-function copyAll() {
-  if (!generatedData) return;
-  const subj = generatedData.subjects[selectedSubjectIdx].text;
-  copyToClipboard(`SUBJECT LINE:\n${subj}\n\nBODY COPY:\n${generatedData.hook}\n\n${generatedData.body}\n\nCTA — Fitting: ${generatedData.cta_primary}\nCTA — Calculator: ${generatedData.cta_secondary}`, 'copyAllBtn');
+function copyCampaignBody(i) {
+  if (!generatedData || generatedData.mode !== 'campaign') return;
+  const d = generatedData.emails[i];
+  copyToClipboard(`${d.hook}\n\n${d.body}`, `copyBodyBtn-${i}`);
+}
+function copyCampaignSubject(i) {
+  if (!generatedData || generatedData.mode !== 'campaign') return;
+  const d = generatedData.emails[i];
+  copyToClipboard(d.subjects[campaignSubjectIdx[i] || 0].text, `copySubjBtn-${i}`);
+}
+function copyCampaignAll(i) {
+  if (!generatedData || generatedData.mode !== 'campaign') return;
+  const d = generatedData.emails[i];
+  const subj = d.subjects[campaignSubjectIdx[i] || 0].text;
+  copyToClipboard(`SUBJECT LINE:\n${subj}\n\nBODY COPY:\n${d.hook}\n\n${d.body}\n\nCTA — Fitting: ${d.cta_primary}\nCTA — Calculator: ${d.cta_secondary}`, `copyAllBtn-${i}`);
+}
+function copyCampaignSequence() {
+  if (!generatedData || generatedData.mode !== 'campaign') return;
+  const text = generatedData.emails.map((d, i) => {
+    const subj = d.subjects[campaignSubjectIdx[i] || 0].text;
+    return `EMAIL ${i+1}${d.label ? ' — ' + d.label : ''}\nSUBJECT LINE:\n${subj}\n\nBODY COPY:\n${d.hook}\n\n${d.body}\n\nCTA — Fitting: ${d.cta_primary}\nCTA — Calculator: ${d.cta_secondary}`;
+  }).join('\n\n────────\n\n');
+  copyToClipboard(text, 'copySequenceBtn');
+}
+
+function copyNlSection(key, btnId) {
+  if (!generatedData || generatedData.mode !== 'newsletter') return;
+  copyToClipboard(generatedData[key] || '', btnId);
+}
+function copyNlSubject() {
+  if (!generatedData || generatedData.mode !== 'newsletter') return;
+  copyToClipboard(generatedData.subjects[nlSubjectIdx].text, 'copyNlSubjBtn');
+}
+function copyNlAll() {
+  if (!generatedData || generatedData.mode !== 'newsletter') return;
+  const d = generatedData;
+  const subj = d.subjects[nlSubjectIdx].text;
+  const ctaLabels = { fitting: 'Book a Fitting', calculator: 'Size Calculator', vip: 'VIP Referral' };
+  let text = `SUBJECT LINE:\n${subj}\n\nHEADER HOOK:\n${d.header_hook}\n\nKEY MESSAGES:\n${d.key_messages_copy}`;
+  if (d.featured_products_copy) text += `\n\nFEATURED PRODUCTS:\n${d.featured_products_copy}`;
+  if (d.customer_story_copy) text += `\n\nCUSTOMER STORY/SPOTLIGHT:\n${d.customer_story_copy}`;
+  if (d.ctas && Object.keys(d.ctas).length) {
+    text += `\n\nCTAS:\n` + Object.entries(d.ctas).map(([k,v]) => `${ctaLabels[k]||k}: ${v}`).join('\n');
+  }
+  copyToClipboard(text, 'copyNlAllBtn');
 }
 function copyToClipboard(text, btnId) {
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById(btnId);
+    if (!btn) return;
     const orig = btn.textContent;
     btn.textContent = 'Copied!'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
@@ -753,7 +1068,7 @@ function addCampaign() {
 
   ['log-name','log-campaign','log-subject','log-open','log-click','log-orders','log-revenue','log-date'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('log-style').value = 'bold';
-  document.getElementById('log-type').value = 'sale';
+  document.getElementById('log-type').value = 'flash-sale';
 
   const suc = document.getElementById('log-success');
   suc.style.display = 'block';
@@ -783,13 +1098,13 @@ function importCSV() {
     const revenue = parseFloat(revenueStr) || 0;
     if (!name || !subject || isNaN(open) || isNaN(click)) { errors++; return; }
     const validStyles = ['bold','curious','direct','urgency','unknown'];
-    const validTypes = ['sale','new-arrivals','education','last-chance','seasonal'];
+    const validTypes = ['newsletter','flash-sale','multi-send-sale','event','promo','other'];
     campaigns.push({
       id: Date.now() + i,
       name, campaign: campaign || '',
       subject,
       style: validStyles.includes(style) ? style : 'unknown',
-      type: validTypes.includes(type) ? type : 'sale',
+      type: validTypes.includes(type) ? type : 'flash-sale',
       open, click, orders, revenue,
       date: date || ''
     });
