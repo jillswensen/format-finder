@@ -71,6 +71,17 @@
   .email-block:not(:first-child) { border-top: 1.5px dashed var(--slate-light); }
   .email-block-label { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.92rem; color: var(--slate-dark); margin-bottom: 10px; }
 
+  /* ── SMS tab ── */
+  .reason-btn { padding: 6px 14px; border: 1.5px solid #dde6ec; border-radius: 20px; background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--charcoal); appearance: none; -webkit-appearance: none; outline: none; }
+  .reason-btn:hover { border-color: var(--slate); }
+  .reason-btn.active { background: var(--slate); border-color: var(--slate); color: white; }
+  .sms-bubble { background: var(--slate-light); border-radius: 16px; border-bottom-left-radius: 4px; padding: 12px 16px; font-size: 0.9rem; line-height: 1.5; color: var(--charcoal); margin-bottom: 6px; display: inline-block; max-width: 100%; }
+  .sms-charcount { font-size: 0.72rem; color: var(--mid); margin-bottom: 12px; }
+  .sms-charcount.over { color: var(--danger); font-weight: 600; }
+  .shorten-btn { font-size: 0.73rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--danger); background: white; border: 1.5px solid #f0c4c0; border-radius: 20px; padding: 5px 13px; cursor: pointer; transition: all 0.15s; margin-left: 8px; }
+  .shorten-btn:hover { background: #fde8e8; }
+  .shorten-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
   .gen-btn { width: 100%; padding: 13px; background: var(--slate); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background 0.2s, transform 0.1s; }
   .gen-btn:hover { background: var(--slate-dark); }
   .gen-btn:active { transform: scale(0.99); }
@@ -235,6 +246,7 @@
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="generate" onclick="switchTab('generate')">✦ Generate</button>
   <button class="tab-btn" data-tab="log" onclick="switchTab('log')">📊 Campaign Log</button>
+  <button class="tab-btn" data-tab="sms" onclick="switchTab('sms')">💬 Text Message</button>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -484,6 +496,53 @@
 </div><!-- /tab-log -->
 
 
+<!-- ══════════════════════════════════════
+     TAB 3 — TEXT MESSAGE (SMS)
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-sms">
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">Text Message Details</div>
+    <div class="section-label" style="margin-bottom:9px;">Reason</div>
+    <div class="type-row">
+      <button class="reason-btn active" data-reason="sale">Sale</button>
+      <button class="reason-btn" data-reason="event">Local Event</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Campaign</label><input type="text" id="smsCampaign" placeholder="e.g. Summer Flash Sale 2026" /></div>
+      <div class="field"><label>Number of Texts in Sequence</label><input type="number" id="smsNumTexts" value="1" min="1" step="1" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Key message — what's the sale or event about?</label><textarea id="smsKeyMessage" placeholder="e.g. 20% off everything this weekend only…"></textarea></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Send Date/Time</label><input type="text" id="smsSendDate" placeholder="e.g. Fri Aug 8, 10am" /></div>
+      <div class="field"><label>Audience</label><input type="text" id="smsAudience" placeholder="all subscribers / segment to Davis County…" /></div>
+    </div>
+    <div class="form-grid">
+      <div class="field span2"><label>Link <span style="text-transform:none;font-weight:400;">(added after your message — not counted toward the 100-character copy)</span></label><input type="text" id="smsLink" placeholder="https://brafittingsbycourt.com/…" /></div>
+    </div>
+    <button class="gen-btn" id="smsGenBtn" onclick="generateSms()">Generate Text Copy →</button>
+    <div class="error" id="smsErrorMsg"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="smsLoading"><div class="spinner"></div><p>Writing your text…</p></div>
+
+  <!-- Results -->
+  <div class="results" id="smsResults">
+    <div class="results-header">
+      <h2>Generated Text Copy</h2>
+      <button class="regen-btn" onclick="generateSms()">↺ Regenerate</button>
+    </div>
+    <div id="smsResultsBody"></div>
+  </div>
+
+</div>
+</div><!-- /tab-sms -->
+
+
 <script>
 // ══ STORAGE ══════════════════════════════════════
 const STORAGE_KEY = 'bfc_campaigns_v1';
@@ -518,9 +577,11 @@ function switchLogTab(name, btn) {
 // ══ GENERATE TAB ════════════════════════════════
 let currentMode = 'campaign';
 let selectedType = 'flash-sale';
+let selectedReason = 'sale';
 let campaignSubjectIdx = [];
 let nlSubjectIdx = 0;
 let generatedData = null;
+let generatedSmsData = null;
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -535,6 +596,13 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       selectedType = btn.dataset.type;
+    });
+  });
+  document.querySelectorAll('.reason-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.reason-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedReason = btn.dataset.reason;
     });
   });
   updatePerfStrip();
@@ -616,14 +684,14 @@ function endGenerating() {
   document.getElementById('loading').classList.remove('show');
 }
 
-async function callClaude(system, user) {
+async function callClaude(system, user, opts = {}) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: (function(){
       var k = localStorage.getItem('ff_api_key')||'';
       return {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
     })(),
-    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1600, system, messages: [{ role: 'user', content: user }] })
+    body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: opts.maxTokens || 1600, system, messages: [{ role: 'user', content: user }] })
   });
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
@@ -631,6 +699,7 @@ async function callClaude(system, user) {
   }
   const data = await res.json();
   let raw = data.content.map(b => b.text || '').join('');
+  if (opts.raw) return raw.trim();
   raw = raw.replace(/```json|```/g, '').trim();
   return JSON.parse(raw);
 }
@@ -966,6 +1035,133 @@ function copyToClipboard(text, btnId) {
     btn.textContent = 'Copied!'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
   });
+}
+
+// ══ TEXT MESSAGE (SMS) TAB ═══════════════════════
+const SMS_CHAR_LIMIT = 100;
+
+function beginSmsGenerating() {
+  document.getElementById('smsGenBtn').disabled = true;
+  document.getElementById('smsResults').classList.remove('show');
+  document.getElementById('smsLoading').classList.add('show');
+  document.getElementById('smsErrorMsg').classList.remove('show');
+}
+
+function endSmsGenerating() {
+  document.getElementById('smsGenBtn').disabled = false;
+  document.getElementById('smsLoading').classList.remove('show');
+}
+
+function showSmsError(msg) {
+  const el = document.getElementById('smsErrorMsg');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('smsGenBtn').disabled = false;
+  document.getElementById('smsLoading').classList.remove('show');
+}
+
+async function generateSms() {
+  const campaign   = document.getElementById('smsCampaign').value.trim();
+  const numTexts   = Math.max(1, parseInt(document.getElementById('smsNumTexts').value, 10) || 1);
+  const keyMessage = document.getElementById('smsKeyMessage').value.trim();
+  const sendDate   = document.getElementById('smsSendDate').value.trim();
+  const audience   = document.getElementById('smsAudience').value.trim();
+  const link       = document.getElementById('smsLink').value.trim();
+
+  if (!keyMessage) {
+    showSmsError("Add a key message — what's the sale or event about?");
+    return;
+  }
+
+  beginSmsGenerating();
+
+  const reasonLabel = selectedReason === 'event' ? 'Local event' : 'Sale';
+
+  const system = `You write SMS/text message copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator.
+
+CONTEXT: These are short promotional texts, sent ONLY for a sale or a segmented local event — never a routine newsletter. The shop name and a link are added automatically by the SMS platform outside of what you write. Do NOT include a shop name, sign-off, or URL in your message — write only the message itself.
+
+HARD CONSTRAINT: Each message must be ${SMS_CHAR_LIMIT} characters or fewer, counted exactly (spaces and punctuation included) — this is the space left after the shop name and link are added elsewhere. Go shorter rather than risk going over. Every word must earn its place.
+
+BRAND RULES:
+- Zero guilt. Zero body shame. Zero emotional manipulation.
+- Voice: warm, slightly cheeky, like a text from a friend — not a corporate blast.
+- No fitter/talent names.
+- No local/geographic hashtags or references unless the content is explicitly about the Kaysville location.
+- Never use the literal words "guilt" or "shame."
+- One idea per text. No filler ("just," "simply," "don't miss out" clichés).
+
+${numTexts > 1 ? `This is a ${numTexts}-part sequence (e.g. announce → reminder → last call). Write ${numTexts} distinct messages, each with a "label" for its role in the sequence, escalating urgency toward the end${reasonLabel === 'Sale' ? ' since this is a sale' : ''}.` : 'This is a single one-off text — return exactly one item in "texts".'}
+
+RETURN only valid JSON, no markdown or backticks:
+{
+  "texts": [
+    { "label": "${numTexts > 1 ? 'Announce' : 'Text'}", "message": "..." }
+  ]
+}
+Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "message" must be ${SMS_CHAR_LIMIT} characters or fewer.`;
+
+  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nSend date/time: ${sendDate || 'not specified'}\nAudience: ${audience || 'all subscribers'}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}`;
+
+  try {
+    const data = await callClaude(system, user);
+    generatedSmsData = { texts: data.texts };
+    renderSmsResults(generatedSmsData.texts);
+  } catch (err) {
+    showSmsError(`Error: ${err.message}`);
+    console.error(err);
+  } finally {
+    endSmsGenerating();
+  }
+}
+
+function renderSmsResults(texts) {
+  const body = document.getElementById('smsResultsBody');
+  const multi = texts.length > 1;
+  body.innerHTML = texts.map((t, i) => {
+    const len = t.message.length;
+    const over = len > SMS_CHAR_LIMIT;
+    return `
+    <div class="email-block">
+      ${multi ? `<div class="email-block-label">Text ${i+1} of ${texts.length}${t.label ? ' — ' + escapeHtml(t.label) : ''}</div>` : ''}
+      <div class="sms-bubble">${escapeHtml(t.message)}</div>
+      <div class="sms-charcount${over ? ' over' : ''}">${len} / ${SMS_CHAR_LIMIT} characters${over ? ' — over limit' : ''}</div>
+      <div class="copy-row">
+        <button class="copy-btn" id="copySmsBtn-${i}" onclick="copySmsMessage(${i})">Copy message</button>
+        ${over ? `<button class="shorten-btn" id="shortenBtn-${i}" onclick="shortenSmsText(${i})">Shorten to fit →</button>` : ''}
+      </div>
+    </div>`;
+  }).join('') + (multi ? `<button class="copy-btn" id="copySmsSequenceBtn" onclick="copySmsSequence()" style="width:100%;">Copy entire sequence</button>` : '');
+
+  document.getElementById('smsResults').classList.add('show');
+  document.getElementById('smsResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function shortenSmsText(i) {
+  if (!generatedSmsData) return;
+  const btn = document.getElementById(`shortenBtn-${i}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Shortening…'; }
+
+  const system = `Rewrite the following SMS message so it is ${SMS_CHAR_LIMIT} characters or fewer (spaces and punctuation included), while preserving its core offer/CTA and the brand voice (warm, slightly cheeky, like a text from a friend). Do not add a shop name, sign-off, or URL. Return ONLY the rewritten message text — no quotes, no JSON, no explanation.`;
+
+  try {
+    const newMsg = await callClaude(system, generatedSmsData.texts[i].message, { raw: true, maxTokens: 200 });
+    generatedSmsData.texts[i].message = newMsg.replace(/^["']|["']$/g, '').trim();
+    renderSmsResults(generatedSmsData.texts);
+  } catch (err) {
+    showSmsError(`Error: ${err.message}`);
+    console.error(err);
+  }
+}
+
+function copySmsMessage(i) {
+  if (!generatedSmsData) return;
+  copyToClipboard(generatedSmsData.texts[i].message, `copySmsBtn-${i}`);
+}
+
+function copySmsSequence() {
+  if (!generatedSmsData) return;
+  const text = generatedSmsData.texts.map((t, i) => `TEXT ${i+1}${t.label ? ' — ' + t.label : ''}:\n${t.message}`).join('\n\n────────\n\n');
+  copyToClipboard(text, 'copySmsSequenceBtn');
 }
 
 // ══ COLOR PALETTE ═══════════════════════════════
