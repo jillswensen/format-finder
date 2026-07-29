@@ -229,11 +229,11 @@
     </div>
     <div class="form-grid">
       <div class="field"><label>Offer detail (if any)</label><input type="text" id="offerDetail" placeholder="e.g. 15% off, free shipping…" /></div>
-      <div class="field"><label>Number of Emails to Send</label><input type="number" id="numEmails" value="1" min="1" step="1" /></div>
+      <div class="field"><label>Number of Emails to Send</label><input type="number" id="numEmails" value="1" min="1" max="6" step="1" /></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Audience</label><input type="text" id="audience" placeholder="all subscribers / segment / VIP only…" /></div>
-      <div class="field">
+      <div class="field"><label id="audienceLabel">Audience</label><input type="text" id="audience" placeholder="all subscribers / segment / VIP only…" /></div>
+      <div class="field" id="urgencyField">
         <label>Urgency</label>
         <select id="urgency">
           <option value="none">None — evergreen</option>
@@ -242,6 +242,10 @@
           <option value="high">High — last day / hours left</option>
         </select>
       </div>
+    </div>
+    <div id="perEmailSection" style="display:none;">
+      <div class="section-label" style="margin-top:2px;">Per-Email Details</div>
+      <div id="perEmailContainer"></div>
     </div>
     <div class="form-grid">
       <div class="field">
@@ -389,6 +393,10 @@ let nlSubjectIdx = 0;
 let generatedData = null;
 let generatedSmsData = null;
 
+const TIMING_LABELS = { start: 'Start', mid: 'Mid', end: 'End' };
+const URGENCY_LABELS = { none: 'None', soft: 'Soft', mid: 'Mid', high: 'High' };
+const MAX_CAMPAIGN_EMAILS = 6;
+
 document.addEventListener('DOMContentLoaded', function() {
 
   // ── Password gate ──
@@ -411,6 +419,11 @@ document.addEventListener('DOMContentLoaded', function() {
       selectedReason = btn.dataset.reason;
     });
   });
+
+  document.getElementById('numEmails').addEventListener('input', () => {
+    renderPerEmailFields(clampNumEmails(document.getElementById('numEmails').value));
+  });
+  renderPerEmailFields(clampNumEmails(document.getElementById('numEmails').value));
 });
 
 function switchMode(mode) {
@@ -436,6 +449,102 @@ function selectCampaignSubject(blockIdx, subjIdx) {
 function selectNlSubject(subjIdx) {
   nlSubjectIdx = subjIdx;
   document.querySelectorAll('.subject-card[data-block="nl"]').forEach((c, i) => c.classList.toggle('selected', i === subjIdx));
+}
+
+function clampNumEmails(val) {
+  return Math.max(1, Math.min(MAX_CAMPAIGN_EMAILS, parseInt(val, 10) || 1));
+}
+
+function defaultTimingForIndex(i, n) {
+  if (i === 0) return 'start';
+  if (i === n - 1) return 'end';
+  return 'mid';
+}
+
+function defaultUrgencyForTiming(timing) {
+  return { start: 'soft', mid: 'mid', end: 'high' }[timing] || 'soft';
+}
+
+function perEmailBlockHtml(i) {
+  return `
+    <div class="email-block" style="margin-bottom:14px; padding-top:12px;">
+      <div class="email-block-label">Email ${i + 1}</div>
+      <div class="form-grid">
+        <div class="field"><label>Send Timing</label>
+          <select id="peTiming-${i}">
+            <option value="start">Start</option><option value="mid">Mid</option><option value="end">End</option>
+          </select>
+        </div>
+        <div class="field"><label>Urgency</label>
+          <select id="peUrgency-${i}">
+            <option value="none">None — evergreen</option>
+            <option value="soft">Soft — "while they last"</option>
+            <option value="mid">Mid — sale ends soon</option>
+            <option value="high">High — last day / hours left</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Segment / Audience (optional)</label><input type="text" id="peSegment-${i}" placeholder="defaults to campaign audience" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field span2"><label>Focus for this email (optional)</label><textarea id="peFocus-${i}" placeholder="e.g. remind about free shipping cutoff"></textarea></div>
+      </div>
+    </div>`;
+}
+
+function readCurrentPerEmailValues() {
+  const out = [];
+  let i = 0, el;
+  while ((el = document.getElementById(`peTiming-${i}`))) {
+    out.push({
+      timing: el.value,
+      urgency: document.getElementById(`peUrgency-${i}`).value,
+      segment: document.getElementById(`peSegment-${i}`).value,
+      focus: document.getElementById(`peFocus-${i}`).value
+    });
+    i++;
+  }
+  return out;
+}
+
+function renderPerEmailFields(numEmails) {
+  const section = document.getElementById('perEmailSection');
+  const urgencyField = document.getElementById('urgencyField');
+  const audienceLabel = document.getElementById('audienceLabel');
+  const container = document.getElementById('perEmailContainer');
+
+  if (numEmails <= 1) {
+    section.style.display = 'none';
+    urgencyField.style.display = '';
+    audienceLabel.textContent = 'Audience';
+    container.innerHTML = '';
+    return;
+  }
+
+  const prev = readCurrentPerEmailValues();
+  section.style.display = '';
+  urgencyField.style.display = 'none';
+  audienceLabel.textContent = 'Default Audience';
+
+  container.innerHTML = Array.from({ length: numEmails }, (_, i) => perEmailBlockHtml(i)).join('');
+
+  for (let i = 0; i < numEmails; i++) {
+    const timingEl = document.getElementById(`peTiming-${i}`);
+    const urgencyEl = document.getElementById(`peUrgency-${i}`);
+    const segmentEl = document.getElementById(`peSegment-${i}`);
+    const focusEl = document.getElementById(`peFocus-${i}`);
+    if (prev[i]) {
+      timingEl.value = prev[i].timing;
+      urgencyEl.value = prev[i].urgency;
+      segmentEl.value = prev[i].segment;
+      focusEl.value = prev[i].focus;
+    } else {
+      const t = defaultTimingForIndex(i, numEmails);
+      timingEl.value = t;
+      urgencyEl.value = defaultUrgencyForTiming(t);
+    }
+  }
 }
 
 async function generate() {
@@ -481,9 +590,8 @@ async function generateCampaign() {
   const goalPurpose   = document.getElementById('goalPurpose').value.trim();
   const offerDetail   = document.getElementById('offerDetail').value.trim();
   const keyMessage    = document.getElementById('keyMessage').value.trim();
-  const numEmails     = Math.max(1, parseInt(document.getElementById('numEmails').value, 10) || 1);
+  const numEmails     = clampNumEmails(document.getElementById('numEmails').value);
   const audience      = document.getElementById('audience').value.trim();
-  const urgency       = document.getElementById('urgency').value;
   const tone          = document.getElementById('tone').value;
 
   if (!campaignName && !goalPurpose && !keyMessage) {
@@ -492,6 +600,36 @@ async function generateCampaign() {
   }
 
   beginGenerating();
+
+  let perEmails = null, multiSection, userTail;
+
+  if (numEmails > 1) {
+    const timingRole = {
+      start: 'announce — introduce the news/offer fresh',
+      mid: "re-trigger for people who haven't acted yet — don't just repeat the announcement, add a reason to look again",
+      end: 'final urgency — closing push'
+    };
+    perEmails = [];
+    for (let i = 0; i < numEmails; i++) {
+      const timing  = document.getElementById(`peTiming-${i}`).value;
+      const urg     = document.getElementById(`peUrgency-${i}`).value;
+      const segment = document.getElementById(`peSegment-${i}`).value.trim();
+      const focus   = document.getElementById(`peFocus-${i}`).value.trim();
+      perEmails.push({ timing, urgency: urg, audience: segment || audience || 'all subscribers', focus });
+    }
+    const perEmailGuidance = perEmails.map((e, i) =>
+      `Email ${i+1}: Timing=${TIMING_LABELS[e.timing]} (role: ${timingRole[e.timing]}), Urgency=${e.urgency}, Audience="${e.audience}"${e.focus ? `, Focus="${e.focus}"` : ''}`
+    ).join('\n');
+    multiSection = `This campaign sends ${numEmails} separate emails in sequence, each with an explicit brief below — use it, don't invent your own roles:
+${perEmailGuidance}
+
+For each email: let its Timing set its role in the arc (start=announce, mid=re-trigger non-responders, end=final urgency) and let its own Urgency value set how much deadline/countdown pressure to use — same rule as above (no countdown language for none/soft). Narrow the message toward the given Audience when it differs from the default. When a Focus is given, make it that email's specific angle. Vary phrasing across every email — no repeated CTA text or hook structure — and where the arc supports it, let an earlier email reference the sequence continuing (e.g. "last chance coming up") when a higher-urgency email follows it. Give each "label" a short name reflecting its timing role (e.g. "Announce", "Reminder", "Last Chance").`;
+    userTail = `Per-email details:\n${perEmails.map((e,i) => `Email ${i+1} — Timing: ${TIMING_LABELS[e.timing]} | Urgency: ${e.urgency} | Audience: ${e.audience}${e.focus ? ' | Focus: ' + e.focus : ''}`).join('\n')}`;
+  } else {
+    const urgency = document.getElementById('urgency').value;
+    multiSection = 'This campaign sends a single email — return exactly one item in "emails".';
+    userTail = `Audience: ${audience || 'all subscribers'}\nUrgency: ${urgency}`;
+  }
 
   const system = `You write email copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
 
@@ -509,7 +647,7 @@ BRAND RULES:
 - Match urgency language to the Urgency field. If Urgency is "none/evergreen," do not imply a countdown, deadline, or expiring window (e.g. "before it's gone," "doesn't wait," "while it lasts"). Save that phrasing for when Urgency indicates an actual sale or deadline.
 - Avoid forced personification of abstract concepts or things that aren't actors (e.g. "support doesn't take a vacation," "chlorine doesn't wait," "summer's not done with you yet"). If a phrase gives human agency, intent, or a lifespan to something abstract, cut it — even when it fits a punchy "X doesn't do Y" template.
 
-${numEmails > 1 ? `This campaign sends ${numEmails} separate emails in sequence. Write ${numEmails} distinct drafts, each with a "label" describing its role in the sequence (e.g. Announce, Reminder, Last Chance) and a different angle/hook from the others — don't just reword the same email. If this is a sale, escalate urgency across the sequence (soft mention → reminder → final hours).` : 'This campaign sends a single email — return exactly one item in "emails".'}
+${multiSection}
 
 RETURN only valid JSON, no markdown or backticks:
 {
@@ -531,13 +669,13 @@ RETURN only valid JSON, no markdown or backticks:
 }
 Return exactly ${numEmails} item${numEmails > 1 ? 's' : ''} in "emails". Style must be exactly one of: bold, curious, direct, urgency`;
 
-  const user = `Type: ${selectedType}\nCampaign name: ${campaignName || '(not specified)'}\nCampaign date(s): ${campaignDates || 'not specified'}\nGoal/Purpose: ${goalPurpose || 'not specified'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nNumber of emails: ${numEmails}\nAudience: ${audience || 'all subscribers'}\nUrgency: ${urgency}\nTone: ${tone}`;
+  const user = `Type: ${selectedType}\nCampaign name: ${campaignName || '(not specified)'}\nCampaign date(s): ${campaignDates || 'not specified'}\nGoal/Purpose: ${goalPurpose || 'not specified'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nNumber of emails: ${numEmails}\nTone: ${tone}\n${userTail}`;
 
   try {
-    const data = await callClaude(system, user);
-    generatedData = { mode: 'campaign', emails: data.emails };
+    const data = await callClaude(system, user, { maxTokens: Math.min(4000, 900 + numEmails * 550) });
+    generatedData = { mode: 'campaign', emails: data.emails, perEmails };
     campaignSubjectIdx = generatedData.emails.map(() => 0);
-    renderCampaignResults(generatedData.emails);
+    renderCampaignResults(generatedData.emails, generatedData.perEmails);
   } catch (err) {
     showError(`Error: ${err.message}`);
     console.error(err);
@@ -622,12 +760,15 @@ Only include the featured_products_copy / customer_story_copy / ctas keys exactl
   }
 }
 
-function renderCampaignResults(emails) {
+function renderCampaignResults(emails, perEmails) {
   const body = document.getElementById('resultsBody');
   const multi = emails.length > 1;
-  body.innerHTML = emails.map((d, i) => `
+  body.innerHTML = emails.map((d, i) => {
+    const pe = perEmails && perEmails[i];
+    const meta = pe ? ` (${TIMING_LABELS[pe.timing]} · ${URGENCY_LABELS[pe.urgency]} urgency)` : '';
+    return `
     <div class="email-block">
-      ${multi ? `<div class="email-block-label">Email ${i+1} of ${emails.length}${d.label ? ' — ' + escapeHtml(d.label) : ''}</div>` : ''}
+      ${multi ? `<div class="email-block-label">Email ${i+1} of ${emails.length}${d.label ? ' — ' + escapeHtml(d.label) : ''}${meta}</div>` : ''}
       <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
       <div style="margin-bottom:20px;">
         ${d.subjects.map((s, si) => `
@@ -655,7 +796,8 @@ function renderCampaignResults(emails) {
         <button class="copy-btn" id="copyAllBtn-${i}" onclick="copyCampaignAll(${i})">Copy all</button>
       </div>
       <div class="insight"><strong>✦ Performance note:</strong> ${escapeHtml(d.insight)}</div>
-    </div>`).join('') + (multi ? `<button class="copy-btn" id="copySequenceBtn" onclick="copyCampaignSequence()" style="width:100%;">Copy entire sequence</button>` : '');
+    </div>`;
+  }).join('') + (multi ? `<button class="copy-btn" id="copySequenceBtn" onclick="copyCampaignSequence()" style="width:100%;">Copy entire sequence</button>` : '');
 
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -752,9 +894,12 @@ function copyCampaignAll(i) {
 }
 function copyCampaignSequence() {
   if (!generatedData || generatedData.mode !== 'campaign') return;
+  const perEmails = generatedData.perEmails;
   const text = generatedData.emails.map((d, i) => {
     const subj = d.subjects[campaignSubjectIdx[i] || 0].text;
-    return `EMAIL ${i+1}${d.label ? ' — ' + d.label : ''}\nSUBJECT LINE:\n${subj}\n\nBODY COPY:\n${d.hook}\n\n${d.body}\n\nCTA — Fitting: ${d.cta_primary}\nCTA — Calculator: ${d.cta_secondary}`;
+    const pe = perEmails && perEmails[i];
+    const meta = pe ? ` (${TIMING_LABELS[pe.timing]} · ${URGENCY_LABELS[pe.urgency]} urgency)` : '';
+    return `EMAIL ${i+1}${d.label ? ' — ' + d.label : ''}${meta}\nSUBJECT LINE:\n${subj}\n\nBODY COPY:\n${d.hook}\n\n${d.body}\n\nCTA — Fitting: ${d.cta_primary}\nCTA — Calculator: ${d.cta_secondary}`;
   }).join('\n\n────────\n\n');
   copyToClipboard(text, 'copySequenceBtn');
 }
