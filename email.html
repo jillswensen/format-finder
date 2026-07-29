@@ -517,11 +517,8 @@
       <div class="field span2"><label>Key message — what's the sale or event about?</label><textarea id="smsKeyMessage" placeholder="e.g. 20% off everything this weekend only…"></textarea></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Send Date/Time</label><input type="text" id="smsSendDate" placeholder="e.g. Fri Aug 8, 10am" /></div>
       <div class="field"><label>Audience</label><input type="text" id="smsAudience" placeholder="all subscribers / segment to Davis County…" /></div>
-    </div>
-    <div class="form-grid">
-      <div class="field span2"><label>Link <span style="text-transform:none;font-weight:400;">(added after your message — not counted toward the 100-character copy)</span></label><input type="text" id="smsLink" placeholder="https://brafittingsbycourt.com/…" /></div>
+      <div class="field"><label>Link <span style="text-transform:none;font-weight:400;">(not counted toward the 100-character copy)</span></label><input type="text" id="smsLink" placeholder="https://brafittingsbycourt.com/…" /></div>
     </div>
     <button class="gen-btn" id="smsGenBtn" onclick="generateSms()">Generate Text Copy →</button>
     <div class="error" id="smsErrorMsg"></div>
@@ -1059,11 +1056,24 @@ function showSmsError(msg) {
   document.getElementById('smsLoading').classList.remove('show');
 }
 
+function buildSaleSequenceGuidance(numTexts) {
+  if (numTexts === 1) return 'This is a single one-off text — return exactly one item in "texts".';
+  if (numTexts === 2) return `This is a 2-text sequence — the right shape for a sale running 2–4 days. Write an "Announcement" and a "Final Hours" message. The Final Hours message must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day."`;
+  if (numTexts === 3) return `This is a 3-text sequence — the right shape for a week-long sale. Write an "Announcement", a "Mid-sale Reminder", and a "Final Hours" message. The Mid-sale Reminder's job is to catch people who missed the first text and re-trigger urgency — don't just repeat the Announcement's wording. The Final Hours message must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day."`;
+  return `This is a ${numTexts}-part sale sequence. Lead with an "Announcement" and close with a "Final Hours" message anchored to the literal deadline; give any messages in between short, re-triggering reminder labels without repeating earlier wording.`;
+}
+
+function buildEventSequenceGuidance(numTexts) {
+  if (numTexts === 1) return 'This is a single one-off text (a save-the-date or a day-of nudge, whichever fits the key message) — return exactly one item in "texts".';
+  if (numTexts === 2) return `This is a 2-text sequence — the lean, minimal-effective version for a single-day pop-up. Write a "Teaser" (save-the-date framing) and a "Day-of" message (directions/location-focused, since the location is usually the unfamiliar variable, not whether to attend).`;
+  if (numTexts === 3) return `This is a 3-text sequence — the fuller version, better when the location is unfamiliar or hard to find. Write a "Teaser" (save-the-date, ~5-7 days out framing), a "Reminder" (~24-48 hours out — its job is to restate WHERE, since "wait, where is this again?" is the main drop-off point), and a "Day-of" message (directions/location-focused).`;
+  return `This is a ${numTexts}-part event sequence. Lead with a "Teaser" and close with a "Day-of" directions-focused message; give any messages in between short, logistics-reinforcing reminder labels (restating where/when) without repeating earlier wording.`;
+}
+
 async function generateSms() {
   const campaign   = document.getElementById('smsCampaign').value.trim();
   const numTexts   = Math.max(1, parseInt(document.getElementById('smsNumTexts').value, 10) || 1);
   const keyMessage = document.getElementById('smsKeyMessage').value.trim();
-  const sendDate   = document.getElementById('smsSendDate').value.trim();
   const audience   = document.getElementById('smsAudience').value.trim();
   const link       = document.getElementById('smsLink').value.trim();
 
@@ -1074,7 +1084,12 @@ async function generateSms() {
 
   beginSmsGenerating();
 
-  const reasonLabel = selectedReason === 'event' ? 'Local event' : 'Sale';
+  const isSale = selectedReason !== 'event';
+  const reasonLabel = isSale ? 'Sale' : 'Local event';
+  const sequenceGuidance = isSale ? buildSaleSequenceGuidance(numTexts) : buildEventSequenceGuidance(numTexts);
+  const messageStructure = isSale
+    ? `Lead with the discount amount itself in the first couple words (not a teaser) — people decide in a couple words whether a text is worth reading. Ideal order: discount/offer → what it applies to → urgency/deadline → one clear call to action.`
+    : `Lead with what's happening / where (not a discount) in the first couple words. Ideal order: what/where → when → one clear call to action (join us / get directions). If the key message mentions a discount or incentive, lead with that specifically in the Reminder or Day-of message instead of the Teaser — that's closer-to-the-wire urgency working the same way it does for a sale.`;
 
   const system = `You write SMS/text message copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator.
 
@@ -1082,30 +1097,33 @@ CONTEXT: These are short promotional texts, sent ONLY for a sale or a segmented 
 
 HARD CONSTRAINT: Each message must be ${SMS_CHAR_LIMIT} characters or fewer, counted exactly (spaces and punctuation included) — this is the space left after the shop name and link are added elsewhere. Go shorter rather than risk going over. Every word must earn its place.
 
+MESSAGE STRUCTURE: ${messageStructure} Keep all of value/logistics + urgency + CTA present even inside ${SMS_CHAR_LIMIT} characters — dropping any one of them measurably hurts effectiveness. Don't drop the CTA to save space.
+
 BRAND RULES:
 - Zero guilt. Zero body shame. Zero emotional manipulation.
 - Voice: warm, slightly cheeky, like a text from a friend — not a corporate blast.
 - No fitter/talent names.
 - No local/geographic hashtags or references unless the content is explicitly about the Kaysville location.
 - Never use the literal words "guilt" or "shame."
-- One idea per text. No filler ("just," "simply," "don't miss out" clichés).
+- One idea per text. No filler ("just," "simply," "don't miss out" clichés). Keep each message short and self-contained — don't re-explain the whole ${isSale ? 'sale' : 'event'} each time; that's what email is for.
 
-${numTexts > 1 ? `This is a ${numTexts}-part sequence (e.g. announce → reminder → last call). Write ${numTexts} distinct messages, each with a "label" for its role in the sequence, escalating urgency toward the end${reasonLabel === 'Sale' ? ' since this is a sale' : ''}.` : 'This is a single one-off text — return exactly one item in "texts".'}
+${sequenceGuidance}
 
 RETURN only valid JSON, no markdown or backticks:
 {
   "texts": [
-    { "label": "${numTexts > 1 ? 'Announce' : 'Text'}", "message": "..." }
-  ]
+    { "label": "...", "message": "..." }
+  ],
+  "insight": "One sentence on why this sequence length/structure fits this ${isSale ? 'sale' : 'event'}."
 }
 Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "message" must be ${SMS_CHAR_LIMIT} characters or fewer.`;
 
-  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nSend date/time: ${sendDate || 'not specified'}\nAudience: ${audience || 'all subscribers'}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}`;
+  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nAudience: ${audience || 'all subscribers'}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}`;
 
   try {
     const data = await callClaude(system, user);
-    generatedSmsData = { texts: data.texts };
-    renderSmsResults(generatedSmsData.texts);
+    generatedSmsData = { texts: data.texts, insight: data.insight };
+    renderSmsResults(generatedSmsData);
   } catch (err) {
     showSmsError(`Error: ${err.message}`);
     console.error(err);
@@ -1114,10 +1132,11 @@ Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "mess
   }
 }
 
-function renderSmsResults(texts) {
+function renderSmsResults(data) {
+  const texts = data.texts;
   const body = document.getElementById('smsResultsBody');
   const multi = texts.length > 1;
-  body.innerHTML = texts.map((t, i) => {
+  let html = texts.map((t, i) => {
     const len = t.message.length;
     const over = len > SMS_CHAR_LIMIT;
     return `
@@ -1132,6 +1151,11 @@ function renderSmsResults(texts) {
     </div>`;
   }).join('') + (multi ? `<button class="copy-btn" id="copySmsSequenceBtn" onclick="copySmsSequence()" style="width:100%;">Copy entire sequence</button>` : '');
 
+  if (data.insight) {
+    html += `<div class="insight" style="margin-top:16px;"><strong>✦ Sequence note:</strong> ${escapeHtml(data.insight)}</div>`;
+  }
+
+  body.innerHTML = html;
   document.getElementById('smsResults').classList.add('show');
   document.getElementById('smsResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1146,7 +1170,7 @@ async function shortenSmsText(i) {
   try {
     const newMsg = await callClaude(system, generatedSmsData.texts[i].message, { raw: true, maxTokens: 200 });
     generatedSmsData.texts[i].message = newMsg.replace(/^["']|["']$/g, '').trim();
-    renderSmsResults(generatedSmsData.texts);
+    renderSmsResults(generatedSmsData);
   } catch (err) {
     showSmsError(`Error: ${err.message}`);
     console.error(err);
