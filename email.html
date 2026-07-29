@@ -346,14 +346,18 @@
     </div>
     <div class="form-grid">
       <div class="field"><label>Campaign</label><input type="text" id="smsCampaign" placeholder="e.g. Summer Flash Sale 2026" /></div>
-      <div class="field"><label>Number of Texts in Sequence</label><input type="number" id="smsNumTexts" value="1" min="1" step="1" /></div>
+      <div class="field"><label>Number of Texts in Sequence</label><input type="number" id="smsNumTexts" value="1" min="1" max="4" step="1" /></div>
     </div>
     <div class="form-grid">
       <div class="field span2"><label>Key message — what's the sale or event about?</label><textarea id="smsKeyMessage" placeholder="e.g. 20% off everything this weekend only…"></textarea></div>
     </div>
     <div class="form-grid">
-      <div class="field"><label>Audience</label><input type="text" id="smsAudience" placeholder="all subscribers / segment to Davis County…" /></div>
+      <div class="field"><label id="smsAudienceLabel">Audience</label><input type="text" id="smsAudience" placeholder="all subscribers / segment to Davis County…" /></div>
       <div class="field"><label>Link <span style="text-transform:none;font-weight:400;">(not counted toward the 100-character copy)</span></label><input type="text" id="smsLink" placeholder="https://brafittingsbycourt.com/…" /></div>
+    </div>
+    <div id="smsPerTextSection" style="display:none;">
+      <div class="section-label" style="margin-top:2px;">Per-Text Details</div>
+      <div id="smsPerTextContainer"></div>
     </div>
     <button class="gen-btn" id="smsGenBtn" onclick="generateSms()">Generate Text Copy →</button>
     <div class="error" id="smsErrorMsg"></div>
@@ -396,6 +400,7 @@ let generatedSmsData = null;
 const TIMING_LABELS = { start: 'Start', mid: 'Mid', end: 'End' };
 const URGENCY_LABELS = { none: 'None', soft: 'Soft', mid: 'Mid', high: 'High' };
 const MAX_CAMPAIGN_EMAILS = 6;
+const MAX_SMS_TEXTS = 4;
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -424,6 +429,11 @@ document.addEventListener('DOMContentLoaded', function() {
     renderPerEmailFields(clampNumEmails(document.getElementById('numEmails').value));
   });
   renderPerEmailFields(clampNumEmails(document.getElementById('numEmails').value));
+
+  document.getElementById('smsNumTexts').addEventListener('input', () => {
+    renderSmsPerTextFields(clampSmsNumTexts(document.getElementById('smsNumTexts').value));
+  });
+  renderSmsPerTextFields(clampSmsNumTexts(document.getElementById('smsNumTexts').value));
 });
 
 function switchMode(mode) {
@@ -541,6 +551,89 @@ function renderPerEmailFields(numEmails) {
       focusEl.value = prev[i].focus;
     } else {
       const t = defaultTimingForIndex(i, numEmails);
+      timingEl.value = t;
+      urgencyEl.value = defaultUrgencyForTiming(t);
+    }
+  }
+}
+
+function clampSmsNumTexts(val) {
+  return Math.max(1, Math.min(MAX_SMS_TEXTS, parseInt(val, 10) || 1));
+}
+
+function smsPerTextBlockHtml(i) {
+  return `
+    <div class="email-block" style="margin-bottom:14px; padding-top:12px;">
+      <div class="email-block-label">Text ${i + 1}</div>
+      <div class="form-grid">
+        <div class="field"><label>Send Timing</label>
+          <select id="smsTiming-${i}">
+            <option value="start">Start</option><option value="mid">Mid</option><option value="end">End</option>
+          </select>
+        </div>
+        <div class="field"><label>Urgency</label>
+          <select id="smsUrgency-${i}">
+            <option value="none">None — evergreen</option>
+            <option value="soft">Soft — "while they last"</option>
+            <option value="mid">Mid — sale ends soon</option>
+            <option value="high">High — last day / hours left</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Segment / Audience (optional)</label><input type="text" id="smsSegment-${i}" placeholder="defaults to campaign audience" /></div>
+      </div>
+      <div class="form-grid">
+        <div class="field span2"><label>Focus for this text (optional)</label><textarea id="smsFocus-${i}" placeholder="e.g. remind about free shipping cutoff"></textarea></div>
+      </div>
+    </div>`;
+}
+
+function readCurrentSmsPerTextValues() {
+  const out = [];
+  let i = 0, el;
+  while ((el = document.getElementById(`smsTiming-${i}`))) {
+    out.push({
+      timing: el.value,
+      urgency: document.getElementById(`smsUrgency-${i}`).value,
+      segment: document.getElementById(`smsSegment-${i}`).value,
+      focus: document.getElementById(`smsFocus-${i}`).value
+    });
+    i++;
+  }
+  return out;
+}
+
+function renderSmsPerTextFields(numTexts) {
+  const section = document.getElementById('smsPerTextSection');
+  const audienceLabel = document.getElementById('smsAudienceLabel');
+  const container = document.getElementById('smsPerTextContainer');
+
+  if (numTexts <= 1) {
+    section.style.display = 'none';
+    audienceLabel.textContent = 'Audience';
+    container.innerHTML = '';
+    return;
+  }
+
+  const prev = readCurrentSmsPerTextValues();
+  section.style.display = '';
+  audienceLabel.textContent = 'Default Audience';
+
+  container.innerHTML = Array.from({ length: numTexts }, (_, i) => smsPerTextBlockHtml(i)).join('');
+
+  for (let i = 0; i < numTexts; i++) {
+    const timingEl = document.getElementById(`smsTiming-${i}`);
+    const urgencyEl = document.getElementById(`smsUrgency-${i}`);
+    const segmentEl = document.getElementById(`smsSegment-${i}`);
+    const focusEl = document.getElementById(`smsFocus-${i}`);
+    if (prev[i]) {
+      timingEl.value = prev[i].timing;
+      urgencyEl.value = prev[i].urgency;
+      segmentEl.value = prev[i].segment;
+      focusEl.value = prev[i].focus;
+    } else {
+      const t = defaultTimingForIndex(i, numTexts);
       timingEl.value = t;
       urgencyEl.value = defaultUrgencyForTiming(t);
     }
@@ -957,23 +1050,17 @@ function showSmsError(msg) {
   document.getElementById('smsLoading').classList.remove('show');
 }
 
-function buildSaleSequenceGuidance(numTexts) {
-  if (numTexts === 1) return 'This is a single one-off text — return exactly one item in "texts".';
-  if (numTexts === 2) return `This is a 2-text sequence — the right shape for a sale running 2–4 days. Write an "Announcement" and a "Final Hours" message. The Final Hours message must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day."`;
-  if (numTexts === 3) return `This is a 3-text sequence — the right shape for a week-long sale. Write an "Announcement", a "Mid-sale Reminder", and a "Final Hours" message. The Mid-sale Reminder's job is to catch people who missed the first text and re-trigger urgency — don't just repeat the Announcement's wording. The Final Hours message must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day."`;
-  return `This is a ${numTexts}-part sale sequence. Lead with an "Announcement" and close with a "Final Hours" message anchored to the literal deadline; give any messages in between short, re-triggering reminder labels without repeating earlier wording.`;
+function buildSaleSequenceGuidance() {
+  return 'This is a single one-off text — return exactly one item in "texts".';
 }
 
-function buildEventSequenceGuidance(numTexts) {
-  if (numTexts === 1) return 'This is a single one-off text (a save-the-date or a day-of nudge, whichever fits the key message) — return exactly one item in "texts".';
-  if (numTexts === 2) return `This is a 2-text sequence — the lean, minimal-effective version for a single-day pop-up. Write a "Teaser" (save-the-date framing) and a "Day-of" message (directions/location-focused, since the location is usually the unfamiliar variable, not whether to attend).`;
-  if (numTexts === 3) return `This is a 3-text sequence — the fuller version, better when the location is unfamiliar or hard to find. Write a "Teaser" (save-the-date, ~5-7 days out framing), a "Reminder" (~24-48 hours out — its job is to restate WHERE, since "wait, where is this again?" is the main drop-off point), and a "Day-of" message (directions/location-focused).`;
-  return `This is a ${numTexts}-part event sequence. Lead with a "Teaser" and close with a "Day-of" directions-focused message; give any messages in between short, logistics-reinforcing reminder labels (restating where/when) without repeating earlier wording.`;
+function buildEventSequenceGuidance() {
+  return 'This is a single one-off text (a save-the-date or a day-of nudge, whichever fits the key message) — return exactly one item in "texts".';
 }
 
 async function generateSms() {
   const campaign   = document.getElementById('smsCampaign').value.trim();
-  const numTexts   = Math.max(1, parseInt(document.getElementById('smsNumTexts').value, 10) || 1);
+  const numTexts   = clampSmsNumTexts(document.getElementById('smsNumTexts').value);
   const keyMessage = document.getElementById('smsKeyMessage').value.trim();
   const audience   = document.getElementById('smsAudience').value.trim();
   const link       = document.getElementById('smsLink').value.trim();
@@ -987,7 +1074,43 @@ async function generateSms() {
 
   const isSale = selectedReason !== 'event';
   const reasonLabel = isSale ? 'Sale' : 'Local event';
-  const sequenceGuidance = isSale ? buildSaleSequenceGuidance(numTexts) : buildEventSequenceGuidance(numTexts);
+
+  let perTexts = null, multiSection, userTail;
+
+  if (numTexts > 1) {
+    const timingRole = isSale
+      ? {
+          start: 'Announcement — introduce the sale fresh',
+          mid: "Reminder — re-trigger people who haven't acted yet, don't just repeat the Announcement's wording",
+          end: 'Final Hours — must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day"'
+        }
+      : {
+          start: 'Teaser — save-the-date framing',
+          mid: 'Reminder — restate WHERE, since "wait, where is this again?" is the main drop-off point',
+          end: 'Day-of — directions/logistics-focused'
+        };
+    perTexts = [];
+    for (let i = 0; i < numTexts; i++) {
+      const timing  = document.getElementById(`smsTiming-${i}`).value;
+      const urg     = document.getElementById(`smsUrgency-${i}`).value;
+      const segment = document.getElementById(`smsSegment-${i}`).value.trim();
+      const focus   = document.getElementById(`smsFocus-${i}`).value.trim();
+      perTexts.push({ timing, urgency: urg, audience: segment || audience || 'all subscribers', focus });
+    }
+    const perTextGuidance = perTexts.map((t, i) =>
+      `Text ${i+1}: Timing=${TIMING_LABELS[t.timing]} (role: ${timingRole[t.timing]}), Urgency=${t.urgency}, Audience="${t.audience}"${t.focus ? `, Focus="${t.focus}"` : ''}`
+    ).join('\n');
+    const roleNames = isSale ? '"Announcement", "Reminder", "Final Hours"' : '"Teaser", "Reminder", "Day-of"';
+    multiSection = `This campaign sends ${numTexts} texts in sequence, each with an explicit brief below — use it, don't invent your own roles:
+${perTextGuidance}
+
+For each text: let its Timing set its role per the roles above and let its own Urgency value set how much deadline/proximity pressure to use (no countdown language for none/soft). Narrow the message toward the given Audience when it differs from the default. When a Focus is given, make it that text's specific angle. Vary phrasing across every text — no repeated CTA phrasing — and where the arc supports it, let an earlier text set up a later one's urgency. Give each "label" a short name reflecting its timing role (e.g. ${roleNames}).`;
+    userTail = `Per-text details:\n${perTexts.map((t,i) => `Text ${i+1} — Timing: ${TIMING_LABELS[t.timing]} | Urgency: ${t.urgency} | Audience: ${t.audience}${t.focus ? ' | Focus: ' + t.focus : ''}`).join('\n')}`;
+  } else {
+    multiSection = isSale ? buildSaleSequenceGuidance() : buildEventSequenceGuidance();
+    userTail = `Audience: ${audience || 'all subscribers'}`;
+  }
+
   const messageStructure = isSale
     ? `Lead with the discount amount itself in the first couple words (not a teaser) — people decide in a couple words whether a text is worth reading. Ideal order: discount/offer → what it applies to → urgency/deadline → one clear call to action.`
     : `Lead with what's happening / where (not a discount) in the first couple words. Ideal order: what/where → when → one clear call to action (join us / get directions). If the key message mentions a discount or incentive, lead with that specifically in the Reminder or Day-of message instead of the Teaser — that's closer-to-the-wire urgency working the same way it does for a sale.`;
@@ -1008,7 +1131,7 @@ BRAND RULES:
 - Never use the literal words "guilt" or "shame."
 - One idea per text. No filler ("just," "simply," "don't miss out" clichés). Keep each message short and self-contained — don't re-explain the whole ${isSale ? 'sale' : 'event'} each time; that's what email is for.
 
-${sequenceGuidance}
+${multiSection}
 
 RETURN only valid JSON, no markdown or backticks:
 {
@@ -1019,11 +1142,11 @@ RETURN only valid JSON, no markdown or backticks:
 }
 Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "message" must be ${SMS_CHAR_LIMIT} characters or fewer.`;
 
-  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nAudience: ${audience || 'all subscribers'}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}`;
+  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nLink (context only, not part of the character count): ${link || 'none'}\nNumber of texts: ${numTexts}\n${userTail}`;
 
   try {
     const data = await callClaude(system, user);
-    generatedSmsData = { texts: data.texts, insight: data.insight };
+    generatedSmsData = { texts: data.texts, insight: data.insight, perTexts };
     renderSmsResults(generatedSmsData);
   } catch (err) {
     showSmsError(`Error: ${err.message}`);
@@ -1035,14 +1158,17 @@ Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "mess
 
 function renderSmsResults(data) {
   const texts = data.texts;
+  const perTexts = data.perTexts;
   const body = document.getElementById('smsResultsBody');
   const multi = texts.length > 1;
   let html = texts.map((t, i) => {
     const len = t.message.length;
     const over = len > SMS_CHAR_LIMIT;
+    const pt = perTexts && perTexts[i];
+    const meta = pt ? ` (${TIMING_LABELS[pt.timing]} · ${URGENCY_LABELS[pt.urgency]} urgency)` : '';
     return `
     <div class="email-block">
-      ${multi ? `<div class="email-block-label">Text ${i+1} of ${texts.length}${t.label ? ' — ' + escapeHtml(t.label) : ''}</div>` : ''}
+      ${multi ? `<div class="email-block-label">Text ${i+1} of ${texts.length}${t.label ? ' — ' + escapeHtml(t.label) : ''}${meta}</div>` : ''}
       <div class="sms-bubble">${escapeHtml(t.message)}</div>
       <div class="sms-charcount${over ? ' over' : ''}">${len} / ${SMS_CHAR_LIMIT} characters${over ? ' — over limit' : ''}</div>
       <div class="copy-row">
@@ -1085,7 +1211,12 @@ function copySmsMessage(i) {
 
 function copySmsSequence() {
   if (!generatedSmsData) return;
-  const text = generatedSmsData.texts.map((t, i) => `TEXT ${i+1}${t.label ? ' — ' + t.label : ''}:\n${t.message}`).join('\n\n────────\n\n');
+  const perTexts = generatedSmsData.perTexts;
+  const text = generatedSmsData.texts.map((t, i) => {
+    const pt = perTexts && perTexts[i];
+    const meta = pt ? ` (${TIMING_LABELS[pt.timing]} · ${URGENCY_LABELS[pt.urgency]} urgency)` : '';
+    return `TEXT ${i+1}${t.label ? ' — ' + t.label : ''}${meta}:\n${t.message}`;
+  }).join('\n\n────────\n\n');
   copyToClipboard(text, 'copySmsSequenceBtn');
 }
 
