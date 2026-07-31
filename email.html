@@ -900,8 +900,14 @@ async function callClaude(system, user, opts = {}) {
     throw new Error(`API ${res.status}: ${errBody?.error?.message || res.statusText}`);
   }
   const data = await res.json();
+  if (data.stop_reason === 'refusal') {
+    throw new Error('Claude declined this request (safety refusal). Try rewording the Key Message / Focus fields and regenerate.');
+  }
   const raw = data.content.map(b => b.text || '').join('');
   if (opts.raw) return raw.trim();
+  if (!raw.trim()) {
+    throw new Error(`Empty response from API (stop_reason: ${data.stop_reason || 'unknown'}). Try regenerating.`);
+  }
   return JSON.parse(raw.trim());
 }
 
