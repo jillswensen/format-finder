@@ -885,7 +885,7 @@ function endGenerating() {
 }
 
 async function callClaude(system, user, opts = {}) {
-  const body = { model: 'claude-sonnet-5', max_tokens: opts.maxTokens || 1600, system, messages: [{ role: 'user', content: user }] };
+  const body = { model: 'claude-sonnet-5', max_tokens: opts.maxTokens || 1600, system, messages: [{ role: 'user', content: user }], thinking: { type: 'disabled' } };
   if (opts.schema) body.output_config = { format: { type: 'json_schema', schema: opts.schema } };
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
