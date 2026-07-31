@@ -134,6 +134,15 @@
   .insight { background: var(--slate-light); border-left: 3px solid var(--slate); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 0.78rem; color: var(--slate-dark); line-height: 1.5; }
   .insight strong { font-weight: 600; }
 
+  /* ── Saved list ── */
+  .saved-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1.5px solid var(--slate-light); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; flex-wrap: wrap; }
+  .saved-row-main { flex: 1; min-width: 180px; }
+  .saved-row-name { font-size: 0.92rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+  .saved-row-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .saved-kind-badge { font-size: 0.62rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: var(--slate-light); color: var(--slate-dark); }
+  .saved-row-date { font-size: 0.72rem; color: var(--mid); }
+  .saved-row-actions { display: flex; gap: 7px; flex-shrink: 0; }
+
   /* ── Color Palette ── */
   .palette-upload-zone { border: 2px dashed #dde6ec; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; }
   .palette-upload-zone:hover { border-color: var(--slate); background: #f0f6f9; }
@@ -193,6 +202,7 @@
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="generate" onclick="switchTab('generate')">✦ Generate</button>
   <button class="tab-btn" data-tab="sms" onclick="switchTab('sms')">💬 Text Message</button>
+  <button class="tab-btn" data-tab="saved" onclick="switchTab('saved')">📁 Saved</button>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -323,7 +333,10 @@
   <div class="results" id="results">
     <div class="results-header">
       <h2>Generated Copy</h2>
-      <button class="regen-btn" onclick="generate()">↺ Regenerate</button>
+      <div style="display:flex;gap:8px;">
+        <button class="regen-btn" id="saveCampaignBtn" onclick="saveCurrentCampaign()" style="display:none;">💾 Save</button>
+        <button class="regen-btn" onclick="generate()">↺ Regenerate</button>
+      </div>
     </div>
     <div id="resultsBody"></div>
   </div>
@@ -371,7 +384,10 @@
   <div class="results" id="smsResults">
     <div class="results-header">
       <h2>Generated Text Copy</h2>
-      <button class="regen-btn" onclick="generateSms()">↺ Regenerate</button>
+      <div style="display:flex;gap:8px;">
+        <button class="regen-btn" onclick="saveCurrentCampaign()">💾 Save</button>
+        <button class="regen-btn" onclick="generateSms()">↺ Regenerate</button>
+      </div>
     </div>
     <div id="smsResultsBody"></div>
   </div>
@@ -379,6 +395,19 @@
 </div>
 </div><!-- /tab-sms -->
 
+<!-- ══════════════════════════════════════
+     TAB 3 — SAVED
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-saved">
+<div class="container">
+  <div class="card">
+    <div class="card-title">Saved Campaigns</div>
+    <p class="palette-note" style="margin-top:-6px;">Saved to this browser only — not synced across devices.</p>
+    <div id="savedListBody"></div>
+    <p id="savedEmptyState" style="display:none;font-size:0.85rem;color:var(--mid);text-align:center;padding:20px 0;">Nothing saved yet. Generate a Campaign or Text Message sequence, then hit Save.</p>
+  </div>
+</div>
+</div><!-- /tab-saved -->
 
 <script>
 // ══ TABS ════════════════════════════════════════
@@ -387,6 +416,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+  if (name === 'saved') renderSavedList();
 }
 
 // ══ GENERATE TAB ════════════════════════════════
@@ -397,11 +427,207 @@ let campaignSubjectIdx = [];
 let nlSubjectIdx = 0;
 let generatedData = null;
 let generatedSmsData = null;
+let currentSavedCampaignId = null;
 
 const TIMING_LABELS = { start: 'Start', mid: 'Mid', end: 'End' };
 const URGENCY_LABELS = { none: 'None', soft: 'Soft', mid: 'Mid', high: 'High' };
 const MAX_CAMPAIGN_EMAILS = 6;
 const MAX_SMS_TEXTS = 4;
+
+// ══ SAVED CAMPAIGNS ═══════════════════════════════
+const SAVED_CAMPAIGNS_KEY = 'ff_saved_campaigns';
+
+function getSavedCampaigns() {
+  try { return JSON.parse(localStorage.getItem(SAVED_CAMPAIGNS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function collectCampaignInputs() {
+  return {
+    selectedType,
+    campaignName: document.getElementById('campaignName').value,
+    campaignDates: document.getElementById('campaignDates').value,
+    goalPurpose: document.getElementById('goalPurpose').value,
+    keyMessage: document.getElementById('keyMessage').value,
+    offerDetail: document.getElementById('offerDetail').value,
+    numEmails: document.getElementById('numEmails').value,
+    audience: document.getElementById('audience').value,
+    urgency: document.getElementById('urgency').value,
+    tone: document.getElementById('tone').value,
+    perEmailValues: readCurrentPerEmailValues()
+  };
+}
+
+function collectSmsInputs() {
+  return {
+    selectedReason,
+    smsCampaign: document.getElementById('smsCampaign').value,
+    smsKeyMessage: document.getElementById('smsKeyMessage').value,
+    smsAudience: document.getElementById('smsAudience').value,
+    smsLink: document.getElementById('smsLink').value,
+    numTexts: document.getElementById('smsNumTexts').value,
+    perTextValues: readCurrentSmsPerTextValues()
+  };
+}
+
+function saveCurrentCampaign() {
+  const smsActive = document.getElementById('tab-sms').classList.contains('active');
+  if (smsActive) {
+    if (!generatedSmsData) return;
+    saveCampaignEntry('sms');
+  } else {
+    if (currentMode !== 'campaign' || !generatedData || generatedData.mode !== 'campaign') return;
+    saveCampaignEntry('campaign');
+  }
+}
+
+function saveCampaignEntry(kind) {
+  const defaultName = kind === 'campaign'
+    ? (document.getElementById('campaignName').value.trim() || 'Untitled Campaign')
+    : (document.getElementById('smsCampaign').value.trim() || 'Untitled Text Sequence');
+
+  let updating = false;
+  if (currentSavedCampaignId) {
+    updating = confirm(`Update the saved campaign "${defaultName}"? Cancel to save as a new entry instead.`);
+  }
+
+  const name = prompt('Name this campaign:', defaultName);
+  if (name === null) return;
+  const finalName = name.trim() || defaultName;
+
+  const inputs = kind === 'campaign' ? collectCampaignInputs() : collectSmsInputs();
+  const generated = kind === 'campaign'
+    ? { generatedData, campaignSubjectIdx }
+    : { generatedSmsData };
+
+  const now = new Date().toISOString();
+  const list = getSavedCampaigns();
+
+  if (updating) {
+    const idx = list.findIndex(e => e.id === currentSavedCampaignId);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], name: finalName, updatedAt: now, inputs, generated };
+      setSavedCampaigns(list);
+      alert('Updated.');
+      return;
+    }
+  }
+
+  const id = (kind === 'campaign' ? 'camp_' : 'sms_') + Date.now();
+  list.push({ id, kind, name: finalName, savedAt: now, updatedAt: now, inputs, generated });
+  setSavedCampaigns(list);
+  currentSavedCampaignId = id;
+  alert('Saved.');
+}
+
+function renderSavedList() {
+  const list = getSavedCampaigns().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  const body = document.getElementById('savedListBody');
+  const empty = document.getElementById('savedEmptyState');
+  if (!list.length) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = list.map(entry => {
+    const kindLabel = entry.kind === 'campaign' ? 'Campaign' : 'Text Message';
+    const count = entry.kind === 'campaign'
+      ? (entry.generated.generatedData.emails || []).length
+      : (entry.generated.generatedSmsData.texts || []).length;
+    const dateStr = new Date(entry.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    return `
+      <div class="saved-row">
+        <div class="saved-row-main">
+          <div class="saved-row-name">${escapeHtml(entry.name)}</div>
+          <div class="saved-row-meta">
+            <span class="saved-kind-badge">${kindLabel}</span>
+            <span class="saved-row-date">${count} item${count === 1 ? '' : 's'} · updated ${dateStr}</span>
+          </div>
+        </div>
+        <div class="saved-row-actions">
+          <button class="copy-btn" onclick="loadSavedCampaign('${entry.id}')">Load</button>
+          <button class="copy-btn" onclick="deleteSavedCampaign('${entry.id}')">Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function deleteSavedCampaign(id) {
+  const list = getSavedCampaigns();
+  const entry = list.find(e => e.id === id);
+  if (!entry) return;
+  if (!confirm(`Delete "${entry.name}"? This can't be undone.`)) return;
+  setSavedCampaigns(list.filter(e => e.id !== id));
+  if (currentSavedCampaignId === id) currentSavedCampaignId = null;
+  renderSavedList();
+}
+
+function loadSavedCampaign(id) {
+  const entry = getSavedCampaigns().find(e => e.id === id);
+  if (!entry) return;
+  currentSavedCampaignId = id;
+
+  if (entry.kind === 'campaign') {
+    const inp = entry.inputs;
+    switchTab('generate');
+    switchMode('campaign');
+    selectedType = inp.selectedType || 'flash-sale';
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === selectedType));
+    document.getElementById('campaignName').value = inp.campaignName || '';
+    document.getElementById('campaignDates').value = inp.campaignDates || '';
+    document.getElementById('goalPurpose').value = inp.goalPurpose || '';
+    document.getElementById('keyMessage').value = inp.keyMessage || '';
+    document.getElementById('offerDetail').value = inp.offerDetail || '';
+    document.getElementById('numEmails').value = inp.numEmails || '1';
+    document.getElementById('audience').value = inp.audience || '';
+    document.getElementById('urgency').value = inp.urgency || 'none';
+    document.getElementById('tone').value = inp.tone || 'warm-cheeky';
+
+    const n = clampNumEmails(inp.numEmails);
+    renderPerEmailFields(n);
+    (inp.perEmailValues || []).forEach((v, i) => {
+      const t = document.getElementById(`peTiming-${i}`);
+      if (!t) return;
+      t.value = v.timing;
+      document.getElementById(`peUrgency-${i}`).value = v.urgency;
+      document.getElementById(`peSegment-${i}`).value = v.segment;
+      document.getElementById(`peFocus-${i}`).value = v.focus;
+    });
+
+    generatedData = entry.generated.generatedData;
+    campaignSubjectIdx = entry.generated.campaignSubjectIdx || generatedData.emails.map(() => 0);
+    renderCampaignResults(generatedData.emails, generatedData.perEmails);
+  } else {
+    const inp = entry.inputs;
+    switchTab('sms');
+    selectedReason = inp.selectedReason || 'sale';
+    document.querySelectorAll('.reason-btn').forEach(b => b.classList.toggle('active', b.dataset.reason === selectedReason));
+    document.getElementById('smsCampaign').value = inp.smsCampaign || '';
+    document.getElementById('smsKeyMessage').value = inp.smsKeyMessage || '';
+    document.getElementById('smsAudience').value = inp.smsAudience || '';
+    document.getElementById('smsLink').value = inp.smsLink || '';
+    document.getElementById('smsNumTexts').value = inp.numTexts || '1';
+
+    const n = clampSmsNumTexts(inp.numTexts);
+    renderSmsPerTextFields(n);
+    (inp.perTextValues || []).forEach((v, i) => {
+      const t = document.getElementById(`smsTiming-${i}`);
+      if (!t) return;
+      t.value = v.timing;
+      document.getElementById(`smsUrgency-${i}`).value = v.urgency;
+      document.getElementById(`smsSegment-${i}`).value = v.segment;
+      document.getElementById(`smsFocus-${i}`).value = v.focus;
+    });
+
+    generatedSmsData = entry.generated.generatedSmsData;
+    renderSmsResults(generatedSmsData);
+  }
+}
+
+function setSavedCampaigns(list) {
+  localStorage.setItem(SAVED_CAMPAIGNS_KEY, JSON.stringify(list));
+}
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -861,6 +1087,74 @@ Return exactly ${numEmails} item${numEmails > 1 ? 's' : ''} in "emails". Style m
   }
 }
 
+async function regenerateCampaignEmail(i) {
+  if (!generatedData || generatedData.mode !== 'campaign') return;
+  const emails = generatedData.emails;
+  if (!emails || !emails[i]) return;
+
+  const btn = document.getElementById(`regenEmailBtn-${i}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Regenerating…'; }
+
+  const campaignName  = document.getElementById('campaignName').value.trim();
+  const campaignDates = document.getElementById('campaignDates').value.trim();
+  const goalPurpose   = document.getElementById('goalPurpose').value.trim();
+  const offerDetail   = document.getElementById('offerDetail').value.trim();
+  const keyMessage    = document.getElementById('keyMessage').value.trim();
+  const audience      = document.getElementById('audience').value.trim();
+  const tone          = document.getElementById('tone').value;
+  const numEmails     = emails.length;
+
+  const timingRole = {
+    start: 'announce — introduce the news/offer fresh. On a longer sequence this may be a pre-launch teaser rather than the launch itself.',
+    mid: "re-trigger for people who haven't acted yet — don't just repeat the announcement; spotlight a different product/collection/angle than the other emails in this sequence.",
+    end: 'final urgency — closing push. The hook/subject line should carry an explicit deadline (e.g. "ends tonight"), not a vague "last day."'
+  };
+
+  const timing  = document.getElementById(`peTiming-${i}`).value;
+  const urg     = document.getElementById(`peUrgency-${i}`).value;
+  const segment = document.getElementById(`peSegment-${i}`).value.trim();
+  const focus   = document.getElementById(`peFocus-${i}`).value.trim();
+  const emailAudience = segment || audience || 'all subscribers';
+
+  const otherEmails = emails.map((e, j) => j === i ? null : e).filter(Boolean);
+  const otherContext = otherEmails.length
+    ? `\n\nThe other emails in this sequence are already finalized — do not repeat their CTA phrasing, hook structure, or specific angle. This new email must feel distinct from all of them:\n${otherEmails.map(e => `- "${e.label || 'Email'}": Subject "${e.subjects[0]?.text || ''}", Hook "${e.hook}", Body "${e.body}"`).join('\n')}`
+    : '';
+
+  const system = `You write email copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator (email capture → personalized size + product recommendations). 180+ sizes.
+
+CONTEXT: Emails are image-heavy, designed in Canva. Template header, footer, and CTA blocks (Book a Fitting, Shop, Bra Size Calculator, SMS signup) are FIXED. You only write text sections: subject line, opening hook, and 2–3 sentence body.
+
+BRAND RULES:
+- Zero guilt. Zero body shame. Zero emotional manipulation.
+- Subject line = hook 1. First body sentence = hook 2. Different angles — not the same idea reworded.
+- Body: 2–3 short sentences MAX. Scannable. No filler.
+- Voice: warm, slightly cheeky, like a knowledgeable friend.
+- CTA button text: short, action-forward. One for fitting, one for calculator.
+- No sign-off — "xoxo, Court" is already in the template.
+- Anchor the body copy to the user's Key Message and Goal/Purpose — they are the core idea. Offer and Campaign details support it, they don't replace it.
+- Never use the literal words "guilt," "shame," or phrases like "no guessing/no guilt" as reassurance language.
+- Match urgency language to the Urgency field. If Urgency is "none/evergreen," do not imply a countdown, deadline, or expiring window.
+- Avoid forced personification of abstract concepts or things that aren't actors.
+
+You are regenerating ONE email (Email ${i+1} of ${numEmails}) in an existing campaign sequence — write only this one email, not the whole sequence. Timing=${TIMING_LABELS[timing]} (role: ${timingRole[timing]}), Urgency=${urg}, Audience="${emailAudience}"${focus ? `, Focus="${focus}"` : ''}.${otherContext}
+
+RETURN only this one email as JSON matching the schema. Style must be exactly one of: bold, curious, direct, urgency`;
+
+  const user = `Campaign name: ${campaignName || '(not specified)'}\nCampaign date(s): ${campaignDates || 'not specified'}\nGoal/Purpose: ${goalPurpose || 'not specified'}\nOffer: ${offerDetail || 'none'}\nKey message: ${keyMessage || '(not specified)'}\nTone: ${tone}\nThis email — Timing: ${TIMING_LABELS[timing]} | Urgency: ${urg} | Audience: ${emailAudience}${focus ? ' | Focus: ' + focus : ''}`;
+
+  try {
+    const result = await callClaude(system, user, { schema: CAMPAIGN_EMAIL_SCHEMA.properties.emails.items, maxTokens: 1200 });
+    generatedData.emails[i] = result;
+    campaignSubjectIdx[i] = 0;
+    renderCampaignResults(generatedData.emails, generatedData.perEmails);
+  } catch (err) {
+    showError(`Error: ${err.message}`);
+    console.error(err);
+    if (btn) { btn.disabled = false; btn.textContent = '↺ Regenerate this email'; }
+  }
+}
+
 async function generateNewsletter() {
   const month            = document.getElementById('nlMonth').value.trim();
   const keyMessages      = document.getElementById('nlKeyMessages').value.trim();
@@ -971,16 +1265,19 @@ function renderCampaignResults(emails, perEmails) {
         <button class="copy-btn" id="copyBodyBtn-${i}" onclick="copyCampaignBody(${i})">Copy body text</button>
         <button class="copy-btn" id="copySubjBtn-${i}" onclick="copyCampaignSubject(${i})">Copy selected subject</button>
         <button class="copy-btn" id="copyAllBtn-${i}" onclick="copyCampaignAll(${i})">Copy all</button>
+        ${multi ? `<button class="copy-btn" id="regenEmailBtn-${i}" onclick="regenerateCampaignEmail(${i})">↺ Regenerate this email</button>` : ''}
       </div>
       <div class="insight"><strong>✦ Performance note:</strong> ${escapeHtml(d.insight)}</div>
     </div>`;
   }).join('') + (multi ? `<button class="copy-btn" id="copySequenceBtn" onclick="copyCampaignSequence()" style="width:100%;">Copy entire sequence</button>` : '');
 
   document.getElementById('results').classList.add('show');
+  document.getElementById('saveCampaignBtn').style.display = '';
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderNewsletterResults(d) {
+  document.getElementById('saveCampaignBtn').style.display = 'none';
   const body = document.getElementById('resultsBody');
   let html = `
     <div class="section-label" style="margin-bottom:9px;">Subject lines — pick one</div>
@@ -1240,6 +1537,82 @@ Return exactly ${numTexts} item${numTexts > 1 ? 's' : ''} in "texts". Each "mess
   }
 }
 
+async function regenerateSmsText(i) {
+  if (!generatedSmsData) return;
+  const texts = generatedSmsData.texts;
+  if (!texts || !texts[i]) return;
+
+  const btn = document.getElementById(`regenSmsBtn-${i}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Regenerating…'; }
+
+  const campaign   = document.getElementById('smsCampaign').value.trim();
+  const keyMessage = document.getElementById('smsKeyMessage').value.trim();
+  const audience   = document.getElementById('smsAudience').value.trim();
+  const link       = document.getElementById('smsLink').value.trim();
+  const isSale     = selectedReason !== 'event';
+  const reasonLabel = isSale ? 'Sale' : 'Local event';
+  const numTexts   = texts.length;
+
+  const timingRole = isSale
+    ? {
+        start: 'Announcement — introduce the sale fresh',
+        mid: "Reminder — re-trigger people who haven't acted yet, don't just repeat the Announcement's wording",
+        end: 'Final Hours — must anchor to the literal deadline (e.g. "ends tonight at 9pm"), never a vague "last day"'
+      }
+    : {
+        start: 'Teaser — save-the-date framing',
+        mid: 'Reminder — restate WHERE, since "wait, where is this again?" is the main drop-off point',
+        end: 'Day-of — directions/logistics-focused'
+      };
+
+  const timing  = document.getElementById(`smsTiming-${i}`).value;
+  const urg     = document.getElementById(`smsUrgency-${i}`).value;
+  const segment = document.getElementById(`smsSegment-${i}`).value.trim();
+  const focus   = document.getElementById(`smsFocus-${i}`).value.trim();
+  const textAudience = segment || audience || 'all subscribers';
+
+  const messageStructure = isSale
+    ? `Lead with the discount amount itself in the first couple words (not a teaser) — people decide in a couple words whether a text is worth reading. Ideal order: discount/offer → what it applies to → urgency/deadline → one clear call to action.`
+    : `Lead with what's happening / where (not a discount) in the first couple words. Ideal order: what/where → when → one clear call to action (join us / get directions).`;
+
+  const otherTexts = texts.map((t, j) => j === i ? null : t).filter(Boolean);
+  const otherContext = otherTexts.length
+    ? `\n\nThe other texts in this sequence are already finalized — do not repeat their phrasing or CTA. This new text must feel distinct from all of them:\n${otherTexts.map(t => `- "${t.label || 'Text'}": "${t.message}"`).join('\n')}`
+    : '';
+
+  const system = `You write SMS/text message copy for Bra Fittings by Court — a women-owned bra fitting boutique in Kaysville, Utah. Professional fittings by appointment. Online shop at brafittingsbycourt.com with a free bra size calculator.
+
+CONTEXT: These are short promotional texts, sent ONLY for a sale or a segmented local event — never a routine newsletter. The shop name and a link are added automatically by the SMS platform outside of what you write. Do NOT include a shop name, sign-off, or URL in your message — write only the message itself.
+
+HARD CONSTRAINT: Each message must be ${SMS_CHAR_LIMIT} characters or fewer, counted exactly (spaces and punctuation included). Go shorter rather than risk going over.
+
+MESSAGE STRUCTURE: ${messageStructure} Keep value/logistics + urgency + CTA present even inside ${SMS_CHAR_LIMIT} characters.
+
+BRAND RULES:
+- Zero guilt. Zero body shame. Zero emotional manipulation.
+- Voice: warm, slightly cheeky, like a text from a friend — not a corporate blast.
+- No fitter/talent names.
+- No local/geographic hashtags or references unless the content is explicitly about the Kaysville location.
+- Never use the literal words "guilt" or "shame."
+- One idea per text. No filler ("just," "simply," "don't miss out" clichés).
+
+You are regenerating ONE text (Text ${i+1} of ${numTexts}) in an existing sequence — write only this one text, not the whole sequence. Timing=${TIMING_LABELS[timing]} (role: ${timingRole[timing]}), Urgency=${urg}, Audience="${textAudience}"${focus ? `, Focus="${focus}"` : ''}.${otherContext}
+
+RETURN only this one text as JSON matching the schema. Each "message" must be ${SMS_CHAR_LIMIT} characters or fewer.`;
+
+  const user = `Reason: ${reasonLabel}\nCampaign: ${campaign || 'not specified'}\nKey message: ${keyMessage}\nLink (context only, not part of the character count): ${link || 'none'}\nThis text — Timing: ${TIMING_LABELS[timing]} | Urgency: ${urg} | Audience: ${textAudience}${focus ? ' | Focus: ' + focus : ''}`;
+
+  try {
+    const result = await callClaude(system, user, { schema: SMS_TEXT_SCHEMA.properties.texts.items, maxTokens: 400 });
+    generatedSmsData.texts[i] = result;
+    renderSmsResults(generatedSmsData);
+  } catch (err) {
+    showSmsError(`Error: ${err.message}`);
+    console.error(err);
+    if (btn) { btn.disabled = false; btn.textContent = '↺ Regenerate this text'; }
+  }
+}
+
 function renderSmsResults(data) {
   const texts = data.texts;
   const perTexts = data.perTexts;
@@ -1258,6 +1631,7 @@ function renderSmsResults(data) {
       <div class="copy-row">
         <button class="copy-btn" id="copySmsBtn-${i}" onclick="copySmsMessage(${i})">Copy message</button>
         ${over ? `<button class="shorten-btn" id="shortenBtn-${i}" onclick="shortenSmsText(${i})">Shorten to fit →</button>` : ''}
+        ${multi ? `<button class="copy-btn" id="regenSmsBtn-${i}" onclick="regenerateSmsText(${i})">↺ Regenerate this text</button>` : ''}
       </div>
     </div>`;
   }).join('') + (multi ? `<button class="copy-btn" id="copySmsSequenceBtn" onclick="copySmsSequence()" style="width:100%;">Copy entire sequence</button>` : '');
